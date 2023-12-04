@@ -1,0 +1,21 @@
+runApp(const SignUpApp());
+static void init() {
+    BaseOptions baseOptions = BaseOptions(
+        baseUrl: "https://newsapi.org/v2/top-headlines");
+    _dio = Dio(baseOptions);
+  }
+
+
+  static Future<Response<dynamic>> get({
+    required String category,
+    required String currentCountry,
+  }) {
+    return _dio.get(
+      "",
+      queryParameters: {
+        "country": currentCountry,
+        "category": category,
+        "apiKey": "b0bf7c0e382f4a27b7df219617565a0f",
+      },
+    );
+  }

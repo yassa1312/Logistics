@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "477280713822",
+    "project_id": "instant-50bda",
+    "storage_bucket": "instant-50bda.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:477280713822:android:ccf5c1ab9b7b21c14788cf",
+        "android_client_info": {
+          "package_name": "com.example.login_screen"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvwEQxP9l_drBhvEwLlkcgR0zPGpGcQOM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
