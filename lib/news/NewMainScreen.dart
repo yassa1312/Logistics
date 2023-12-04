@@ -122,7 +122,6 @@ class _NewMainScreenState extends State<NewMainScreen> {
           itemCount: articles.length,
           itemBuilder: (context, index) {
             Article article = articles[index];
-
             return GestureDetector(
               onTap: () {
                 Navigator.push(

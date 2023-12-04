@@ -1,22 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:login_screen/note1/LoginScreen.dart';
-
-
+import 'package:login_screen/task26/LoginScreen.dart';
 
 
 class ResetPassword extends StatelessWidget {
   const ResetPassword({Key? key}) : super(key: key);
-
-  Future<void> sendPasswordResetEmail(BuildContext context, String email) async {
-    try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-
-      _showPasswordResetDialog(context, email);
-    } catch (e) {
-      print('Error sending password reset email: $e');
-    }
-  }
 
   void _showPasswordResetDialog(BuildContext context, String email) {
     showDialog(
@@ -26,8 +13,8 @@ class ResetPassword extends StatelessWidget {
           title: const Text('Password Reset Email Sent'),
           content: Text(
             'An email with instructions to reset your password has been sent to $email.'
-            ' Please check your email inbox and follow the instructions '
-            'to reset your password.',
+                ' Please check your email inbox and follow the instructions '
+                'to reset your password.',
           ),
           actions: <Widget>[
             ElevatedButton(
@@ -93,12 +80,13 @@ class ResetPassword extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () {
                           String email = emailController.text;
-                          sendPasswordResetEmail(context, email);
+                          _showPasswordResetDialog(context, email);
                         },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
-                          ), backgroundColor: Colors.blue,
+                          ),
+                          backgroundColor: Colors.blue,
                         ),
                         child: const Text(
                           "Change Password",

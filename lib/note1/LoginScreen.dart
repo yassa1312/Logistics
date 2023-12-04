@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:login_screen/note1/ResetPassword.dart';
 import 'package:login_screen/note1/RegisterScreen.dart';
+import 'package:login_screen/note1/ResetPassword.dart';
 import 'package:login_screen/note1/shared.dart';
 import 'homeScreen/HomeScreen.dart';
 
@@ -130,10 +130,6 @@ class LoginScreenState extends State<LoginScreen> {
                padding:const EdgeInsets.all(20),
                     decoration: const BoxDecoration(
                       color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(50.0),
-                    topRight:Radius.circular(50.0), // Adjust the radius value as needed
-                    ),
                    ),
                     child: Form(
                     key: formKey,

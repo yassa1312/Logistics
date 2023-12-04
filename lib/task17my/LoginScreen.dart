@@ -2,9 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:login_screen/task17my/ForgetPassword.dart';
-import 'package:login_screen/task17my/OtpScreen.dart';
-import 'package:login_screen/task17my/ResetScreen.dart';
 import 'package:login_screen/task17my/RegisterScreen.dart';
 import 'HomeScreen.dart';
 
@@ -117,165 +114,140 @@ class LoginScreenState extends State<LoginScreen> {
       ),
       body: Container(
         color: Colors.black,
-        child:Column(
+        child: Column(
           children: [
             const Padding(
               padding: EdgeInsets.all(16),
-              child: Icon(Icons.login,
+              child: Icon(
+                Icons.login,
                 size: 55,
                 color: Colors.white,
               ),
             ),
-           Expanded(
-             child: Container(
-               padding:EdgeInsets.all(20),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                    borderRadius: BorderRadius.only(
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(50.0),
-                    topRight:Radius.circular(50.0), // Adjust the radius value as needed
-                    ),
-                   ),
-                    child: Form(
-                    key: formKey,
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 60),
-                        TextFormField(
-                          controller: emailController,
-                          textInputAction: TextInputAction.next,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            labelText: 'Email',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.email),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Email required";
-                            }
-                            if (!value.contains("@")||!value.contains(".")) {
-                              return "Invalid email!";
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 10),
-                        TextFormField(
-                          controller: passwordController,
-                          textInputAction: TextInputAction.done,
-                          obscureText: _obscureText,
-                          decoration: InputDecoration(
-                            labelText: 'Password',
-                            border: const OutlineInputBorder(),
-                            prefixIcon: const Icon(Icons.lock),
-                            suffixIcon: GestureDetector(
-                              onTap: togglePasswordVisibility,
-                              child: Icon(
-                                _obscureText
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                              ),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "Password required";
-                            }
-                            if (value.length < 6) {
-                              return "Password must be at least 6 characters";
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 10),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () => navToForgetPassword(context),
-                            child: const Text(
-                              "Forget password",
-                              style: TextStyle(
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Column(
-                          children: [
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: ElevatedButton(
-                                    onPressed: login,
-                                    style: ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10.0),
-                                      ),
-                                      backgroundColor: Colors.blue,
-                                    ),
-                                    child: const Text(
-                                      "Login",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 5),
-                                Expanded(
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      // Add navigation logic for SignUp button
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const RegisterScreen(),
-                                        ),
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10.0),
-                                      ),
-                                      backgroundColor: Colors.white,
-                                    ),
-                                    child: const Text(
-                                      "SignUp",
-                                      style: TextStyle(color: Colors.blue),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
+                    topRight: Radius.circular(50.0),
                   ),
                 ),
-           ),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 60),
+                      TextFormField(
+                        controller: emailController,
+                        textInputAction: TextInputAction.next,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: const InputDecoration(
+                          labelText: 'Email',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.email),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Email required";
+                          }
+                          if (!value.contains("@") || !value.contains(".")) {
+                            return "Invalid email!";
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        controller: passwordController,
+                        textInputAction: TextInputAction.done,
+                        obscureText: _obscureText,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.lock),
+                          suffixIcon: GestureDetector(
+                            onTap: togglePasswordVisibility,
+                            child: Icon(
+                              _obscureText
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return "Password required";
+                          }
+                          if (value.length < 6) {
+                            return "Password must be at least 6 characters";
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      Column(
+                        children: [
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: login,
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    backgroundColor: Colors.blue,
+                                  ),
+                                  child: const Text(
+                                    "Login",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Don't have an account? "),
+                          TextButton(
+                            onPressed: () {
+                              // Add navigation logic for SignUp button
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const RegisterScreen(),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              "Register",
+                              style: TextStyle(
+                                color: Colors.blue,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 }
-void navToForgetPassword(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const ForgetPassword()),
-  );}
 
-void navToOtpScreen(BuildContext context, String verificationCode) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const OtpScreen()),
-  );}
-void navToResetScreen(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const ResetScreen()),
-  );}
+
 void navToLoginScreen(BuildContext context) {
   Navigator.push(
     context,

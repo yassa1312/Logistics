@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:login_screen/task17my/LoginScreen.dart';
 import 'dart:math';
 
+<<<<<<< HEAD
+=======
+import 'package:login_screen/task17my/OtpScreen.dart';
+
+>>>>>>> 8b039db (first commit)
 class ForgetPassword extends StatelessWidget {
   const ForgetPassword({Key? key}) : super(key: key);
 
@@ -18,10 +23,14 @@ class ForgetPassword extends StatelessWidget {
       // Generate a 6-digit verification code
       verificationCode = generateVerificationCode();
 
+<<<<<<< HEAD
       // Send the verification code via email or other means (not Firebase)
       // You would typically use a third-party email service or a custom solution for this.
 
       // Navigate to OTP verification screen with the verification code
+=======
+
+>>>>>>> 8b039db (first commit)
       navToOtpScreen(context, verificationCode);
     } catch (e) {
       // Handle error: The email may not be registered, or there was a network issue.
@@ -84,3 +93,15 @@ class ForgetPassword extends StatelessWidget {
     );
   }
 }
+<<<<<<< HEAD
+=======
+
+void navToOtpScreen(BuildContext context, String verificationCode) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => OtpScreen(),
+    ),
+  );
+}
+>>>>>>> 8b039db (first commit)

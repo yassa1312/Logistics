@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:login_screen/task17my/LoginScreen.dart';
+import 'package:login_screen/task17my/ResetScreen.dart';
 
 class OtpScreen extends StatelessWidget {
   const OtpScreen({Key? key}) : super(key: key);
@@ -53,10 +53,19 @@ class OtpScreen extends StatelessWidget {
                   "Reset the password", style: TextStyle(color: Colors.white,fontSize: 24),
                 ),
               ),
-            ), // ... Other TextFormField widgets
+            ),
           ],
         ),
       ),
     );
   }
+}
+void navToResetScreen(BuildContext context) {
+  // Navigate to the reset screen here
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => ResetScreen(),
+    ),
+  );
 }
