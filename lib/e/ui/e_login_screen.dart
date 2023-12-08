@@ -6,7 +6,7 @@ import 'package:login_screen/e/ui/shared.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   PreferenceUtils.init();
-
+  AppDio.init();
   runApp(MyApp());
 }
 
