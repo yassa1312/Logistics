@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:login_screen/e/core/app_dio.dart';
+import 'package:login_screen/news/app_dio.dart';
 import 'package:login_screen/news/news_details.dart';
 import 'package:login_screen/news/news_setting.dart';
-
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

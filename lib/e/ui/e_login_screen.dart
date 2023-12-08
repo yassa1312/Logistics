@@ -32,7 +32,7 @@ class _ELoginScreenState extends State<ELoginScreen> {
   }
 
   void getProfile() {
-    AppDio.get(endpoint: EndPoints.profile).then(
+    AppDio.get(endpoint: EndPoints.profile, category: '', currentCountry: '').then(
       (value) {
         print(value);
       },

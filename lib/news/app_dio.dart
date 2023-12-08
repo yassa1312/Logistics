@@ -14,7 +14,7 @@ class AppDio {
 
   static Future<Response<dynamic>> get({
     required String category,
-    required String currentCountry, required String endpoint,
+    required String currentCountry,
   }) {
     return _dio.get(
       "",
