@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:login_screen/e/core/app_dio.dart';
 import 'package:login_screen/news/news_details.dart';
 import 'package:login_screen/news/news_setting.dart';
+
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,19 +14,19 @@ void main() {
 
 class MyApp extends StatelessWidget {
   @override
-    Widget build(BuildContext context) {
-      return ResponsiveSizer(
-        builder: (pO, pl, p2) {
-          return MaterialApp(
-            title: 'News App',
-            theme: ThemeData.light(),
-            darkTheme: ThemeData.dark(),
-            home: const NewMainScreen(),
-          );
-        },
-      );
-    }
+  Widget build(BuildContext context) {
+    return ResponsiveSizer(
+      builder: (pO, pl, p2) {
+        return MaterialApp(
+          title: 'News App',
+          theme: ThemeData.light(),
+          darkTheme: ThemeData.dark(),
+          home: const NewMainScreen(),
+        );
+      },
+    );
   }
+}
 class NewMainScreen extends StatefulWidget {
   const NewMainScreen({Key? key}) : super(key: key);
 
@@ -46,7 +46,7 @@ class _NewMainScreenState extends State<NewMainScreen> {
   ];
   late String currentCountry;
   late String currentLanguage;
-  late ThemeData currentTheme;
+  ThemeData? currentTheme;
 
   @override
   void initState() {
@@ -77,7 +77,7 @@ class _NewMainScreenState extends State<NewMainScreen> {
               onPressed: () => navToSettingScreen(),
               icon: Icon(
                 Icons.settings,
-                color: currentTheme.brightness == Brightness.dark
+                color: currentTheme?.brightness == Brightness.dark
                     ? Colors.white // White color for dark theme
                     : Colors.black, // Black color for light theme
               ),
@@ -87,8 +87,8 @@ class _NewMainScreenState extends State<NewMainScreen> {
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           currentIndex: currentIndex,
-          selectedItemColor: currentTheme.brightness == Brightness.dark ? Colors.white : Colors.blue,
-          unselectedItemColor: currentTheme.brightness == Brightness.dark ? Colors.white54 : Colors.black,
+          selectedItemColor: currentTheme?.brightness == Brightness.dark ? Colors.white : Colors.blue,
+          unselectedItemColor: currentTheme?.brightness == Brightness.dark ? Colors.white54 : Colors.black,
           onTap: (index) {
             setState(() {
               currentIndex = index;
@@ -134,7 +134,7 @@ class _NewMainScreenState extends State<NewMainScreen> {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: currentTheme.brightness == Brightness.light
+                  color: currentTheme?.brightness == Brightness.light
                       ? Colors.grey[200]
                       : Colors.black, // Adjust background color based on theme
                   borderRadius: BorderRadius.circular(20.sp),
