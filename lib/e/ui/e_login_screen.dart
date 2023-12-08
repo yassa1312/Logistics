@@ -36,9 +36,9 @@ class _ELoginScreenState extends State<ELoginScreen> {
     }).then((value) {
       print(value);
       String apiToken = value.data['data']['token'];
-      print('apiToken => $apiToken');
       PreferenceUtils.setString(PrefKeys.apiToken, apiToken);
-      Future.delayed(const Duration(seconds: 1)).then((value) {
+      print('apiToken => $apiToken');
+      Future.delayed(const Duration(seconds:1)).then((value) {
         getProfile();
       });
     });
