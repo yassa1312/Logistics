@@ -40,7 +40,6 @@ class _ELoginScreenState extends State<ELoginScreen> {
       PreferenceUtils.setString(PrefKeys.apiToken, apiToken);
       Future.delayed(const Duration(seconds: 1)).then((value) {
         getProfile();
-
       });
     });
   }
