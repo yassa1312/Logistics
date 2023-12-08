@@ -1,28 +1,27 @@
 import 'package:dio/dio.dart';
 import 'package:login_screen/e/core/app_endpoints.dart';
-import 'package:login_screen/note1/shared.dart';
+import 'package:login_screen/e/ui/shared.dart';
 
 class AppDio {
   static late Dio _dio;
 
-  static Future<void> init() async {
-    BaseOptions baseOptions = BaseOptions(
-        baseUrl: "https://newsapi.org/v2/top-headlines");
+  static void init() {
+    BaseOptions baseOptions = BaseOptions(baseUrl: EndPoints.baseUrl);
     _dio = Dio(baseOptions);
   }
 
-
   static Future<Response<dynamic>> get({
-    required String category,
-    required String currentCountry, required String endpoint,
+    required String endpoint,
+    Map<String, dynamic>? queryParameters,
   }) {
     return _dio.get(
-      "",
-      queryParameters: {
-        "country": currentCountry,
-        "category": category,
-        "apiKey": "b0bf7c0e382f4a27b7df219617565a0f",
-      },
+      endpoint,
+      queryParameters: queryParameters,
+      options: Options(headers: {
+        'lang': PreferenceUtils.getString(PrefKeys.language),
+        'Authorization': PreferenceUtils.getString(PrefKeys.apiToken),
+        'Content-Type': 'application/json',
+      }),
     );
   }
 
@@ -76,5 +75,4 @@ class AppDio {
       }),
     );
   }
-
 }

@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:login_screen/e/core/app_dio.dart';
+import 'package:login_screen/e/ui/e_login_screen.dart';
 import 'package:login_screen/news/NewMainScreen.dart';
 import 'package:login_screen/note1/homeScreen/HomeScreen.dart';
 import 'package:login_screen/note1/LoginScreen.dart';
@@ -25,7 +26,7 @@ void main() async {
   await Firebase.initializeApp();
   await PreferenceUtils.init();
   await NoteDatabase.init();
-  await AppDio.init();
+  AppDio.init();
 
   runApp(
     DevicePreview(
@@ -65,7 +66,7 @@ class MyApp extends StatelessWidget {
           title: 'News App',
           theme: ThemeData.light(),
           darkTheme: ThemeData.dark(),
-          home: const NewMainScreen(),
+          home: const ELoginScreen(),
         );
       },
     );

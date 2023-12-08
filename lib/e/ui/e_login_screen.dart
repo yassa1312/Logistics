@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:login_screen/e/core/app_dio.dart';
 import 'package:login_screen/e/core/app_endpoints.dart';
-import 'package:login_screen/note1/shared.dart';
-
+import 'package:login_screen/e/ui/shared.dart';
 
 class ELoginScreen extends StatefulWidget {
   const ELoginScreen({super.key});
@@ -32,7 +31,7 @@ class _ELoginScreenState extends State<ELoginScreen> {
   }
 
   void getProfile() {
-    AppDio.get(endpoint: EndPoints.profile, category: '', currentCountry: '').then(
+    AppDio.get(endpoint: EndPoints.profile).then(
       (value) {
         print(value);
       },
