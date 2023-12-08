@@ -7,7 +7,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   PreferenceUtils.init();
   AppDio.init();
-  runApp(MyApp());
+
 }
 
 class MyApp extends StatelessWidget {
