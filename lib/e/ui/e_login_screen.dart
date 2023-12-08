@@ -3,6 +3,21 @@ import 'package:login_screen/e/core/app_dio.dart';
 import 'package:login_screen/e/core/app_endpoints.dart';
 import 'package:login_screen/e/ui/shared.dart';
 
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  PreferenceUtils.init();
+  AppDio.init();
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: ELoginScreen(), // Set your ELoginScreen as the home
+    );
+  }
+}
 class ELoginScreen extends StatefulWidget {
   const ELoginScreen({super.key});
 
@@ -23,7 +38,6 @@ class _ELoginScreenState extends State<ELoginScreen> {
       String apiToken = value.data['data']['token'];
       print('apiToken => $apiToken');
       PreferenceUtils.setString(PrefKeys.apiToken, apiToken);
-
       Future.delayed(const Duration(seconds: 1)).then((value) {
         getProfile();
       });

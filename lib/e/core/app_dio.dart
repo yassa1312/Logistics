@@ -6,7 +6,8 @@ class AppDio {
   static late Dio _dio;
 
   static void init() {
-    BaseOptions baseOptions = BaseOptions(baseUrl: EndPoints.baseUrl);
+    BaseOptions baseOptions = BaseOptions(
+        baseUrl: EndPoints.baseUrl,);
     _dio = Dio(baseOptions);
   }
 
