@@ -235,27 +235,27 @@ class _HomePageState extends State<HomePage> {
   ];
 
   List<String> suggestionImages = [
-    "icon1.png",
-    "icon2.png",
-    "icon3.png",
-    "icon1.png",
+    "assets/icon1.png",
+    "assets/icon2.png",
+    "assets/icon3.png",
+    "assets/icon1.png",
   ];
 
   List<MoreWaysToUseItem> moreWaysToUseItems = [
     MoreWaysToUseItem(
-      imagePath: "portrait1.png",
+      imagePath: "assets/portrait1.png",
       title: "Insured Transportation",
       description:
       "Transport your goods in safety without any concerns about the damage of your goods",
     ),
     MoreWaysToUseItem(
-      imagePath: "portrait2.png",
+      imagePath: "assets/portrait2.png",
       title: "TakeCare",
       description:
       "A special option for those who want their goods handled with extra care",
     ),
     MoreWaysToUseItem(
-      imagePath: "portrait3.png",
+      imagePath: "assets/portrait3.png",
       title: "Wrapper",
       description:
       "Additional wrapping options to protect fragile or valuable items.",
