@@ -278,7 +278,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<bool> registerUserAPI(String name, String email, String phoneNumber, String password) async {
-    const String registerEndpoint = 'https://your-api-endpoint.com/register';
+    const String registerEndpoint = 'https://student.valuxapps.com/api/register';
 
     try {
       final response = await http.post(

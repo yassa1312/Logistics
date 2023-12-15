@@ -120,7 +120,7 @@ class LoginScreenState extends State<LoginScreen> {
 
   Future<bool> loginUserAPI(String email, String password) async {
 
-    const String loginEndpoint = 'https://localhost:7073/swagger/index.html/login';
+    const String loginEndpoint = 'https://student.valuxapps.com/api/login';
 
     try {
       final response = await http.post(
