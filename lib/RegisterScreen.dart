@@ -180,8 +180,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ],
                       ),
                     ),
-
-
                     const SizedBox(height: 10),
                     SizedBox(
                       width: double.infinity,
@@ -194,7 +192,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onPressed: () {
                           String password = passwordController.text;
                           String confirmPassword = confirmPasswordController.text;
-
                           if (password == confirmPassword) {
                             onRegisterSuccess(context);
                           } else {
