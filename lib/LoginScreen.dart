@@ -165,7 +165,7 @@ class LoginScreenState extends State<LoginScreen> {
             color: Colors.orange,
             child: Column(
               children: [
-                SizedBox(height: 30,),
+                const SizedBox(height: 30,),
                 SizedBox(
                   height: 250,
                   child: Padding(
