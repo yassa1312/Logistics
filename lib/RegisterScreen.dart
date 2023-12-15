@@ -259,8 +259,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       bool registrationSuccess = await registerUserAPI(name, email, phoneNumber, password);
 
       if (registrationSuccess) {
-        await saveUserData('$name:$email:$phoneNumber:$password');
-
         Fluttertoast.showToast(msg: "Account Created!");
 
         Navigator.pop(context);
@@ -291,6 +289,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       if (response.statusCode == 200) {
+        // Assuming successful registration returns a specific message or status
+        // You may want to update this part based on your API response
         return true;
       } else {
         // Display error message based on response status or other conditions
@@ -303,6 +303,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return false;
     }
   }
+
 
 
   Future<void> saveUserData(String userData) async {

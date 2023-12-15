@@ -86,37 +86,37 @@ class LoginScreenState extends State<LoginScreen> {
     return prefs.getString('userData');
   }
   void login() async {
-    // Your existing login logic
     String email = emailController.text;
     String password = passwordController.text;
 
-    String? savedUserData = await getUserData();
-    if (savedUserData != null) {
-      List<String> userInfo = savedUserData.split(":");
-      String savedEmail = userInfo[1];
-      String savedPassword = userInfo[3];
+    bool apiLoginSuccess = await loginUserAPI(email, password);
 
-      if (email == savedEmail && password == savedPassword) {
+    if (apiLoginSuccess) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    } else {
+      String? savedUserData = await getUserData();
+      if (savedUserData != null) {
+        List<String> userInfo = savedUserData.split(":");
+        String savedEmail = userInfo[1];
+        String savedPassword = userInfo[3];
 
-        bool loginSuccess = await loginUserAPI(email, password);
-
-        if (loginSuccess) {
-
-
+        if (email == savedEmail && password == savedPassword) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const HomePage()),
           );
         } else {
-          Fluttertoast.showToast(msg: "Login failed. Please try again.");
+          displayToast("Email or password wrong!");
         }
       } else {
-        displayToast("Email or password wrong!");
+        displayToast("User data not found!");
       }
-    } else {
-      displayToast("User data not found!");
     }
   }
+
 
   Future<bool> loginUserAPI(String email, String password) async {
 
