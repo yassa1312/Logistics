@@ -155,6 +155,7 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -165,15 +166,14 @@ class LoginScreenState extends State<LoginScreen> {
             color: Colors.orange,
             child: Column(
               children: [
+                SizedBox(height: 30,),
                 SizedBox(
-                  height: 300,
+                  height: 250,
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child:  SvgPicture.asset(
-                      'assets/Amazon_logo.svg',
-                      width: 200,
-                      height: 200,
-                      fit: BoxFit.contain,
+                    padding: const EdgeInsets.all(0),
+                    child: Image.asset(
+                      'assets/Picture2.png', // Replace 'assets/Picture1.png' with your actual PNG file path
+                      fit: BoxFit.fill,
                     ),
                   ),
                 ),
