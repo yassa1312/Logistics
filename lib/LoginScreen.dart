@@ -3,9 +3,9 @@
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:logistics/main.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:logistics/FirstScreen.dart';
 import 'package:logistics/RegisterScreen.dart';
 import 'package:logistics/ResetPassword.dart';
 import 'package:logistics/app_dio.dart';
@@ -93,7 +93,7 @@ class LoginScreenState extends State<LoginScreen> {
     if (apiLoginSuccess) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
+        MaterialPageRoute(builder: (context) => Home()),
       );
     } else {
       String? savedUserData = await getUserData();
@@ -105,7 +105,7 @@ class LoginScreenState extends State<LoginScreen> {
         if (email == savedEmail && password == savedPassword) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
+            MaterialPageRoute(builder: (context) => Home()),
           );
         } else {
           displayToast("Email or password wrong!");
