@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logistics/LoginScreen.dart';
 
 final List<String> imageUrls = [
   'assets/icon1.jpeg',
@@ -17,8 +18,19 @@ class HomePage extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('SPLT'),
+          title: const Text('Home'),
           backgroundColor: Colors.orange,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()), // Replace LoginScreen with your actual login screen widget
+                );
+              },
+            ),
+          ],
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -30,12 +42,12 @@ class HomePage extends StatelessWidget {
                   // Open Google Maps
                 },
                 child: Container(
-                  padding: EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.all(10.0),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: Row(
+                  child: const Row(
                     children: [
                       Icon(Icons.search, color: Colors.orange),
                       SizedBox(width: 10.0),
@@ -44,7 +56,7 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               GestureDetector(
                 onTap: () {
                   // Open Google Maps
@@ -56,8 +68,8 @@ class HomePage extends StatelessWidget {
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(8.0),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: const Row(
                     children: [
                       Icon(Icons.location_on, color: Colors.orange),
                       SizedBox(width: 10.0),
@@ -66,8 +78,8 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 30),
-              Text(
+              const SizedBox(height: 30),
+              const Text(
                 'Suggestions',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
@@ -94,8 +106,8 @@ class HomePage extends StatelessWidget {
                   },
                 ),
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 'More ways to use SPLT',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
@@ -115,12 +127,12 @@ class HomePage extends StatelessWidget {
                             height: 120,
                             fit: BoxFit.cover,
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Text(
                             'Title ${index + 1}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          Text('Description'),
+                          const Text('Description'),
                         ],
                       ),
                     );

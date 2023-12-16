@@ -105,7 +105,7 @@ class LoginScreenState extends State<LoginScreen> {
         if (email == savedEmail && password == savedPassword) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => Home()),
+            MaterialPageRoute(builder: (context) => LoginScreen()),
           );
         } else {
           displayToast("Email or password wrong!");
