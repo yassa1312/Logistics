@@ -105,7 +105,7 @@ class LoginScreenState extends State<LoginScreen> {
         if (email == savedEmail && password == savedPassword) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => LoginScreen()),
+            MaterialPageRoute(builder: (context) => Home()),
           );
         } else {
           displayToast("Email or password wrong!");
@@ -115,6 +115,7 @@ class LoginScreenState extends State<LoginScreen> {
       }
     }
   }
+
 
 
   Future<bool> loginUserAPI(String email, String password) async {
