@@ -83,7 +83,7 @@ class LoginScreenState extends State<LoginScreen> {
 
 
   Future<void> loginUserAPI(String email, String password) async {
-    final String apiUrl = 'https://logisticsapinet820231222162219.azurewebsites.net/login'; // Replace with your actual API endpoint
+    const String apiUrl = 'https://logisticsapinet820231222162219.azurewebsites.net/login'; // Replace with your actual API endpoint
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',

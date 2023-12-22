@@ -6,7 +6,7 @@ class AppDio {
 
   static Future<void> init() async {
     BaseOptions baseOptions = BaseOptions(
-        baseUrl: "https://student.valuxapps.com/api/");
+        baseUrl: "https://localhost:7073/");
     _dio = Dio(baseOptions);
   }
 

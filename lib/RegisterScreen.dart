@@ -1,11 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logistics/LoginScreen.dart';
 import 'package:http/http.dart' as http;
+
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -36,8 +37,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
-    phoneNumberController.dispose();
-    nameController.dispose();
+
   }
 
   @override
@@ -47,7 +47,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         color: Colors.orange,
         child: Column(
           children: [
-            SizedBox(height: 30,),
+            const SizedBox(height: 30,),
             SizedBox(
               height: 250,
               child: Padding(
@@ -68,7 +68,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     const SizedBox(height: 10),
                     TextFormField(
-                      controller: nameController,
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.text,
                       decoration: const InputDecoration(
@@ -82,7 +81,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
-                      controller: phoneNumberController,
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.phone,
                       decoration: const InputDecoration(
@@ -155,7 +153,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                               if (enteredPassword == originalPassword) {
 
-                                onRegisterSuccess(context);
+                                onRegisterSuccess();
                               } else {
 
                                 Fluttertoast.showToast(msg: "Passwords do not match.");
@@ -193,7 +191,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           String password = passwordController.text;
                           String confirmPassword = confirmPasswordController.text;
                           if (password == confirmPassword) {
-                            onRegisterSuccess(context);
+                            onRegisterSuccess();
                           } else {
                             Fluttertoast.showToast(msg: "Passwords do not match.");
                           }
@@ -245,15 +243,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
-  void onRegisterSuccess(BuildContext context) async {
+  void onRegisterSuccess() async {
     String email = emailController.text;
     String password = passwordController.text;
     String confirmPassword = confirmPasswordController.text;
-    String phoneNumber = phoneNumberController.text;
-    String name = nameController.text;
 
     if (password == confirmPassword) {
-      bool registrationSuccess = await registerUserAPI(name, email, phoneNumber, password);
+      bool registrationSuccess = await RegistrationAPI.registerUser(email, password);
 
       if (registrationSuccess) {
         Fluttertoast.showToast(msg: "Account Created!");
@@ -270,38 +266,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
       Fluttertoast.showToast(msg: "Passwords do not match.");
     }
   }
+}
 
-  Future<bool> registerUserAPI(String name, String email, String phoneNumber, String password) async {
-    const String registerEndpoint = 'https://student.valuxapps.com/api/register';
+class RegistrationAPI {
+  static Future<bool> registerUser(String email, String password) async {
+    var headers = {
+      'Accept': '*/*',
+      'Content-Type': 'application/json',
+      'Cookie': 'ARRAffinity=908058b9e2be1479dd6b543a1483598c49313680b79a6118cf8ebe4a5a376c07; ARRAffinitySameSite=908058b9e2be1479dd6b543a1483598c49313680b79a6118cf8ebe4a5a376c07'
+    };
+    var url = Uri.parse(
+        'https://logisticsapinet820231222162219.azurewebsites.net/register');
+
+    var body = json.encode({
+      "email": email,
+      "password": password,
+    });
 
     try {
-      final response = await http.post(
-        Uri.parse(registerEndpoint),
-        body: {
-          'name': name,
-          'email': email,
-          'phone_number': phoneNumber,
-          'password': password,
-        },
+      var response = await http.post(
+        url,
+        headers: headers,
+        body: body,
       );
 
       if (response.statusCode == 200) {
-        // Assuming successful registration returns a specific message or status
-        // You may want to update this part based on your API response
-        return true;
+        print(response.body);
+        return true; // Successful registration
       } else {
-        // Display error message based on response status or other conditions
-        Fluttertoast.showToast(msg: "Registration failed. Please try again.");
-        return false;
+        print(response.reasonPhrase);
+        return false; // Unsuccessful registration
       }
-    } catch (e) {
-      // Display error message if the request fails due to an exception
-      Fluttertoast.showToast(msg: "Registration failed. Please try again.");
-      return false;
+    } catch (error) {
+      print('Error during registration: $error');
+      return false; // Error during registration
     }
   }
-
-
+}
 
   Future<void> saveUserData(String userData) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -309,9 +310,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
 
-
   double calculatePasswordStrength(String password) {
-
     return 0.0;
   }
-}
