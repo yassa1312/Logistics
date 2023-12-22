@@ -1,16 +1,15 @@
-
 // ignore_for_file: use_build_context_synchronously
+import 'dart:convert';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:logistics/main.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logistics/RegisterScreen.dart';
 import 'package:logistics/ResetPassword.dart';
 import 'package:logistics/app_dio.dart';
+import 'package:logistics/main.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-
 
 void main() {
   AppDio.init();
@@ -39,9 +38,6 @@ class SignUpApp extends StatelessWidget {
   }
 }
 
-
-
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
@@ -59,7 +55,6 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // Add listener to check for keyboard visibility changes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final mediaQuery = MediaQuery.of(context);
       setState(() {
@@ -80,67 +75,61 @@ class LoginScreenState extends State<LoginScreen> {
       _obscureText = !_obscureText;
     });
   }
+
   Future<String?> getUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('userData');
   }
-  void login() async {
-    String email = emailController.text;
-    String password = passwordController.text;
-
-    bool apiLoginSuccess = await loginUserAPI(email, password);
-
-    if (apiLoginSuccess) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Home()),
-      );
-    } else {
-      String? savedUserData = await getUserData();
-      if (savedUserData != null) {
-        List<String> userInfo = savedUserData.split(":");
-        String savedEmail = userInfo[1];
-        String savedPassword = userInfo[3];
-
-        if (email == savedEmail && password == savedPassword) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => Home()),
-          );
-        } else {
-          displayToast("Email or password wrong!");
-        }
-      } else {
-        displayToast("User data not found!");
-      }
-    }
-  }
 
 
+  Future<void> loginUserAPI(String email, String password) async {
+    final String apiUrl = 'https://logisticsapinet820231222162219.azurewebsites.net/login'; // Replace with your actual API endpoint
 
-  Future<bool> loginUserAPI(String email, String password) async {
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
 
-    const String loginEndpoint = 'https://student.valuxapps.com/api/login';
+    final Map<String, dynamic> body = {
+      'email': email,
+      'password': password,
+    };
 
     try {
       final response = await http.post(
-        Uri.parse(loginEndpoint),
-        body: {
-          'email': email,
-          'password': password,
-        },
+        Uri.parse(apiUrl),
+        headers: headers,
+        body: json.encode(body),
       );
 
       if (response.statusCode == 200) {
-        return true; // Successful login
+        // Successful login, navigate to Home page
+        print('Login successful');
+        print(response.body);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Home()),
+        );
       } else {
-        return false; // Login failed
+        // Handle login failure
+        print('Login failed');
+        print('Status Code: ${response.statusCode}');
+        print('Response Body: ${response.body}');
       }
-    } catch (e) {
-      return false; // Error occurred during login
+    } catch (error) {
+      // Handle any exceptions that may occur during the HTTP request
+      print('Error during login request: $error');
     }
   }
 
+
+  Future<void> login() async {
+    if (formKey.currentState!.validate()) {
+      String email = emailController.text;
+      String password = passwordController.text;
+
+      await loginUserAPI(email, password);
+    }
+  }
 
 
   void displayToast(String message) {
@@ -166,13 +155,13 @@ class LoginScreenState extends State<LoginScreen> {
             color: Colors.orange,
             child: Column(
               children: [
-                const SizedBox(height: 30,),
+                const SizedBox(height: 30),
                 SizedBox(
                   height: 250,
                   child: Padding(
                     padding: const EdgeInsets.all(0),
                     child: Image.asset(
-                      'assets/Picture2.png', // Replace 'assets/Picture1.png' with your actual PNG file path
+                      'assets/Picture2.png',
                       fit: BoxFit.fill,
                     ),
                   ),
@@ -212,6 +201,9 @@ class LoginScreenState extends State<LoginScreen> {
                                 }
                                 return null;
                               },
+                              onChanged: (_) {
+                                setState(() {});
+                              },
                             ),
                             const SizedBox(height: 10),
                             TextFormField(
@@ -247,6 +239,9 @@ class LoginScreenState extends State<LoginScreen> {
                                 }
                                 return null;
                               },
+                              onChanged: (_) {
+                                setState(() {});
+                              },
                               onEditingComplete: () {
                                 login();
                               },
@@ -259,7 +254,8 @@ class LoginScreenState extends State<LoginScreen> {
                                     onPressed: login,
                                     style: ElevatedButton.styleFrom(
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10.0),
+                                        borderRadius: BorderRadius.circular(
+                                            10.0),
                                       ),
                                       backgroundColor: Colors.orange,
                                     ),
@@ -318,8 +314,7 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
-void navToForgetPassword(BuildContext context) {
+  void navToForgetPassword(BuildContext context) {
   Navigator.push(
     context,
     MaterialPageRoute(builder: (context) => const ResetPassword()),
