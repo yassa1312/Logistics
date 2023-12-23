@@ -54,6 +54,7 @@ class LoginScreenState extends State<LoginScreen> {
 
   @override
   void initState() {
+    checkLoggedIn();
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final mediaQuery = MediaQuery.of(context);
@@ -63,6 +64,16 @@ class LoginScreenState extends State<LoginScreen> {
     });
   }
 
+  Future<void> checkLoggedIn() async {
+    final userData = await getUserData();
+    if (userData != null) {
+      // User is logged in, navigate to Home screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Home()),
+      );
+    }
+  }
   @override
   void dispose() {
     emailController.dispose();
@@ -105,19 +116,25 @@ class LoginScreenState extends State<LoginScreen> {
         // Successful login, navigate to Home page
         print('Login successful');
         print(response.body);
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userData', 'someUserData'); // Save user data or token
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => Home()),
         );
+        displayToast('Login successful');
       } else {
         // Handle login failure
         print('Login failed');
         print('Status Code: ${response.statusCode}');
         print('Response Body: ${response.body}');
+        displayToast('Login failed');
       }
     } catch (error) {
       // Handle any exceptions that may occur during the HTTP request
       print('Error during login request: $error');
+      displayToast('Error during login request');
     }
   }
 
@@ -126,7 +143,9 @@ class LoginScreenState extends State<LoginScreen> {
     if (formKey.currentState!.validate()) {
       String email = emailController.text;
       String password = passwordController.text;
-
+      if (userData == null && formKey.currentState!.validate()) {
+        String email = emailController.text;
+        String password = passwordController.text;
       await loginUserAPI(email, password);
     }
   }
