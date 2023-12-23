@@ -60,13 +60,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             Expanded(
               child: Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(15),
                 decoration: const BoxDecoration(
                   color: Colors.white,
                 ),
                 child: ListView(
                   children: [
-                    const SizedBox(height: 10),
                     TextFormField(
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.text,
@@ -243,6 +242,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
+  void displayToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.orange,
+      textColor: Colors.white,
+      fontSize: 18.0,
+    );
+  }
   void onRegisterSuccess() async {
     String email = emailController.text;
     String password = passwordController.text;
@@ -252,7 +262,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       bool registrationSuccess = await RegistrationAPI.registerUser(email, password);
 
       if (registrationSuccess) {
-        Fluttertoast.showToast(msg: "Account Created!");
+        displayToast( "Account Created!");
 
         Navigator.pop(context);
         Navigator.pushReplacement(
@@ -260,10 +270,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           MaterialPageRoute(builder: (context) => const LoginScreen()),
         );
       } else {
-        Fluttertoast.showToast(msg: "Registration failed. Please try again.");
+        displayToast( "Registration failed. Please try again.");
       }
     } else {
-      Fluttertoast.showToast(msg: "Passwords do not match.");
+      displayToast( "Passwords do not match.");
     }
   }
 }
