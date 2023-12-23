@@ -41,7 +41,7 @@ class SignUpApp extends StatelessWidget {
                   child: _buildDelayedWidget(
                     duration: Duration(milliseconds: 1500), // Increased delay to 1500 milliseconds
                     widget: Lottie.asset(
-                      'assets/Animation - 1703323213613.json',
+                      'assets/animation/Animation-1703323213613.json',
                       animate: true,
                     ),
                   ),
