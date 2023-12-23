@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logistics/LoginScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final List<String> imageUrls = [
   'assets/icon1.jpeg',
@@ -9,6 +10,7 @@ final List<String> imageUrls = [
   'assets/portrait2.jpeg',
   'assets/portrait3.jpeg',
 ];
+
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key});
@@ -23,7 +25,9 @@ class HomePage extends StatelessWidget {
           actions: [
             IconButton(
               icon: const Icon(Icons.logout),
-              onPressed: () {
+              onPressed: () async {
+                LoginScreenState loginScreenState = LoginScreenState();
+                await loginScreenState.clearUserData();
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => LoginScreen()), // Replace LoginScreen with your actual login screen widget
@@ -146,3 +150,4 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+

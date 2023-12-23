@@ -31,12 +31,33 @@ class SignUpApp extends StatelessWidget {
           title: 'News App',
           theme: ThemeData.light(),
           darkTheme: ThemeData.dark(),
-          home: const LoginScreen(),
+          home: FutureBuilder<bool>(
+            future: isLoggedIn(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting ||
+                  snapshot.data == null) {
+                // Display an image or widget until login status is resolved
+                return Image.asset('assets/portrait2.jpeg'); // Replace with your loading image
+              } else {
+                if (snapshot.data == true) {
+                  return Home();
+                } else {
+                  return LoginScreen();
+                }
+              }
+            },
+          ),
         );
       },
     );
   }
+
+  Future<bool> isLoggedIn() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userData') != null;
+  }
 }
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -74,6 +95,7 @@ class LoginScreenState extends State<LoginScreen> {
       );
     }
   }
+
   @override
   void dispose() {
     emailController.dispose();
@@ -117,7 +139,8 @@ class LoginScreenState extends State<LoginScreen> {
         print('Login successful');
         print(response.body);
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('userData', 'someUserData'); // Save user data or token
+        await prefs.setString(
+            'userData', 'someUserData'); // Save user data or token
 
         Navigator.pushReplacement(
           context,
@@ -140,16 +163,15 @@ class LoginScreenState extends State<LoginScreen> {
 
 
   Future<void> login() async {
+    final userData = await getUserData();
     if (formKey.currentState!.validate()) {
-      String email = emailController.text;
-      String password = passwordController.text;
-      if (userData == null && formKey.currentState!.validate()) {
+      if (userData == null) {
         String email = emailController.text;
         String password = passwordController.text;
-      await loginUserAPI(email, password);
+        await loginUserAPI(email, password);
+      }
     }
   }
-
 
   void displayToast(String message) {
     Fluttertoast.showToast(
@@ -332,10 +354,17 @@ class LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-}
+
+  Future<void> clearUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userData');
+  }
+
+
   void navToForgetPassword(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const ResetPassword()),
-  );
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ResetPassword()),
+    );
+  }
 }
