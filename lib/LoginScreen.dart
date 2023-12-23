@@ -10,6 +10,7 @@ import 'package:logistics/main.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:lottie/lottie.dart';
 
 void main() {
   AppDio.init();
@@ -36,13 +37,26 @@ class SignUpApp extends StatelessWidget {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting ||
                   snapshot.data == null) {
-                // Display an image or widget until login status is resolved
-                return Image.asset('assets/portrait2.jpeg'); // Replace with your loading image
+                return Center(
+                  child: _buildDelayedWidget(
+                    duration: Duration(milliseconds: 1500), // Increased delay to 1500 milliseconds
+                    widget: Lottie.asset(
+                      'assets/Animation - 1703323213613.json',
+                      animate: true,
+                    ),
+                  ),
+                );
               } else {
                 if (snapshot.data == true) {
-                  return Home();
+                  return _buildDelayedWidget(
+                    duration: Duration(milliseconds: 500),
+                    widget: Home(),
+                  );
                 } else {
-                  return LoginScreen();
+                  return _buildDelayedWidget(
+                    duration: Duration(milliseconds: 500),
+                    widget: LoginScreen(),
+                  );
                 }
               }
             },
@@ -51,6 +65,26 @@ class SignUpApp extends StatelessWidget {
       },
     );
   }
+
+  Widget _buildDelayedWidget({
+    required Duration duration,
+    required Widget widget,
+  }) {
+    return FutureBuilder<bool>(
+      future: Future.delayed(duration, () => true),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            snapshot.data == null) {
+          return Center(
+            child: CircularProgressIndicator(), // Placeholder while delaying
+          );
+        } else {
+          return widget;
+        }
+      },
+    );
+  }
+
 
   Future<bool> isLoggedIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
