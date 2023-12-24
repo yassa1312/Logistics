@@ -13,7 +13,6 @@ import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
 
 void main() {
-  AppDio.init();
   runApp(
     DevicePreview(
       builder: (context) => const SignUpApp(),
@@ -230,11 +229,11 @@ class LoginScreenState extends State<LoginScreen> {
             color: Colors.orange,
             child: Column(
               children: [
-                const SizedBox(height: 30),
+                SizedBox(height: 30.sp),
                 SizedBox(
                   height: 250,
                   child: Padding(
-                    padding: const EdgeInsets.all(0),
+                    padding: EdgeInsets.all(0.sp),
                     child: Image.asset(
                       'assets/Picture2.png',
                       fit: BoxFit.fill,
@@ -244,13 +243,13 @@ class LoginScreenState extends State<LoginScreen> {
                 Expanded(
                   child: Container(
                     color: Colors.white,
-                    padding: const EdgeInsets.all(20),
+                    padding: EdgeInsets.all(20.sp),
                     child: SingleChildScrollView(
                       child: Form(
                         key: formKey,
                         child: Column(
                           children: [
-                            const SizedBox(height: 30),
+                            SizedBox(height: 30.sp),
                             TextFormField(
                               controller: emailController,
                               textInputAction: TextInputAction.next,
@@ -280,7 +279,7 @@ class LoginScreenState extends State<LoginScreen> {
                                 setState(() {});
                               },
                             ),
-                            const SizedBox(height: 10),
+                            SizedBox(height: 10.sp),
                             TextFormField(
                               controller: passwordController,
                               textInputAction: TextInputAction.done,
@@ -321,7 +320,7 @@ class LoginScreenState extends State<LoginScreen> {
                                 login();
                               },
                             ),
-                            const SizedBox(height: 10),
+                            SizedBox(height: 10.sp),
                             Row(
                               children: [
                                 Expanded(
@@ -330,29 +329,29 @@ class LoginScreenState extends State<LoginScreen> {
                                     style: ElevatedButton.styleFrom(
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(
-                                            10.0),
+                                            10.0.sp),
                                       ),
                                       backgroundColor: Colors.orange,
                                     ),
-                                    child: const Text(
+                                    child:  Text(
                                       "Login",
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 20,
+                                        fontSize: 20.sp,
                                       ),
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 5),
+                            SizedBox(height: 5.sp),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Text(
+                                 Text(
                                   "Don't have an account? ",
                                   style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 18.sp,
                                   ),
                                 ),
                                 TextButton(
@@ -365,11 +364,11 @@ class LoginScreenState extends State<LoginScreen> {
                                       ),
                                     );
                                   },
-                                  child: const Text(
+                                  child: Text(
                                     "Register",
                                     style: TextStyle(
                                       color: Colors.orange,
-                                      fontSize: 18,
+                                      fontSize: 18.sp,
                                     ),
                                   ),
                                 ),
