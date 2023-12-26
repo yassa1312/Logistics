@@ -30,7 +30,7 @@ class _HomeState extends State<Home> {
 
   final List<Widget> _pages = [
     HomePage(),
-    services(),
+    Services(),
     Activity(),
     Account(),
   ];
