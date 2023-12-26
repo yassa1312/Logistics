@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
-class services extends StatelessWidget {
+class ServicesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('services'),
+        title: Text('Services'),
+        backgroundColor: Colors.orange,
       ),
       body: Center(
-        child: Text('services'),
+        child: Text('Services'),
       ),
     );
   }
