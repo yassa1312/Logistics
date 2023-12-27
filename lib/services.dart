@@ -24,7 +24,31 @@ final List<String> Description = [
   'Additional wrapping options to protect fragile or valuable items'
 ];
 
-class ServicesPage extends StatelessWidget {
+final List<String> imageUrls = [
+  'assets/icon1.jpeg',
+  'assets/icon2.jpeg',
+  'assets/icon3.jpeg',
+  'assets/portrait1.jpg',
+  'assets/portrait2.jpeg',
+  'assets/portrait3.jpeg',
+];
+
+final List<String> textTitle = [
+  'Normal Transportation',
+  'Packaging',
+  'Scheduling',
+  'Insured Transportation',
+  'TakeCare',
+  'Wrapper'
+];
+
+final List<String> Description = [
+  'Transport your goods in safety without any concerns about the damage of your goods',
+  'A special option for those who want their goods handled with extra care',
+  'Additional wrapping options to protect fragile or valuable items'
+];
+
+class Servicespage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
