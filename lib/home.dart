@@ -30,7 +30,7 @@ final List<String> Description = [
 
 final List<Widget> _pages = [
   HomePage(),
-  ServicesPage(),
+  services(),
 ];
 
 class HomePage extends StatelessWidget {
@@ -133,7 +133,7 @@ class HomePage extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => ServicesPage()),
+                                  builder: (context) => services()),
                             );
                           },
                           child: Text(
