@@ -326,7 +326,13 @@ class LoginScreenState extends State<LoginScreen> {
                               children: [
                                 Expanded(
                                   child: ElevatedButton(
-                                    onPressed: login,
+                                    onPressed: () {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => Home()),
+                                      );
+                                    },//without API
+                                   // onPressed: login, //with API
                                     style: ElevatedButton.styleFrom(
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(
