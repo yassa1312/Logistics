@@ -82,7 +82,7 @@ class HomePage extends StatelessWidget {
                       children: [
                         Icon(Icons.search, color: Colors.orange),
                         SizedBox(width: 10.0),
-                        Text('Where ttto?'),
+                        Text('Where to?'),
                       ],
                     ),
                   ),
