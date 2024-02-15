@@ -3,6 +3,7 @@ import 'package:logistics/LoginScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'main.dart';
 import 'services.dart';
+import 'calculations.dart';
 
 final List<String> imageUrls = [
   'assets/icon1.jpeg',
@@ -31,6 +32,7 @@ final List<String> Description = [
 final List<Widget> _pages = [
   HomePage(),
   services(),
+  CalculationPage(),
 ];
 
 class HomePage extends StatelessWidget {
@@ -70,6 +72,12 @@ class HomePage extends StatelessWidget {
               children: [
                 GestureDetector(
                   onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CalculationPage()),
+                    );
+
                     // Open Google Maps
                   },
                   child: Container(
@@ -90,6 +98,10 @@ class HomePage extends StatelessWidget {
                 const SizedBox(height: 16),
                 GestureDetector(
                   onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => services()),
+                    );
                     // Open Google Maps
                   },
                   child: Container(
