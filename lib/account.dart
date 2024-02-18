@@ -150,7 +150,6 @@ class Account extends StatelessWidget {
                   ),
                 ],
               ),
-
             ],
           ),
         ),
