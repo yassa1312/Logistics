@@ -33,6 +33,7 @@ List<Note> notes = [
 
 List<List<NoteLine>> deletedNotes = [];
 
+
 class Account extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
