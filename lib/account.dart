@@ -157,7 +157,6 @@ class Account extends StatelessWidget {
       ),
     );
   }
-
 }
 
 
