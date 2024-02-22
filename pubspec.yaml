@@ -70,12 +70,13 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
      - assets/
-     - animation/
      - assets/truck1.jpg
      - assets/truck2.jpg
      - assets/truck3.jpg
      - assets/truck4.jpg
      - assets/truck5.jpg
+     - assets/truck6.jpg
+     - assets/truck7.jpg
      - assets/truck_placeholder.png
      - assets/icon1.jpeg
      - assets/icon2.jpeg
