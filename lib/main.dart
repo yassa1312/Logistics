@@ -1,13 +1,15 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'home.dart';
 import 'services.dart';
 import 'activity.dart';
 import 'account.dart';
 
-void main() {
-  runApp(Home());
+void main() async {
+  runApp(MyApp());
 }
-
+// ignore: deprecated_member_use
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
