@@ -81,7 +81,7 @@ class _MapScreenState extends State<MapScreen> {
                   title: 'Your Location',
                   snippet: 'This is your current location.',
                 ),
-                icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure), // Customize marker icon if needed
+                icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed), // Customize marker icon if needed
               ),
             );
           });
