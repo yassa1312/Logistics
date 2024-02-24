@@ -553,12 +553,14 @@ class _CalculationPageState extends State<CalculationPage> {
                             )
                           ],
                         ),
+                        
                       )
                     ],
                   ),
                 )
               ],
-            )),
+            )
+        ),
       ),
     );
   }
