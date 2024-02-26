@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:logistics/calculations.dart';
+import 'package:logistics/main.dart';
 
 void main() {
   runApp(MyApp());
@@ -32,7 +34,9 @@ class _MapScreenState extends State<MapScreen> {
   late GoogleMapController _controller;
   var geoLocator = Geolocator();
   double bottomPaddingofMap = 0;
-  Set<Marker> _markers = {}; // Set to store markers
+  Set<Marker> _markers = {};
+  final TextEditingController URLController = TextEditingController();
+
 
   void locatePosition() async {
     bool serviceEnabled;
@@ -64,12 +68,15 @@ class _MapScreenState extends State<MapScreen> {
         }
         if (permission == LocationPermission.whileInUse) {
           // Get current position
-          Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+          Position position = await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.high);
           currentPosition = position;
 
           LatLng latLngPosition = LatLng(position.latitude, position.longitude);
-          CameraPosition cameraPosition = CameraPosition(target: latLngPosition, zoom: 14);
-          _controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+          CameraPosition cameraPosition = CameraPosition(
+              target: latLngPosition, zoom: 14);
+          _controller.animateCamera(
+              CameraUpdate.newCameraPosition(cameraPosition));
 
           // Add a marker for the current position
           setState(() {
@@ -77,11 +84,12 @@ class _MapScreenState extends State<MapScreen> {
               Marker(
                 markerId: MarkerId('current_position'),
                 position: latLngPosition,
-                infoWindow: InfoWindow(
-                  title: 'Your Location',
-                  snippet: 'This is your current location.',
+                infoWindow: const InfoWindow(
+                  title: 'Your Location ',
+                  snippet: 'Please move to Google map to send your location',
                 ),
-                icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed), // Customize marker icon if needed
+                icon: BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueRed), // Customize marker icon if needed
               ),
             );
           });
@@ -99,7 +107,8 @@ class _MapScreenState extends State<MapScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Location Permission Required'),
-          content: Text('Location permission is required to use this app. Please grant the permission in the app settings.'),
+          content: Text(
+              'Location permission is required to use this app. Please grant the permission in the app settings.'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -131,6 +140,15 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Map"),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop( context,
+              MaterialPageRoute(
+                  builder: (context) => CalculationPage()),
+            ); // Navigate back to the previous page
+          },
+        ),
       ),
       body: Stack(
         children: [
@@ -143,14 +161,64 @@ class _MapScreenState extends State<MapScreen> {
             zoomControlsEnabled: true,
             zoomGesturesEnabled: true,
             onMapCreated: (GoogleMapController controller) {
-              _controllerGoogleMap.complete(controller);
               _controller = controller;
+              _controllerGoogleMap.complete(controller);
               locatePosition();
               setState(() {
-                bottomPaddingofMap = 0;
+                bottomPaddingofMap = 100;
               });
             },
-            markers: _markers, // Set markers
+            markers: Set<Marker>.of(_markers),
+          ),
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: bottomPaddingofMap +150,
+            // Adjust the value as needed for spacing
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              color: Colors.white,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: URLController,
+                    textInputAction: TextInputAction.next,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      labelText: 'Press on marker put your URL here',
+                      prefixIcon:
+                      Icon(Icons.account_box, color: Colors.orange),
+                      labelStyle: TextStyle(
+                        color: Colors.orange,
+                      ),
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => Home()),
+                      );//TODO
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      backgroundColor: Colors.orange,
+                    ),
+                    child: Text(
+                      "Make Order",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
