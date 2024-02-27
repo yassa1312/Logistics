@@ -402,6 +402,7 @@ class LoginScreenState extends State<LoginScreen> {
         // Successful login, navigate to Home page
         print('Login successful');
         print(response.body);
+
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString(
             'userData', 'someUserData'); // Save user data or token
