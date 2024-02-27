@@ -1,4 +1,55 @@
 import 'package:flutter/material.dart';
+import 'checkout.dart';
+
+class SelectedTruckController extends ChangeNotifier {
+  String _selectedTruck = 'Average Classic Box Truck';
+
+  String get selectedTruck => _selectedTruck;
+
+  set selectedTruck(String value) {
+    _selectedTruck = value;
+    notifyListeners(); // Notify the listeners that the selected truck has changed
+  }
+}
+
+class CostCalculator {
+  static const Map<String, double> locationCosts = {
+    'October-Asher': 50.0,
+    'Haram-Ramses': 70.0,
+  };
+
+  static const Map<String, double> truckCosts = {
+    'Average Classic Box Truck': 100.0,
+    'High Classic Box Truck': 150.0,
+    'Motor Tri-cycle': 50,
+    'Pickup Truck': 70,
+    'Platform Truck': 250,
+    'Refrigerator Truck': 150.0,
+    'Half-ton Classic Truck': 100.0
+  };
+
+  static const double serviceCostIncreasePercentage = 0.1; // 10%
+
+  static double calculateTotalCost(
+    String sourceLocation,
+    String destinationLocation,
+    String selectedTruck,
+    bool isInsuredTransportation,
+    bool isTakeCare,
+    bool isExtraWrapping,
+  ) {
+    double totalCost =
+        locationCosts['$sourceLocation-$destinationLocation'] ?? 0.0;
+    totalCost += truckCosts[selectedTruck] ?? 0.0;
+
+    if (isInsuredTransportation)
+      totalCost *= (1 + serviceCostIncreasePercentage);
+    if (isTakeCare) totalCost *= (1 + serviceCostIncreasePercentage);
+    if (isExtraWrapping) totalCost *= (1 + serviceCostIncreasePercentage);
+
+    return totalCost;
+  }
+}
 
 class CalculationPage extends StatefulWidget {
   @override
@@ -12,6 +63,15 @@ class _CalculationPageState extends State<CalculationPage> {
   String selectedTruckKey = '';
   String SelectedLocation = 'Select source';
   String SelectedLocation2 = 'Select destination';
+  bool isInsuredTransportation = false;
+  bool isTakeCare = false;
+  bool isExtraWrapping = false;
+
+  final Map<String, double> locationCosts = {
+    'October-Asher': 50.0,
+    'Haram-Ramses': 70.0,
+    // Define costs for other location pairs
+  };
 
   List<int> truckKeys = [1, 2, 3, 4];
 
@@ -22,7 +82,7 @@ class _CalculationPageState extends State<CalculationPage> {
   void updateSelectedTruck() {
     String key = getTruckKey(ShipmentType, SelectedCapacity);
     setState(() {
-      selectedTruck = truckMap[key] ?? 'Average Classic Box Truck';
+      selectedTruck = truckMap[key]!;
     });
   }
 
@@ -44,8 +104,8 @@ class _CalculationPageState extends State<CalculationPage> {
   ];
   final List<String> capacityList = [
     'Average (4x3 meter)',
+    'Very Low',
     'Low (1x1 meter)',
-    'Very low',
     'High (3x3 meter)',
     'Heavy (5x5 meter)',
     'No idea'
@@ -55,24 +115,27 @@ class _CalculationPageState extends State<CalculationPage> {
     'Normal shipmentLow (1x1 meter)': 'Motor Tri-cycle',
     'Normal shipmentHigh (3x3 meter)': 'Pickup Truck',
     'Normal shipmentHeavy (5x5 meter)': 'Platform Truck',
-    'IndustrialVery low': 'High Classic Box Truck',
-    'IndustrialLow': 'High Classic Box Truck',
-    'IndustrialAverage': 'High Classic Box Truck',
-    'IndustrialBelow average': 'High Classic Box Truck',
-    'IndustrialHigh': 'Platform Truck',
-    'IndustrialHeavy': 'Platform Truck',
+    'IndusterialAverage (4x3 meter)': 'Average Classic Box Truck',
+    'IndusterialLow (1x1 meter)': 'Average Classic Box Truck',
+    'IndusterialHigh (3x3 meter)': 'Pickup Truck',
+    'IndusterialHeavy (5x5 meter)': 'Platform Truck',
     'FurnitureAverage (4x3 meter)': 'Half-ton Classic Truck',
     'FurnitureLow (1x1 meter)': 'Motor Tri-cycle',
     'FurnitureHigh (3x3 meter)': 'Pickup Truck',
     'FurnitureHeavy (5x5 meter)': 'Platform Truck',
-    'Frozen food': 'Refrigerator Truck',
+    'Frozen food Average(4x3 meter)': 'Refrigerator Truck',
+    'Frozen foodVery low': 'Refrigerator Truck',
+    'Frozen foodLow (1x1 meter)': 'Refrigerator Truck',
+    'Frozen foodBelow average': 'Refrigerator Truck',
+    'Frozen foodHigh (3x3 meter)': 'Refrigerator Truck',
+    'Frozen foodHeavy (5x5 meter)': 'Refrigerator Truck',
     'Packages': 'Average Classic Box Truck',
     'ElectronicsVery low': 'Average Classic Box Truck',
-    'ElectronicsLow': 'Average Classic Box Truck',
-    'ElectronicsAverage': 'Average Classic Box Truck',
+    'ElectronicsLow (1x1 meter)': 'Average Classic Box Truck',
+    'ElectronicsAverage(4x3 meter)': 'Average Classic Box Truck',
     'ElectronicsBelow average': 'Average Classic Box Truck',
-    'ElectronicsHigh': 'High Classic Box Truck',
-    'ElectronicsHeavy': 'High Classic Box Truck',
+    'ElectronicsHigh (3x3 meter)': 'High Classic Box Truck',
+    'ElectronicsHeavy (5x5 meter)': 'High Classic Box Truck',
   };
 
   Map<String, String> truckImageMap = {
@@ -87,6 +150,14 @@ class _CalculationPageState extends State<CalculationPage> {
 
   @override
   Widget build(BuildContext context) {
+    double totalCost = CostCalculator.calculateTotalCost(
+      SelectedLocation,
+      SelectedLocation2,
+      selectedTruck,
+      isInsuredTransportation,
+      isTakeCare,
+      isExtraWrapping,
+    );
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -556,7 +627,66 @@ class _CalculationPageState extends State<CalculationPage> {
                       )
                     ],
                   ),
-                )
+                ),
+                CheckboxListTile(
+                  title: Text('Insured transportation'),
+                  activeColor: Colors.orange,
+                  value: isInsuredTransportation,
+                  onChanged: (bool? newValue) {
+                    setState(() {
+                      isInsuredTransportation = newValue!;
+                    });
+                  },
+                ),
+                CheckboxListTile(
+                  title: Text('TakeCare'),
+                  activeColor: Colors.orange,
+                  value: isTakeCare,
+                  onChanged: (bool? newValue) {
+                    setState(() {
+                      isTakeCare = newValue!;
+                    });
+                  },
+                ),
+                CheckboxListTile(
+                  title: Text('Extra wrapping'),
+                  activeColor: Colors.orange,
+                  value: isExtraWrapping,
+                  onChanged: (bool? newValue) {
+                    setState(() {
+                      isExtraWrapping = newValue!;
+                    });
+                  },
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border(top: BorderSide(color: Colors.grey)),
+                  ),
+                  padding: EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Total cost = \$${totalCost.toStringAsFixed(2)}',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Navigate to checkout page
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CheckoutPage()),
+                          );
+                        },
+                        child: Text('Checkout'),
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.orange,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             )),
       ),
