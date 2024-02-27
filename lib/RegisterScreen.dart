@@ -396,8 +396,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 }
 
 class RegistrationAPI {
-  static Future<bool> registerUser(
-      String email, String password, String phone, String name) async {
+  static Future<bool> registerUser(String email, String password, String name, String phone) async {
     var headers = {
       'Accept': '*/*',
       'Content-Type': 'application/json',
@@ -410,7 +409,9 @@ class RegistrationAPI {
     var body = json.encode({
       "email": email,
       "password": password,
-    });
+      "phone": phone,
+      "name": name,
+    }
 
     try {
       var response = await http.post(
