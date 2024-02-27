@@ -9,6 +9,7 @@ import 'package:logistics/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logistics/LoginScreen.dart';
 import 'package:http/http.dart' as http;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -25,7 +26,8 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
   final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
 
@@ -46,7 +48,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     nameController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
-
   }
 
   @override
@@ -56,7 +57,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         color: Colors.orange,
         child: Column(
           children: [
-            const SizedBox(height: 30,),
+            const SizedBox(
+              height: 30,
+            ),
             SizedBox(
               height: 250,
               child: Padding(
@@ -81,7 +84,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       keyboardType: TextInputType.text,
                       decoration: const InputDecoration(
                         labelText: 'Name',
-                        prefixIcon: Icon(Icons.account_box,color: Colors.orange,),
+                        prefixIcon: Icon(
+                          Icons.account_box,
+                          color: Colors.orange,
+                        ),
                         labelStyle: TextStyle(
                           color: Colors.orange,
                         ),
@@ -99,7 +105,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           color: Colors.orange,
                         ),
                         border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.phone,color: Colors.orange,),
+                        prefixIcon: Icon(
+                          Icons.phone,
+                          color: Colors.orange,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -108,18 +117,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(
-                        labelText: 'Email',labelStyle: TextStyle(
-                        color: Colors.orange,
-                      ),
+                        labelText: 'Email',
+                        labelStyle: TextStyle(
+                          color: Colors.orange,
+                        ),
                         border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.email,color: Colors.orange,),
+                        prefixIcon: Icon(
+                          Icons.email,
+                          color: Colors.orange,
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Email required";
                         }
-                        if (!value.contains("@") ||
-                            !value.contains(".")) {
+                        if (!value.contains("@") || !value.contains(".")) {
                           return "Invalid email!";
                         }
                         return null;
@@ -146,13 +158,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 color: Colors.orange,
                               ),
                               border: const OutlineInputBorder(),
-                              prefixIcon: const Icon(Icons.lock,color: Colors.orange,),
+                              prefixIcon: const Icon(
+                                Icons.lock,
+                                color: Colors.orange,
+                              ),
                               suffixIcon: GestureDetector(
                                 onTap: togglePasswordVisibility1,
                                 child: Icon(
                                   obscureText1
                                       ? Icons.visibility
-                                      : Icons.visibility_off,color: Colors.orange,
+                                      : Icons.visibility_off,
+                                  color: Colors.orange,
                                 ),
                               ),
                             ),
@@ -177,28 +193,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               });
                             },
                             onFieldSubmitted: (_) {
-                              String enteredPassword = confirmPasswordController.text;
+                              String enteredPassword =
+                                  confirmPasswordController.text;
                               String originalPassword = passwordController.text;
 
                               if (enteredPassword == originalPassword) {
                                 onRegisterSuccessFirebase(context);
                                 //onRegisterSuccessAPI();//withAPI//TODO
                               } else {
-
-                                Fluttertoast.showToast(msg: "Passwords do not match.");
+                                Fluttertoast.showToast(
+                                    msg: "Passwords do not match.");
                               }
                             },
                             decoration: InputDecoration(
                               labelText: 'Confirm Password',
                               labelStyle: const TextStyle(
-                                color: Colors.orange, // Change label color to orange
+                                color: Colors
+                                    .orange, // Change label color to orange
                               ),
                               border: const OutlineInputBorder(),
-                              prefixIcon: const Icon(Icons.lock, color: Colors.orange),
+                              prefixIcon:
+                                  const Icon(Icons.lock, color: Colors.orange),
                               suffixIcon: GestureDetector(
                                 onTap: togglePasswordVisibility1,
                                 child: Icon(
-                                  obscureText1 ? Icons.visibility : Icons.visibility_off,
+                                  obscureText1
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
                                   color: Colors.orange,
                                 ),
                               ),
@@ -214,16 +235,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
-                          ), backgroundColor: Colors.orange,
+                          ),
+                          backgroundColor: Colors.orange,
                         ),
                         onPressed: () {
-
-                              // If passwords match, call the registration function
-                              onRegisterSuccessFirebase(context);
-                              // Alternatively, you might want to call an API registration function here
-                              // onRegisterSuccessAPI();//TODO
-
-                          },
+                          // If passwords match, call the registration function
+                          onRegisterSuccessFirebase(context);
+                          // Alternatively, you might want to call an API registration function here
+                          // onRegisterSuccessAPI();//TODO
+                        },
                         child: const Text(
                           "Register",
                           style: TextStyle(
@@ -254,8 +274,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: const Text(
                             "Login",
                             style: TextStyle(
-                              color: Colors.
-                              orange,
+                              color: Colors.orange,
                               fontSize: 18,
                             ),
                           ),
@@ -294,7 +313,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // Check if the passwords match
       if (password == confirmPassword) {
         // If passwords match, continue with Firebase registration
-        UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        UserCredential userCredential =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text.trim(),
           password: password.trim(),
         );
@@ -335,8 +355,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-
-
   void displayToast(String message) {
     Fluttertoast.showToast(
       msg: message,
@@ -348,6 +366,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       fontSize: 18.0,
     );
   }
+
   void onRegisterSuccessAPI() async {
     String email = emailController.text;
     String name = nameController.text;
@@ -356,10 +375,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String confirmPassword = confirmPasswordController.text;
 
     if (password == confirmPassword) {
-      bool registrationSuccess = await RegistrationAPI.registerUser(email,name,phone,password);
+      bool registrationSuccess =
+          await RegistrationAPI.registerUser(email, name, phone, password);
 
       if (registrationSuccess) {
-        displayToast( "Account Created!");
+        displayToast("Account Created!");
 
         Navigator.pop(context);
         Navigator.pushReplacement(
@@ -367,20 +387,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
           MaterialPageRoute(builder: (context) => const LoginScreen()),
         );
       } else {
-        displayToast( "Registration failed. Please try again.");
+        displayToast("Registration failed. Please try again.");
       }
     } else {
-      displayToast( "Passwords do not match.");
+      displayToast("Passwords do not match.");
     }
   }
 }
 
 class RegistrationAPI {
-  static Future<bool> registerUser(String email, String password, String phone, String name) async {
+  static Future<bool> registerUser(
+      String email, String password, String phone, String name) async {
     var headers = {
       'Accept': '*/*',
       'Content-Type': 'application/json',
-      'Cookie': 'ARRAffinity=908058b9e2be1479dd6b543a1483598c49313680b79a6118cf8ebe4a5a376c07; ARRAffinitySameSite=908058b9e2be1479dd6b543a1483598c49313680b79a6118cf8ebe4a5a376c07'
+      'Cookie':
+          'ARRAffinity=908058b9e2be1479dd6b543a1483598c49313680b79a6118cf8ebe4a5a376c07; ARRAffinitySameSite=908058b9e2be1479dd6b543a1483598c49313680b79a6118cf8ebe4a5a376c07'
     };
     var url = Uri.parse(
         'https://logisticsapinet820231222162219.azurewebsites.net/register');
@@ -411,12 +433,11 @@ class RegistrationAPI {
   }
 }
 
-  Future<void> saveUserData(String userData) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userData', userData);
-  }
+Future<void> saveUserData(String userData) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString('userData', userData);
+}
 
-
-  double calculatePasswordStrength(String password) {
-    return 0.0;
-  }
+double calculatePasswordStrength(String password) {
+  return 0.0;
+}

@@ -1,85 +1,65 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter/material.dart';
-
-final List<String> imageUrls = [
-  'assets/icon1.jpeg',
-  'assets/icon2.jpeg',
-  'assets/icon3.jpeg',
-  'assets/portrait1.jpg',
-  'assets/portrait2.jpeg',
-  'assets/portrait3.jpeg',
-];
-
-final List<String> textTitle = [
-  'Normal Transportation',
-  'Packaging',
-  'Scheduling',
-  'Insured Transportation',
-  'TakeCare',
-  'Wrapper'
-];
-
-final List<String> Description = [
-  'Transport your goods in safety without any concerns about the damage of your goods',
-  'A special option for those who want their goods handled with extra care',
-  'Additional wrapping options to protect fragile or valuable items'
-];
-
 class CheckoutPage extends StatelessWidget {
+  final String sourceLocation;
+  final String destinationLocation;
+  final String selectedTruck;
+  final String totalCost;
+  final List<String> selectedServices;
+
+  CheckoutPage({
+    required this.sourceLocation,
+    required this.destinationLocation,
+    required this.selectedTruck,
+    required this.totalCost,
+    required this.selectedServices,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Services',
-          style: TextStyle(
-            color: Colors.black,
-          ),
-        ),
+        title: Text('Checkout'),
         backgroundColor: Colors.orange,
       ),
-      body: Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(16.0),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Deliver anything, anywhere',
-              style: TextStyle(
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.orange,
-              ),
+              'From: $sourceLocation',
+              style: TextStyle(fontSize: 18),
             ),
-            SizedBox(
-              height: 10.0,
+            SizedBox(height: 10),
+            Text(
+              'To: $destinationLocation',
+              style: TextStyle(fontSize: 18),
             ),
-            Container(
-              child: Wrap(
-                spacing: 10.0,
-                runSpacing: 10.0,
-                children: List.generate(imageUrls.length, (index) {
-                  return Container(
-                    width: 100.0,
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          imageUrls[index],
-                          height: 80.0,
-                        ),
-                        SizedBox(height: 5.0),
-                        Text(
-                          textTitle[index],
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )
-                      ],
-                    ),
-                  );
-                }),
-              ),
+            SizedBox(height: 10),
+            Text(
+              'Choosen truck: $selectedTruck',
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'Cost: $totalCost',
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'Services:',
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 5),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: selectedServices
+                  .map((service) => Text(
+                        '- $service',
+                        style: TextStyle(fontSize: 16),
+                      ))
+                  .toList(),
             ),
           ],
         ),

@@ -73,6 +73,26 @@ class _CalculationPageState extends State<CalculationPage> {
     // Define costs for other location pairs
   };
 
+  String get totalCost {
+    if (!isLocationsSelected) {
+      return ''; // Return empty string if locations are not selected
+    } else {
+      double cost = CostCalculator.calculateTotalCost(
+        SelectedLocation,
+        SelectedLocation2,
+        selectedTruck,
+        isInsuredTransportation,
+        isTakeCare,
+        isExtraWrapping,
+      );
+      return '${cost.toStringAsFixed(2)}\ EGP'; // Return formatted cost string
+    }
+  }
+
+  bool get isLocationsSelected =>
+      SelectedLocation != 'Select source' &&
+      SelectedLocation2 != 'Select destination';
+
   List<int> truckKeys = [1, 2, 3, 4];
 
   String getTruckKey(String shipmentType, String capacity) {
@@ -150,14 +170,6 @@ class _CalculationPageState extends State<CalculationPage> {
 
   @override
   Widget build(BuildContext context) {
-    double totalCost = CostCalculator.calculateTotalCost(
-      SelectedLocation,
-      SelectedLocation2,
-      selectedTruck,
-      isInsuredTransportation,
-      isTakeCare,
-      isExtraWrapping,
-    );
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -624,7 +636,6 @@ class _CalculationPageState extends State<CalculationPage> {
                             )
                           ],
                         ),
-                        
                       )
                     ],
                   ),
@@ -668,19 +679,34 @@ class _CalculationPageState extends State<CalculationPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Total cost = \$${totalCost.toStringAsFixed(2)}',
+                        'Total cost = $totalCost',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          // Navigate to checkout page
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => CheckoutPage()),
-                          );
-                        },
-                        child: Text('Checkout'),
+                        onPressed: isLocationsSelected
+                            ? () {
+                                // Navigate to checkout page
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CheckoutPage(
+                                      sourceLocation: SelectedLocation,
+                                      destinationLocation: SelectedLocation2,
+                                      selectedTruck: selectedTruck,
+                                      totalCost: totalCost,
+                                      selectedServices: [
+                                        if (isInsuredTransportation)
+                                          'Insured transportation',
+                                        if (isTakeCare) 'TakeCare',
+                                        if (isExtraWrapping) 'Extra wrapping',
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }
+                            : null,
+                        child: Text('Checkout',
+                            style: TextStyle(color: Colors.white)),
                         style: ElevatedButton.styleFrom(
                           primary: Colors.orange,
                         ),
@@ -689,8 +715,7 @@ class _CalculationPageState extends State<CalculationPage> {
                   ),
                 ),
               ],
-            )
-        ),
+            )),
       ),
     );
   }
