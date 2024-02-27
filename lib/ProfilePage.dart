@@ -43,8 +43,11 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.orange, // Background color of the entire app bar
         title: Text('Profile'),
       ),
+
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -56,9 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
               backgroundImage: _imageUrlController.text.isNotEmpty
                   ? NetworkImage(_imageUrlController.text)
                   : null,
-              child: _imageUrlController.text.isEmpty
-                  ? Icon(Icons.person, size: 50)
-                  : null,
+              child: _imageUrlController.text.isEmpty ? Icon(Icons.person, size: 50) : null,
             ),
             SizedBox(height: 20),
 
@@ -70,6 +71,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 labelText: 'Email',
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.email, color: Colors.orange),
+                labelStyle: TextStyle(color: Colors.orange),
               ),
             ),
             SizedBox(height: 20),
@@ -81,6 +83,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 labelText: 'Name',
                 prefixIcon: Icon(Icons.account_box, color: Colors.orange),
                 border: OutlineInputBorder(),
+                labelStyle: TextStyle(color: Colors.orange),
               ),
             ),
             SizedBox(height: 10),
@@ -92,6 +95,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 labelText: 'Phone Number',
                 prefixIcon: Icon(Icons.phone, color: Colors.orange),
                 border: OutlineInputBorder(),
+                labelStyle: TextStyle(color: Colors.orange),
               ),
             ),
             SizedBox(height: 20),
@@ -102,6 +106,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 // You can add edit functionality here if needed
               },
               child: Text('Edit'),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.orange,
+              ),
             ),
           ],
         ),
