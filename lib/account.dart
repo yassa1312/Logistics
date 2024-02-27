@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logistics/ProfilePage.dart';
 
 class NoteLine {
   final String text1;
@@ -55,12 +56,12 @@ class Account extends StatelessWidget {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        //Navigator.push(
-                        //context,
-                        //MaterialPageRoute(
-                        //builder: (context) => HelpPage(),
-                        // ),
-                        //);
+                        Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                        builder: (context) =>ProfilePage(),
+                         ),
+                        );
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -72,10 +73,10 @@ class Account extends StatelessWidget {
                         child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.star, size: 40.0, color: Colors.white),
+                            Icon(Icons.person, size: 40.0, color: Colors.white),
                             SizedBox(height: 8.0),
                             Text(
-                              "Help",
+                              "Profile",
                               style: TextStyle(color: Colors.white),
                             ),
                           ],
@@ -158,6 +159,8 @@ class Account extends StatelessWidget {
     );
   }
 }
+
+
 
 
 

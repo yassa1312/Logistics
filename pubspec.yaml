@@ -44,6 +44,13 @@ dependencies:
   flutter_svg: ^2.0.9
   uuid: ^4.2.2
   lottie: ^2.6.0
+  firebase_core: ^2.24.2
+  firebase_auth: ^4.16.0
+  firebase_database: ^10.4.0
+  google_maps_flutter: ^2.5.3
+  cloud_firestore: ^4.14.0
+  geolocator: ^11.0.0
+
 
 dev_dependencies:
   flutter_test:
@@ -70,13 +77,12 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
      - assets/
+     - assets/animation/Animation-1703323213613.json
      - assets/truck1.jpg
      - assets/truck2.jpg
      - assets/truck3.jpg
      - assets/truck4.jpg
      - assets/truck5.jpg
-     - assets/truck6.jpg
-     - assets/truck7.jpg
      - assets/truck_placeholder.png
      - assets/icon1.jpeg
      - assets/icon2.jpeg
@@ -85,6 +91,11 @@ flutter:
      - assets/portrait2.jpeg
      - assets/portrait3.jpeg
      - assets/Picture2.png
+     - assets/desticon.png
+     - assets/desticon1.png
+     - assets/pickicon.png
+     - assets/posimarker.png
+     - assets/redmarker.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -111,3 +122,5 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+flutter_intl:
+  enabled: true

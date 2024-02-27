@@ -1,24 +1,37 @@
 // ignore_for_file: use_build_context_synchronously
 import 'dart:convert';
+import 'dart:io';
 import 'package:device_preview/device_preview.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:logistics/RegisterScreen.dart';
 import 'package:logistics/ResetPassword.dart';
 import 'package:logistics/app_dio.dart';
 import 'package:logistics/main.dart';
+import 'package:logistics/shared.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
 
+// ignore: deprecated_member_use
+DatabaseReference usersRef = FirebaseDatabase.instance.reference().child("user");
 
-void main() {
-  runApp(
-    DevicePreview(
-      builder: (context) => const SignUpApp(),
-    ),
-  );
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  Platform.isAndroid
+  ? await Firebase.initializeApp(
+  options: const FirebaseOptions(
+  apiKey: 'AIzaSyAUyWogGMNsLDc86u0DnmaxLbXSbLuicTo' ,
+  appId: '1:921546570785:android:cdc7f7fecf810a6288b760' ,
+  messagingSenderId: '921546570785' ,
+  projectId:'com.example.logistics' ,
+  ))
+  :await Firebase.initializeApp();
+  runApp(const SignUpApp());
 }
 
 class SignUpApp extends StatelessWidget {
@@ -106,6 +119,7 @@ class LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   bool isKeyboardVisible = false;
+  bool obscureText = true;
 
   @override
   void initState() {
@@ -149,63 +163,7 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
 
-  Future<void> loginUserAPI(String email, String password) async {
-    const String apiUrl = 'https://logisticsapinet820231222162219.azurewebsites.net/login'; // Replace with your actual API endpoint
 
-    final Map<String, String> headers = {
-      'Content-Type': 'application/json',
-    };
-
-    final Map<String, dynamic> body = {
-      'email': email,
-      'password': password,
-    };
-
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: headers,
-        body: json.encode(body),
-      );
-
-      if (response.statusCode == 200) {
-        // Successful login, navigate to Home page
-        print('Login successful');
-        print(response.body);
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString(
-            'userData', 'someUserData'); // Save user data or token
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Home()),
-        );
-        displayToast('Login successful');
-      } else {
-        // Handle login failure
-        print('Login failed');
-        print('Status Code: ${response.statusCode}');
-        print('Response Body: ${response.body}');
-        displayToast('Login failed');
-      }
-    } catch (error) {
-      // Handle any exceptions that may occur during the HTTP request
-      print('Error during login request: $error');
-      displayToast('Error during login request');
-    }
-  }
-
-
-  Future<void> login() async {
-    final userData = await getUserData();
-    if (formKey.currentState!.validate()) {
-      if (userData == null) {
-        String email = emailController.text;
-        String password = passwordController.text;
-        await loginUserAPI(email, password);
-      }
-    }
-  }
 
   void displayToast(String message) {
     Fluttertoast.showToast(
@@ -318,7 +276,8 @@ class LoginScreenState extends State<LoginScreen> {
                                 setState(() {});
                               },
                               onEditingComplete: () {
-                                login();
+                                loginFirebase();
+                                //loginAPI();//with API//TODO
                               },
                             ),
                             SizedBox(height: 10.sp),
@@ -327,20 +286,17 @@ class LoginScreenState extends State<LoginScreen> {
                                 Expanded(
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => Home()),
-                                      );
-                                    },//without API
-                                   // onPressed: login, //with API
+                                      loginFirebase();
+                                      // Call loginFirebase() function here
+                                      //loginAPI();//with API//TODO
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            10.0.sp),
+                                        borderRadius: BorderRadius.circular(10.0.sp),
                                       ),
                                       backgroundColor: Colors.orange,
                                     ),
-                                    child:  Text(
+                                    child: Text(
                                       "Login",
                                       style: TextStyle(
                                         color: Colors.white,
@@ -349,6 +305,7 @@ class LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ),
                                 ),
+
                               ],
                             ),
                             SizedBox(height: 5.sp),
@@ -399,7 +356,98 @@ class LoginScreenState extends State<LoginScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('userData');
   }
+  void saveLoggedIn() async {
+    PreferenceUtils.setBool(PrefKeys.loggedIn, true);
+  }
+  void loginFirebase() async {
+    try {
+      // Not validate => return
+      if (!formKey.currentState!.validate()) {
+        return;
+      }
 
+      String email = emailController.text;
+      String password = passwordController.text;
+
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Login successful
+      print('Login successful');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userData', 'someUserData'); // Save user data or token
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Home()),
+      );
+      displayToast('Login successful');
+    } catch (error) {
+      // Handle login failure
+      print('Login failed');
+      print('Error: $error');
+      displayToast('Login failed');
+    }
+  }
+
+  Future<void> loginUserAPI(String email, String password) async {
+    const String apiUrl = 'https://logisticsapinet820231222162219.azurewebsites.net/login'; // Replace with your actual API endpoint
+
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
+
+    final Map<String, dynamic> body = {
+      'email': email,
+      'password': password,
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: headers,
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 200) {
+        // Successful login, navigate to Home page
+        print('Login successful');
+        print(response.body);
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+            'userData', 'someUserData'); // Save user data or token
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Home()),
+        );
+        displayToast('Login successful');
+      } else {
+        // Handle login failure
+        print('Login failed');
+        print('Status Code: ${response.statusCode}');
+        print('Response Body: ${response.body}');
+        displayToast('Login failed');
+      }
+    } catch (error) {
+      // Handle any exceptions that may occur during the HTTP request
+      print('Error during login request: $error');
+      displayToast('Error during login request');
+    }
+  }
+
+  Future<void> loginAPI() async {
+    final userData = await getUserData();
+    if (formKey.currentState!.validate()) {
+      if (userData == null) {
+        String email = emailController.text;
+        String password = passwordController.text;
+        await loginUserAPI(email, password);
+      }
+    }
+  }
 
   void navToForgetPassword(BuildContext context) {
     Navigator.push(
@@ -407,4 +455,7 @@ class LoginScreenState extends State<LoginScreen> {
       MaterialPageRoute(builder: (context) => const ResetPassword()),
     );
   }
+
+
 }
+

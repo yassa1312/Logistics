@@ -1,12 +1,19 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:logistics/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logistics/LoginScreen.dart';
 import 'package:http/http.dart' as http;
-
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const RegisterScreen());
+}
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -35,6 +42,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     super.dispose();
     emailController.dispose();
+    phoneNumberController.dispose();
+    nameController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
 
@@ -67,11 +76,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: ListView(
                   children: [
                     TextFormField(
+                      controller: nameController,
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.text,
                       decoration: const InputDecoration(
                         labelText: 'Name',
-                        prefixIcon: Icon(Icons.email,color: Colors.orange,),
+                        prefixIcon: Icon(Icons.account_box,color: Colors.orange,),
                         labelStyle: TextStyle(
                           color: Colors.orange,
                         ),
@@ -80,6 +90,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
+                      controller: phoneNumberController,
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.phone,
                       decoration: const InputDecoration(
@@ -103,6 +114,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.email,color: Colors.orange,),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Email required";
+                        }
+                        if (!value.contains("@") ||
+                            !value.contains(".")) {
+                          return "Invalid email!";
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 10),
                     SizedBox(
@@ -135,6 +156,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                               ),
                             ),
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return "Password required";
+                              }
+                              if (value.length < 6) {
+                                return "Password must be at least 6 characters";
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 10),
                           TextFormField(
@@ -151,8 +181,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               String originalPassword = passwordController.text;
 
                               if (enteredPassword == originalPassword) {
-
-                                onRegisterSuccess();
+                                onRegisterSuccessFirebase(context);
+                                //onRegisterSuccessAPI();//withAPI//TODO
                               } else {
 
                                 Fluttertoast.showToast(msg: "Passwords do not match.");
@@ -187,14 +217,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ), backgroundColor: Colors.orange,
                         ),
                         onPressed: () {
-                          String password = passwordController.text;
-                          String confirmPassword = confirmPasswordController.text;
-                          if (password == confirmPassword) {
-                            onRegisterSuccess();
-                          } else {
-                            Fluttertoast.showToast(msg: "Passwords do not match.");
-                          }
-                        },
+
+                              // If passwords match, call the registration function
+                              onRegisterSuccessFirebase(context);
+                              // Alternatively, you might want to call an API registration function here
+                              // onRegisterSuccessAPI();//TODO
+
+                          },
                         child: const Text(
                           "Register",
                           style: TextStyle(
@@ -242,6 +271,72 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
+
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
+  void onRegisterSuccessFirebase(BuildContext context) async {
+    try {
+      // Check if the name is at least 3 characters
+      if (nameController.text.length < 4) {
+        displayToast("Name must be at least 3 characters.");
+        return;
+      }
+
+      // Check if the phone number is empty
+      if (phoneNumberController.text.isEmpty) {
+        displayToast("Phone Number is mandatory.");
+        return;
+      }
+
+      String password = passwordController.text;
+      String confirmPassword = confirmPasswordController.text;
+
+      // Check if the passwords match
+      if (password == confirmPassword) {
+        // If passwords match, continue with Firebase registration
+        UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: emailController.text.trim(),
+          password: password.trim(),
+        );
+
+        User? firebaseUser = userCredential.user;
+
+        if (firebaseUser != null) {
+          // Save additional user data to Firebase database
+          Map<String, dynamic> userDataMap = {
+            "name": nameController.text.trim(),
+            "email": emailController.text.trim(),
+            "phone": phoneNumberController.text.trim(),
+          };
+
+          // Display success message
+          displayToast("Account created successfully!");
+
+          // Navigate to login screen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          );
+          // Save user data to Firebase database
+          await usersRef.child(firebaseUser.uid).set(userDataMap);
+        } else {
+          // Handle the case when firebaseUser is null
+          print('Error: firebaseUser is null');
+          displayToast("Registration failed. Please try again.");
+        }
+      } else {
+        // If passwords don't match, display a toast message
+        displayToast("Passwords do not match.");
+      }
+    } catch (e) {
+      // Handle errors during registration
+      print('Error registering user: $e');
+      displayToast("Registration failed. Please try again.");
+    }
+  }
+
+
+
   void displayToast(String message) {
     Fluttertoast.showToast(
       msg: message,
@@ -253,13 +348,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
       fontSize: 18.0,
     );
   }
-  void onRegisterSuccess() async {
+  void onRegisterSuccessAPI() async {
     String email = emailController.text;
+    String name = nameController.text;
+    String phone = phoneNumberController.text;
     String password = passwordController.text;
     String confirmPassword = confirmPasswordController.text;
 
     if (password == confirmPassword) {
-      bool registrationSuccess = await RegistrationAPI.registerUser(email, password);
+      bool registrationSuccess = await RegistrationAPI.registerUser(email,name,phone,password);
 
       if (registrationSuccess) {
         displayToast( "Account Created!");
@@ -279,7 +376,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 }
 
 class RegistrationAPI {
-  static Future<bool> registerUser(String email, String password) async {
+  static Future<bool> registerUser(String email, String password, String phone, String name) async {
     var headers = {
       'Accept': '*/*',
       'Content-Type': 'application/json',

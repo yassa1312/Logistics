@@ -624,6 +624,7 @@ class _CalculationPageState extends State<CalculationPage> {
                             )
                           ],
                         ),
+                        
                       )
                     ],
                   ),
@@ -688,7 +689,8 @@ class _CalculationPageState extends State<CalculationPage> {
                   ),
                 ),
               ],
-            )),
+            )
+        ),
       ),
     );
   }
