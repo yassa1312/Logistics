@@ -1,13 +1,29 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:logistics/LoginScreen.dart';
 import 'home.dart';
 import 'services.dart';
 import 'activity.dart';
 import 'account.dart';
 
+// ignore: deprecated_member_use
+DatabaseReference usersRef = FirebaseDatabase.instance.reference().child("user");
+
 void main() async {
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  Platform.isAndroid
+      ? await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: 'AIzaSyAUyWogGMNsLDc86u0DnmaxLbXSbLuicTo' ,
+        appId: '1:921546570785:android:cdc7f7fecf810a6288b760' ,
+        messagingSenderId: '921546570785' ,
+        projectId:'com.example.logistics' ,
+      ))
+      :await Firebase.initializeApp();
+  runApp(const SignUpApp());
 }
 // ignore: deprecated_member_use
 class MyApp extends StatelessWidget {
@@ -17,7 +33,7 @@ class MyApp extends StatelessWidget {
       title: 'SPLT App',
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
-      home: Home(),
+      home: LoginScreen(),
     );
   }
 }

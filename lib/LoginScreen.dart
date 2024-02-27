@@ -17,22 +17,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
 
-// ignore: deprecated_member_use
-DatabaseReference usersRef = FirebaseDatabase.instance.reference().child("user");
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  Platform.isAndroid
-  ? await Firebase.initializeApp(
-  options: const FirebaseOptions(
-  apiKey: 'AIzaSyAUyWogGMNsLDc86u0DnmaxLbXSbLuicTo' ,
-  appId: '1:921546570785:android:cdc7f7fecf810a6288b760' ,
-  messagingSenderId: '921546570785' ,
-  projectId:'com.example.logistics' ,
-  ))
-  :await Firebase.initializeApp();
-  runApp(const SignUpApp());
-}
+
 
 class SignUpApp extends StatelessWidget {
   const SignUpApp({Key? key}) : super(key: key);
@@ -276,8 +262,8 @@ class LoginScreenState extends State<LoginScreen> {
                                 setState(() {});
                               },
                               onEditingComplete: () {
-                                loginFirebase();
-                                //loginAPI();//with API//TODO
+                                //loginFirebase();
+                                loginAPI(context);//with API//TODO
                               },
                             ),
                             SizedBox(height: 10.sp),
@@ -286,9 +272,9 @@ class LoginScreenState extends State<LoginScreen> {
                                 Expanded(
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      loginFirebase();
+                                      //loginFirebase();
                                       // Call loginFirebase() function here
-                                      //loginAPI();//with API//TODO
+                                      loginAPI(context);//with API//TODO
                                     },
                                     style: ElevatedButton.styleFrom(
                                       shape: RoundedRectangleBorder(
@@ -392,8 +378,9 @@ class LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> loginUserAPI(String email, String password) async {
-    const String apiUrl = 'https://logisticsapinet820231222162219.azurewebsites.net/login'; // Replace with your actual API endpoint
+
+  Future<void> loginUserAPI(BuildContext context, String email, String password) async {
+    const String apiUrl = 'http://www.logistics-api.somee.com/login'; // Replace with your actual API endpoint
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -438,16 +425,18 @@ class LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> loginAPI() async {
+
+  Future<void> loginAPI(BuildContext context) async {
     final userData = await getUserData();
     if (formKey.currentState!.validate()) {
       if (userData == null) {
         String email = emailController.text;
         String password = passwordController.text;
-        await loginUserAPI(email, password);
+        await loginUserAPI(context, email, password); // Pass context to loginUserAPI
       }
     }
   }
+
 
   void navToForgetPassword(BuildContext context) {
     Navigator.push(
