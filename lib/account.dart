@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:logistics/PaymentPage.dart';
 import 'package:logistics/ProfilePage.dart';
+import 'package:logistics/activity.dart';
 
 class NoteLine {
   final String text1;
@@ -57,10 +59,10 @@ class Account extends StatelessWidget {
                     child: GestureDetector(
                       onTap: () {
                         Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                        builder: (context) =>ProfilePage(),
-                         ),
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>ProfilePage(),
+                          ),
                         );
                       },
                       child: Container(
@@ -88,12 +90,12 @@ class Account extends StatelessWidget {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        //Navigator.push(
-                        //contex
-                        //MaterialPageRoute(
-                        //builder: (context) => PaymentPage(),
-                        //),
-                        //);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>PaymentPage(),
+                          ),
+                        );
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -121,12 +123,12 @@ class Account extends StatelessWidget {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        //Navigator.push(
-                        // context,
-                        // MaterialPageRoute(
-                        //  builder: (context) => ActivityPage(),
-                        //),
-                        //);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Activity(),
+                          ),
+                        );
                       },
                       child: Container(
                         decoration: BoxDecoration(

@@ -22,7 +22,7 @@ class _ProfilePageState extends State<ProfilePage> {
   void fetchData() async {
     try {
       // Assuming you have a collection named 'users' in Firestore
-      DocumentSnapshot<Map<String, dynamic>> snapshot =
+      DocumentSnapshot<Map<String,dynamic>> snapshot =
       await FirebaseFirestore.instance.collection('users').doc('user_id').get();
 
       if (snapshot.exists) {
