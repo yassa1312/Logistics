@@ -1,4 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+Future<void> createShipmentRequest(
+    String pickUpLocation, String dropOffLocation, String selectedTruck) async {
+  final url =
+      Uri.parse('http://www.logistics-api.somee.com/api/User/CreateRequest');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'pick_Up_Location': pickUpLocation,
+        'drop_Off_Locatiom': dropOffLocation,
+        'ride_Type': selectedTruck, // You need to define the ride type
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      print('Shipment request created: ${response.body}');
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      print('Failed to create shipment request: ${response.body}');
+    }
+  } catch (exception) {
+    // Handle exceptions by printing the error
+    print('Error creating shipment request: $exception');
+  }
+}
 
 class CheckoutPage extends StatelessWidget {
   final String sourceLocation;
@@ -61,6 +96,17 @@ class CheckoutPage extends StatelessWidget {
                       ))
                   .toList(),
             ),
+            SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: () {
+                // Call the createShipmentRequest function with the selected locations
+                createShipmentRequest(
+                    sourceLocation, destinationLocation, selectedTruck);
+
+                // Navigate to the next page or show a confirmation message
+              },
+              child: Text('Confirm Order'),
+            )
           ],
         ),
       ),

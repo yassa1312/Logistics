@@ -1,18 +1,12 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:convert';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:logistics/main.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:logistics/LoginScreen.dart';
 import 'package:http/http.dart' as http;
+import 'package:logistics/LoginScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+void main() {
   runApp(const RegisterScreen());
 }
 
@@ -32,7 +26,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController nameController = TextEditingController();
 
   bool obscureText1 = true;
-  double strength = 0.0;
 
   void togglePasswordVisibility1() {
     setState(() {
@@ -147,11 +140,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             controller: passwordController,
                             textInputAction: TextInputAction.next,
                             obscureText: obscureText1,
-                            onChanged: (password) {
-                              setState(() {
-                                strength = calculatePasswordStrength(password);
-                              });
-                            },
                             decoration: InputDecoration(
                               labelText: 'Password',
                               labelStyle: const TextStyle(
@@ -187,22 +175,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             controller: confirmPasswordController,
                             textInputAction: TextInputAction.done,
                             obscureText: obscureText1,
-                            onChanged: (password) {
-                              setState(() {
-                                strength = calculatePasswordStrength(password);
-                              });
-                            },
                             onFieldSubmitted: (_) {
                               String enteredPassword =
                                   confirmPasswordController.text;
                               String originalPassword = passwordController.text;
 
                               if (enteredPassword == originalPassword) {
-                                onRegisterSuccessFirebase(context);
-                                //onRegisterSuccessAPI();//withAPI//TODO
+                                onRegisterSuccessAPI();
                               } else {
-                                Fluttertoast.showToast(
-                                    msg: "Passwords do not match.");
+                                displayToast("Passwords do not match.");
                               }
                             },
                             decoration: InputDecoration(
@@ -238,12 +219,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           backgroundColor: Colors.orange,
                         ),
-                        onPressed: () {
-                          // If passwords match, call the registration function
-                          onRegisterSuccessFirebase(context);
-                          // Alternatively, you might want to call an API registration function here
-                          // onRegisterSuccessAPI();//TODO
-                        },
+                        onPressed: onRegisterSuccessAPI,
                         child: const Text(
                           "Register",
                           style: TextStyle(
@@ -291,67 +267,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  void onRegisterSuccessAPI() async {
+    String email = emailController.text;
+    String name = nameController.text;
+    String phone = phoneNumberController.text;
+    String password = passwordController.text;
+    String confirmPassword = confirmPasswordController.text;
 
-  void onRegisterSuccessFirebase(BuildContext context) async {
-    try {
+    // Check if the passwords match
+    if (password == confirmPassword) {
       // Check if the name is at least 3 characters
-      if (nameController.text.length < 4) {
+      if (name.length < 4) {
         displayToast("Name must be at least 3 characters.");
         return;
       }
 
       // Check if the phone number is empty
-      if (phoneNumberController.text.isEmpty) {
+      if (phone.isEmpty) {
         displayToast("Phone Number is mandatory.");
         return;
       }
 
-      String password = passwordController.text;
-      String confirmPassword = confirmPasswordController.text;
+      // Attempt API registration
+      try {
+        bool registrationSuccess =
+            await RegistrationAPI.registerUser(email, password, name, phone);
 
-      // Check if the passwords match
-      if (password == confirmPassword) {
-        // If passwords match, continue with Firebase registration
-        UserCredential userCredential =
-            await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: password.trim(),
-        );
+        RegistrationAPI.displayRegistrationResult(
+            registrationSuccess); // Call displayRegistrationResult
 
-        User? firebaseUser = userCredential.user;
-
-        if (firebaseUser != null) {
-          // Save additional user data to Firebase database
-          Map<String, dynamic> userDataMap = {
-            "name": nameController.text.trim(),
-            "email": emailController.text.trim(),
-            "phone": phoneNumberController.text.trim(),
-          };
-
-          // Display success message
-          displayToast("Account created successfully!");
-
-          // Navigate to login screen
+        if (registrationSuccess) {
+          Navigator.pop(context);
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const LoginScreen()),
           );
-          // Save user data to Firebase database
-          await usersRef.child(firebaseUser.uid).set(userDataMap);
-        } else {
-          // Handle the case when firebaseUser is null
-          print('Error: firebaseUser is null');
-          displayToast("Registration failed. Please try again.");
         }
-      } else {
-        // If passwords don't match, display a toast message
-        displayToast("Passwords do not match.");
+      } catch (error) {
+        displayToast("Registration failed");
       }
-    } catch (e) {
-      // Handle errors during registration
-      print('Error registering user: $e');
-      displayToast("Registration failed. Please try again.");
+    } else {
+      displayToast("Passwords do not match.");
     }
   }
 
@@ -366,71 +322,59 @@ class _RegisterScreenState extends State<RegisterScreen> {
       fontSize: 18.0,
     );
   }
-
-  void onRegisterSuccessAPI() async {
-    String email = emailController.text;
-    String name = nameController.text;
-    String phone = phoneNumberController.text;
-    String password = passwordController.text;
-    String confirmPassword = confirmPasswordController.text;
-
-    if (password == confirmPassword) {
-      bool registrationSuccess =
-          await RegistrationAPI.registerUser(email, name, phone, password);
-
-      if (registrationSuccess) {
-        displayToast("Account Created!");
-
-        Navigator.pop(context);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
-      } else {
-        displayToast("Registration failed. Please try again.");
-      }
-    } else {
-      displayToast("Passwords do not match.");
-    }
-  }
 }
 
 class RegistrationAPI {
-  static Future<bool> registerUser(String email, String password, String name, String phone) async {
+  static Future<bool> registerUser(
+      String email, String password, String name, String phone) async {
     var headers = {
-      'Accept': '*/*',
       'Content-Type': 'application/json',
-      'Cookie':
-          'ARRAffinity=908058b9e2be1479dd6b543a1483598c49313680b79a6118cf8ebe4a5a376c07; ARRAffinitySameSite=908058b9e2be1479dd6b543a1483598c49313680b79a6118cf8ebe4a5a376c07'
     };
-    var url = Uri.parse(
-        'https://logisticsapinet820231222162219.azurewebsites.net/register');
 
-    var body = json.encode({
+    var data = {
       "email": email,
       "password": password,
-      "phone": phone,
       "name": name,
-    }
+      "phone": phone,
+    };
 
     try {
       var response = await http.post(
-        url,
+        Uri.parse('http://www.logistics-api.somee.com/api/Account/Register'),
         headers: headers,
-        body: body,
+        body: json.encode(data),
       );
 
       if (response.statusCode == 200) {
-        print(response.body);
         return true; // Successful registration
       } else {
-        print(response.reasonPhrase);
+        print(response.body);
         return false; // Unsuccessful registration
       }
     } catch (error) {
       print('Error during registration: $error');
       return false; // Error during registration
     }
+  }
+
+  static void displayRegistrationResult(bool registrationSuccess) {
+    if (registrationSuccess) {
+      displayToast("Account created successfully!");
+    } else {
+      displayToast("Registration failed. Please try again.");
+    }
+  }
+
+  static void displayToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.orange,
+      textColor: Colors.white,
+      fontSize: 18.0,
+    );
   }
 }
 
