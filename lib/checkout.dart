@@ -98,6 +98,10 @@ class CheckoutPage extends StatelessWidget {
             ),
             SizedBox(height: 30),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: Colors.orange, // Set background color to orange
+                onPrimary: Colors.white, // Set text color to white
+              ),
               onPressed: () {
                 // Call the createShipmentRequest function with the selected locations
                 createShipmentRequest(
@@ -107,6 +111,7 @@ class CheckoutPage extends StatelessWidget {
               },
               child: Text('Confirm Order'),
             )
+
           ],
         ),
       ),

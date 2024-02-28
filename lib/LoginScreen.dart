@@ -404,8 +404,7 @@ class LoginScreenState extends State<LoginScreen> {
         print(response.body);
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString(
-            'userData', 'someUserData'); // Save user data or token
+        await prefs.setString('userData', 'someUserData'); // Save user data or token
 
         Navigator.pushReplacement(
           context,

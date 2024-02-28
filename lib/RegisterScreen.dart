@@ -1,14 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:http/http.dart' as http;
-import 'package:logistics/LoginScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:logistics/LoginScreen.dart';
+import 'package:http/http.dart' as http;
 
-void main() {
-  runApp(const RegisterScreen());
-}
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -20,12 +18,12 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
   final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
 
   bool obscureText1 = true;
+  double strength = 0.0;
 
   void togglePasswordVisibility1() {
     setState(() {
@@ -41,6 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     nameController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
+
   }
 
   @override
@@ -50,9 +49,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         color: Colors.orange,
         child: Column(
           children: [
-            const SizedBox(
-              height: 30,
-            ),
+            const SizedBox(height: 30,),
             SizedBox(
               height: 250,
               child: Padding(
@@ -72,15 +69,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: ListView(
                   children: [
                     TextFormField(
-                      controller: nameController,
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.text,
+                      controller: nameController,
                       decoration: const InputDecoration(
                         labelText: 'Name',
-                        prefixIcon: Icon(
-                          Icons.account_box,
-                          color: Colors.orange,
-                        ),
+                        prefixIcon: Icon(Icons.email,color: Colors.orange,),
                         labelStyle: TextStyle(
                           color: Colors.orange,
                         ),
@@ -89,19 +83,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
-                      controller: phoneNumberController,
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.phone,
+                      controller: phoneNumberController,
                       decoration: const InputDecoration(
                         labelText: 'Phone Number',
                         labelStyle: TextStyle(
                           color: Colors.orange,
                         ),
                         border: OutlineInputBorder(),
-                        prefixIcon: Icon(
-                          Icons.phone,
-                          color: Colors.orange,
-                        ),
+                        prefixIcon: Icon(Icons.phone,color: Colors.orange,),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -110,25 +101,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(
-                        labelText: 'Email',
-                        labelStyle: TextStyle(
-                          color: Colors.orange,
-                        ),
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(
-                          Icons.email,
-                          color: Colors.orange,
-                        ),
+                        labelText: 'Email',labelStyle: TextStyle(
+                        color: Colors.orange,
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Email required";
-                        }
-                        if (!value.contains("@") || !value.contains(".")) {
-                          return "Invalid email!";
-                        }
-                        return null;
-                      },
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.email,color: Colors.orange,),
+                      ),
                     ),
                     const SizedBox(height: 10),
                     SizedBox(
@@ -140,35 +118,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             controller: passwordController,
                             textInputAction: TextInputAction.next,
                             obscureText: obscureText1,
+                            onChanged: (password) {
+
+                            },
                             decoration: InputDecoration(
                               labelText: 'Password',
                               labelStyle: const TextStyle(
                                 color: Colors.orange,
                               ),
                               border: const OutlineInputBorder(),
-                              prefixIcon: const Icon(
-                                Icons.lock,
-                                color: Colors.orange,
-                              ),
+                              prefixIcon: const Icon(Icons.lock,color: Colors.orange,),
                               suffixIcon: GestureDetector(
                                 onTap: togglePasswordVisibility1,
                                 child: Icon(
                                   obscureText1
                                       ? Icons.visibility
-                                      : Icons.visibility_off,
-                                  color: Colors.orange,
+                                      : Icons.visibility_off,color: Colors.orange,
                                 ),
                               ),
                             ),
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "Password required";
-                              }
-                              if (value.length < 6) {
-                                return "Password must be at least 6 characters";
-                              }
-                              return null;
-                            },
                           ),
                           const SizedBox(height: 10),
                           TextFormField(
@@ -176,31 +144,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             textInputAction: TextInputAction.done,
                             obscureText: obscureText1,
                             onFieldSubmitted: (_) {
-                              String enteredPassword =
-                                  confirmPasswordController.text;
+                              String enteredPassword = confirmPasswordController.text;
                               String originalPassword = passwordController.text;
 
                               if (enteredPassword == originalPassword) {
-                                onRegisterSuccessAPI();
+
+                                onRegisterSuccess();
                               } else {
-                                displayToast("Passwords do not match.");
+
+                                Fluttertoast.showToast(msg: "Passwords do not match.");
                               }
                             },
                             decoration: InputDecoration(
                               labelText: 'Confirm Password',
                               labelStyle: const TextStyle(
-                                color: Colors
-                                    .orange, // Change label color to orange
+                                color: Colors.orange, // Change label color to orange
                               ),
                               border: const OutlineInputBorder(),
-                              prefixIcon:
-                                  const Icon(Icons.lock, color: Colors.orange),
+                              prefixIcon: const Icon(Icons.lock, color: Colors.orange),
                               suffixIcon: GestureDetector(
                                 onTap: togglePasswordVisibility1,
                                 child: Icon(
-                                  obscureText1
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
+                                  obscureText1 ? Icons.visibility : Icons.visibility_off,
                                   color: Colors.orange,
                                 ),
                               ),
@@ -216,10 +181,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          backgroundColor: Colors.orange,
+                          ), backgroundColor: Colors.orange,
                         ),
-                        onPressed: onRegisterSuccessAPI,
+                        onPressed: () {
+                          String password = passwordController.text;
+                          String confirmPassword = confirmPasswordController.text;
+                          if (password == confirmPassword) {
+                            onRegisterSuccess();
+                          } else {
+                            Fluttertoast.showToast(msg: "Passwords do not match.");
+                          }
+                        },
                         child: const Text(
                           "Register",
                           style: TextStyle(
@@ -250,7 +222,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: const Text(
                             "Login",
                             style: TextStyle(
-                              color: Colors.orange,
+                              color: Colors.
+                              orange,
                               fontSize: 18,
                             ),
                           ),
@@ -266,8 +239,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
-
-  void onRegisterSuccessAPI() async {
+  void onRegisterSuccess() async {
     String email = emailController.text;
     String name = nameController.text;
     String phone = phoneNumberController.text;
@@ -290,11 +262,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       // Attempt API registration
       try {
-        bool registrationSuccess =
-            await RegistrationAPI.registerUser(email, password, name, phone);
+        bool registrationSuccess = await RegistrationAPI.registerUser(email, password, name, phone);
 
-        RegistrationAPI.displayRegistrationResult(
-            registrationSuccess); // Call displayRegistrationResult
+        RegistrationAPI.displayRegistrationResult(registrationSuccess); // Call displayRegistrationResult
 
         if (registrationSuccess) {
           Navigator.pop(context);
@@ -311,6 +281,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+
   void displayToast(String message) {
     Fluttertoast.showToast(
       msg: message,
@@ -325,8 +296,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 }
 
 class RegistrationAPI {
-  static Future<bool> registerUser(
-      String email, String password, String name, String phone) async {
+  static Future<bool> registerUser(String email, String password ,String name,String phone) async {
     var headers = {
       'Content-Type': 'application/json',
     };
@@ -336,6 +306,7 @@ class RegistrationAPI {
       "password": password,
       "name": name,
       "phone": phone,
+
     };
 
     try {
@@ -378,11 +349,8 @@ class RegistrationAPI {
   }
 }
 
+
 Future<void> saveUserData(String userData) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setString('userData', userData);
-}
-
-double calculatePasswordStrength(String password) {
-  return 0.0;
 }
