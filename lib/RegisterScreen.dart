@@ -17,10 +17,12 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
   final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
+  final TextEditingController roleController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
+
 
   bool obscureText1 = true;
   double strength = 0.0;
@@ -37,9 +39,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     emailController.dispose();
     phoneNumberController.dispose();
     nameController.dispose();
+    roleController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
-
   }
 
   @override
@@ -106,6 +108,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.email,color: Colors.orange,),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: roleController,
+                      textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.text,
+                      decoration: const InputDecoration(
+                        labelText: 'type',labelStyle: TextStyle(
+                        color: Colors.orange,
+                      ),
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.account_box,color: Colors.orange,),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -243,6 +258,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String email = emailController.text;
     String name = nameController.text;
     String phone = phoneNumberController.text;
+    String role = roleController.text;
     String password = passwordController.text;
     String confirmPassword = confirmPasswordController.text;
 
@@ -262,7 +278,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       // Attempt API registration
       try {
-        bool registrationSuccess = await RegistrationAPI.registerUser(email, password, name, phone);
+        bool registrationSuccess = await RegistrationAPI.registerUser(email, password, name, phone, role);
 
         RegistrationAPI.displayRegistrationResult(registrationSuccess); // Call displayRegistrationResult
 
@@ -296,7 +312,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 }
 
 class RegistrationAPI {
-  static Future<bool> registerUser(String email, String password ,String name,String phone) async {
+  static Future<bool> registerUser(String email, String password ,String name,String phone, String role) async {
     var headers = {
       'Content-Type': 'application/json',
     };
@@ -306,7 +322,7 @@ class RegistrationAPI {
       "password": password,
       "name": name,
       "phone": phone,
-
+      "role":role
     };
 
     try {
