@@ -404,6 +404,10 @@ class LoginScreenState extends State<LoginScreen> {
         print(response.body);
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
+        // Extract and save the access token
+        final responseBody = json.decode(response.body);
+        final accessToken = responseBody['accessToken'];
+        await prefs.setString('accessToken', accessToken); // Save access token
         await prefs.setString('userData', 'someUserData'); // Save user data or token
 
         Navigator.pushReplacement(
@@ -424,6 +428,7 @@ class LoginScreenState extends State<LoginScreen> {
       displayToast('Error during login request');
     }
   }
+
 
 
   Future<void> loginAPI(BuildContext context) async {
