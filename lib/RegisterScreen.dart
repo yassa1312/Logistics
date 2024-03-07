@@ -26,11 +26,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool obscureText1 = true;
   double strength = 0.0;
+  String userAutomation = 'user';
+
+  @override
+  void initState() {
+    super.initState();
+    roleController.text = userAutomation; // Set initial value to userAutomation
+    roleController.addListener(_updateUserAutomation); // Add listener to roleController
+  }
 
   void togglePasswordVisibility1() {
     setState(() {
       obscureText1 = !obscureText1;
     });
+  }
+
+  void _updateUserAutomation() {
+    // Update the userAutomation variable with the text field value
+    setState(() {
+      userAutomation = roleController.text;
+    });
+  }
+
+  void _sendDataToAPI() {
+    print('Sending text to API: $userAutomation');
   }
 
   @override
@@ -43,7 +62,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     passwordController.dispose();
     confirmPasswordController.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,7 +94,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       controller: nameController,
                       decoration: const InputDecoration(
                         labelText: 'Name',
-                        prefixIcon: Icon(Icons.email,color: Colors.orange,),
+                        prefixIcon: Icon(Icons.account_box,color: Colors.orange,),
                         labelStyle: TextStyle(
                           color: Colors.orange,
                         ),
@@ -111,19 +129,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    TextFormField(
-                      controller: roleController,
-                      textInputAction: TextInputAction.next,
-                      keyboardType: TextInputType.text,
-                      decoration: const InputDecoration(
-                        labelText: 'type',labelStyle: TextStyle(
-                        color: Colors.orange,
-                      ),
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.account_box,color: Colors.orange,),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
                     SizedBox(
                       width: double.infinity,
                       child: Column(
@@ -134,7 +139,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             textInputAction: TextInputAction.next,
                             obscureText: obscureText1,
                             onChanged: (password) {
-
                             },
                             decoration: InputDecoration(
                               labelText: 'Password',
@@ -163,7 +167,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               String originalPassword = passwordController.text;
 
                               if (enteredPassword == originalPassword) {
-
+                                _updateUserAutomation();
                                 onRegisterSuccess();
                               } else {
 
@@ -202,6 +206,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           String password = passwordController.text;
                           String confirmPassword = confirmPasswordController.text;
                           if (password == confirmPassword) {
+                            _updateUserAutomation();
                             onRegisterSuccess();
                           } else {
                             Fluttertoast.showToast(msg: "Passwords do not match.");
