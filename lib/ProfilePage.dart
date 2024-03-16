@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:logistics/PasswordChange.dart';
+import 'package:http/http.dart' as http;
+import 'package:logistics/auth_service.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -15,24 +18,98 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    // Fetch data from Firestore
-    fetchData();
+
+
+    // Fetch data from the API
+    fetchProfileData();
   }
 
-  void fetchData() async {
+  void editUserProfile() async {
     try {
-      // Assuming you have a collection named 'users' in Firestore
-      DocumentSnapshot<Map<String,dynamic>> snapshot =
-      await FirebaseFirestore.instance.collection('users').doc('user_id').get();
+      // Retrieve access token
+      String? token = await AuthService.getAccessToken();
 
-      if (snapshot.exists) {
-        Map<String, dynamic> userData = snapshot.data()!;
-        setState(() {
-          _emailController.text = userData['email'] ?? '';
-          _imageUrlController.text = userData['imageUrl'] ?? '';
-          _nameController.text = userData['name'] ?? '';
-          _phoneNumberController.text = userData['phoneNumber'] ?? '';
+      if (token != null) {
+        var headers = {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json', // Specify content type
+        };
+
+        var request = http.Request(
+            'PUT',
+            Uri.parse(
+                'http://www.logistics-api.somee.com/api/Account/EditMyProfile'));
+
+        // Prepare request body
+        request.headers.addAll(headers);
+        request.body = jsonEncode({
+          'password': 'Passw0rd', //TODO// Provide a valid password here
+          'name': _nameController.text,
+          'email': _emailController.text,
+          'phoneNumber': _phoneNumberController.text,
+          // Add other fields as needed
         });
+
+        // Print request body for debugging
+        print('Request Body: ${request.body}');
+
+        // Send the request
+        http.StreamedResponse response = await request.send();
+        String responseString = await response.stream.bytesToString();
+
+        print('Response Status Code: ${response.statusCode}');
+        print('Response Reason Phrase: ${response.reasonPhrase}');
+        print('Response Body: $responseString');
+        // Get response
+
+        if (response.statusCode == 200) {
+          print('Response: $responseString');
+          // Optionally, you can update UI or show a success message here
+        } else {
+          print('Failed to edit profile: ${response.reasonPhrase}');
+          // Optionally, you can handle error response here
+        }
+      } else {
+        print('Access token is null.');
+      }
+    } catch (error) {
+      print("Error editing profile: $error");
+    }
+  }
+
+  void fetchProfileData() async {
+    try {
+      // Retrieve access token
+      String? token = await AuthService.getAccessToken();
+
+      if (token != null) {
+        var headers = {
+          'Authorization': 'Bearer $token',
+        };
+
+        var response = await http.get(
+          Uri.parse('http://www.logistics-api.somee.com/api/Account/MyProfile'),
+          headers: headers,
+        );
+
+        if (response.statusCode == 200) {
+          // Decode and handle the response
+          Map<String, dynamic> responseData = jsonDecode(response.body);
+          // Do something with responseData
+          print(responseData);
+
+          setState(() {
+            // Example: Assign fetched data to controllers
+            _nameController.text = responseData['name'] ?? '';
+            _emailController.text = responseData['email'] ?? '';
+            _phoneNumberController.text = responseData['phoneNumber'] ?? '';
+            _imageUrlController.text = responseData['imageUrl'] ?? '';
+          });
+        } else {
+          print('Failed to fetch profile data: ${response.reasonPhrase}');
+        }
+      } else {
+        print('Access token is null.');
       }
     } catch (error) {
       print("Error fetching data: $error");
@@ -43,42 +120,27 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.orange, // Background color of the entire app bar
+        backgroundColor: Colors.orange,
         title: Text('Profile'),
       ),
-
-
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Image Field
             CircleAvatar(
               radius: 50,
               backgroundImage: _imageUrlController.text.isNotEmpty
                   ? NetworkImage(_imageUrlController.text)
                   : null,
-              child: _imageUrlController.text.isEmpty ? Icon(Icons.person, size: 50) : null,
+              child: _imageUrlController.text.isEmpty
+                  ? Icon(Icons.person, size: 50)
+                  : null,
             ),
             SizedBox(height: 20),
-
-            // Email Field
-            TextFormField(
-              controller: _emailController,
-              readOnly: true, // Read-only as it's fetched from Firestore
-              decoration: InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.email, color: Colors.orange),
-                labelStyle: TextStyle(color: Colors.orange),
-              ),
-            ),
-            SizedBox(height: 20),
-            // Name Field
             TextFormField(
               controller: _nameController,
-              readOnly: true, // Read-only as it's fetched from Firestore
+
               decoration: InputDecoration(
                 labelText: 'Name',
                 prefixIcon: Icon(Icons.account_box, color: Colors.orange),
@@ -87,10 +149,19 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             SizedBox(height: 10),
-            // Phone Number Field
+            TextFormField(
+              controller: _emailController,
+
+              decoration: InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.email, color: Colors.orange),
+                labelStyle: TextStyle(color: Colors.orange),
+              ),
+            ),
+            SizedBox(height: 10),
             TextFormField(
               controller: _phoneNumberController,
-              readOnly: true, // Read-only as it's fetched from Firestore
               decoration: InputDecoration(
                 labelText: 'Phone Number',
                 prefixIcon: Icon(Icons.phone, color: Colors.orange),
@@ -99,15 +170,25 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             SizedBox(height: 20),
-
-            // Save Button
             ElevatedButton(
               onPressed: () {
-                // You can add edit functionality here if needed
+                editUserProfile();
               },
               child: Text('Edit'),
               style: ElevatedButton.styleFrom(
-                primary: Colors.orange,
+                backgroundColor: Colors.orange,
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PasswordChange()),
+                );
+              },
+              child: Text('Password Change'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
               ),
             ),
           ],

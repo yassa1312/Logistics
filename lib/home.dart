@@ -161,7 +161,7 @@ class HomePage extends StatelessWidget {
                         height: 10.0,
                       ),
                       Container(
-                        height: 120.0,
+                        height: 130.0,
                         child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: 4,
@@ -211,7 +211,7 @@ class HomePage extends StatelessWidget {
 
                       //pictures, titles, descriptions scrollable horizentaly
                       Container(
-                        height: 200.0,
+                        height: 230.0,
                         child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: 3,

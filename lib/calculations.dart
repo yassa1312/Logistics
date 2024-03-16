@@ -473,7 +473,7 @@ class _CalculationPageState extends State<CalculationPage> {
                               Icon(Icons.keyboard_arrow_down),
                             ]),
                         style: ElevatedButton.styleFrom(
-                          primary: Colors.orange,
+                          backgroundColor: Colors.orange,
                         ),
                       ),
                       SizedBox(height: 10),
@@ -523,7 +523,7 @@ class _CalculationPageState extends State<CalculationPage> {
                               Icon(Icons.keyboard_arrow_down),
                             ]),
                         style: ElevatedButton.styleFrom(
-                          primary: Colors.orange,
+                          backgroundColor: Colors.orange,
                         ),
                       ),
                       SizedBox(height: 20),
@@ -708,7 +708,7 @@ class _CalculationPageState extends State<CalculationPage> {
                         child: Text('Checkout',
                             style: TextStyle(color: Colors.white)),
                         style: ElevatedButton.styleFrom(
-                          primary: Colors.orange,
+                          backgroundColor: Colors.orange,
                         ),
                       ),
                     ],

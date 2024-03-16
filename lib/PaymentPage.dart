@@ -97,8 +97,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 onPressed: _makePayment,
                 child: Text('Make Payment'),
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.orange,
-                  onPrimary: Colors.white,
+                  foregroundColor: Colors.white, backgroundColor: Colors.orange,
                 ),
               ),
             ],

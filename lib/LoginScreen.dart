@@ -1,67 +1,48 @@
 // ignore_for_file: use_build_context_synchronously
 import 'dart:convert';
-import 'dart:io';
-import 'package:device_preview/device_preview.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:logistics/RegisterScreen.dart';
 import 'package:logistics/ResetPassword.dart';
-import 'package:logistics/app_dio.dart';
 import 'package:logistics/main.dart';
-import 'package:logistics/shared.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:lottie/lottie.dart';
-
-
-
 
 class SignUpApp extends StatelessWidget {
   const SignUpApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ResponsiveSizer(
-      builder: (pO, pl, p2) {
-        return MaterialApp(
-          title: 'News App',
-          theme: ThemeData.light(),
-          darkTheme: ThemeData.dark(),
-          home: FutureBuilder<bool>(
-            future: isLoggedIn(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting ||
-                  snapshot.data == null) {
-                return Center(
-                  child: _buildDelayedWidget(
-                    duration: Duration(milliseconds: 1500), // Increased delay to 1500 milliseconds
-                    widget: Lottie.asset(
-                      'assets/animation/Animation-1703323213613.json',
-                      animate: true,
-                    ),
-                  ),
-                );
-              } else {
-                if (snapshot.data == true) {
-                  return _buildDelayedWidget(
-                    duration: Duration(milliseconds: 500),
-                    widget: Home(),
-                  );
-                } else {
-                  return _buildDelayedWidget(
-                    duration: Duration(milliseconds: 500),
-                    widget: LoginScreen(),
-                  );
-                }
-              }
-            },
-          ),
-        );
-      },
+    return MaterialApp(
+      title: 'News App',
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      home: FutureBuilder<bool>(
+        future: isLoggedIn(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting ||
+              snapshot.data == null) {
+            return Center(
+              child: _buildDelayedWidget(
+                duration: Duration(milliseconds: 1500),
+                widget: CircularProgressIndicator(),
+              ),
+            );
+          } else {
+            if (snapshot.data == true) {
+              return _buildDelayedWidget(
+                duration: Duration(milliseconds: 500),
+                widget: Home(),
+              );
+            } else {
+              return _buildDelayedWidget(
+                duration: Duration(milliseconds: 500),
+                widget: LoginScreen(),
+              );
+            }
+          }
+        },
+      ),
     );
   }
 
@@ -75,7 +56,7 @@ class SignUpApp extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting ||
             snapshot.data == null) {
           return Center(
-            child: CircularProgressIndicator(), // Placeholder while delaying
+            child: CircularProgressIndicator(),
           );
         } else {
           return widget;
@@ -84,13 +65,11 @@ class SignUpApp extends StatelessWidget {
     );
   }
 
-
   Future<bool> isLoggedIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('userData') != null;
   }
 }
-
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -104,31 +83,6 @@ class LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  bool isKeyboardVisible = false;
-  bool obscureText = true;
-
-  @override
-  void initState() {
-    checkLoggedIn();
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final mediaQuery = MediaQuery.of(context);
-      setState(() {
-        isKeyboardVisible = mediaQuery.viewInsets.bottom > 0;
-      });
-    });
-  }
-
-  Future<void> checkLoggedIn() async {
-    final userData = await getUserData();
-    if (userData != null) {
-      // User is logged in, navigate to Home screen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Home()),
-      );
-    }
-  }
 
   @override
   void dispose() {
@@ -143,13 +97,20 @@ class LoginScreenState extends State<LoginScreen> {
     });
   }
 
+  Future<void> checkLoggedIn() async {
+    final userData = await getUserData();
+    if (userData != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Home()),
+      );
+    }
+  }
+
   Future<String?> getUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('userData');
   }
-
-
-
 
   void displayToast(String message) {
     Fluttertoast.showToast(
@@ -163,7 +124,6 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -174,11 +134,11 @@ class LoginScreenState extends State<LoginScreen> {
             color: Colors.orange,
             child: Column(
               children: [
-                SizedBox(height: 30.sp),
+                SizedBox(height: 30),
                 SizedBox(
                   height: 250,
                   child: Padding(
-                    padding: EdgeInsets.all(0.sp),
+                    padding: EdgeInsets.all(0),
                     child: Image.asset(
                       'assets/Picture2.png',
                       fit: BoxFit.fill,
@@ -188,20 +148,23 @@ class LoginScreenState extends State<LoginScreen> {
                 Expanded(
                   child: Container(
                     color: Colors.white,
-                    padding: EdgeInsets.all(20.sp),
+                    padding: EdgeInsets.all(20),
                     child: SingleChildScrollView(
                       child: Form(
                         key: formKey,
                         child: Column(
                           children: [
-                            SizedBox(height: 30.sp),
+                            SizedBox(height: 30),
                             TextFormField(
                               controller: emailController,
                               textInputAction: TextInputAction.next,
                               keyboardType: TextInputType.emailAddress,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Email',
-                                border: OutlineInputBorder(),
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors
+                                      .blue), // Set border color here
+                                ),
                                 prefixIcon: Icon(
                                   Icons.email,
                                   color: Colors.orange,
@@ -224,19 +187,20 @@ class LoginScreenState extends State<LoginScreen> {
                                 setState(() {});
                               },
                             ),
-                            SizedBox(height: 10.sp),
+
+                            SizedBox(height: 10),
                             TextFormField(
                               controller: passwordController,
                               textInputAction: TextInputAction.done,
                               obscureText: _obscureText,
                               decoration: InputDecoration(
                                 labelText: 'Password',
-                                border: const OutlineInputBorder(),
-                                prefixIcon: const Icon(
+                                border: OutlineInputBorder(),
+                                prefixIcon: Icon(
                                   Icons.lock,
                                   color: Colors.orange,
                                 ),
-                                labelStyle: const TextStyle(
+                                labelStyle: TextStyle(
                                   color: Colors.orange,
                                 ),
                                 suffixIcon: GestureDetector(
@@ -262,23 +226,20 @@ class LoginScreenState extends State<LoginScreen> {
                                 setState(() {});
                               },
                               onEditingComplete: () {
-                                //loginFirebase();
-                                loginAPI(context);//with API//TODO
+                                loginAPI(context);
                               },
                             ),
-                            SizedBox(height: 10.sp),
+                            SizedBox(height: 10),
                             Row(
                               children: [
                                 Expanded(
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      //loginFirebase();
-                                      // Call loginFirebase() function here
-                                      loginAPI(context);//with API//TODO
+                                      loginAPI(context);
                                     },
                                     style: ElevatedButton.styleFrom(
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10.0.sp),
+                                        borderRadius: BorderRadius.circular(10),
                                       ),
                                       backgroundColor: Colors.orange,
                                     ),
@@ -286,22 +247,21 @@ class LoginScreenState extends State<LoginScreen> {
                                       "Login",
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 20.sp,
+                                        fontSize: 20,
                                       ),
                                     ),
                                   ),
                                 ),
-
                               ],
                             ),
-                            SizedBox(height: 5.sp),
+                            SizedBox(height: 5),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                 Text(
+                                Text(
                                   "Don't have an account? ",
                                   style: TextStyle(
-                                    fontSize: 18.sp,
+                                    fontSize: 18,
                                   ),
                                 ),
                                 TextButton(
@@ -318,7 +278,7 @@ class LoginScreenState extends State<LoginScreen> {
                                     "Register",
                                     style: TextStyle(
                                       color: Colors.orange,
-                                      fontSize: 18.sp,
+                                      fontSize: 18,
                                     ),
                                   ),
                                 ),
@@ -342,44 +302,20 @@ class LoginScreenState extends State<LoginScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('userData');
   }
-  void saveLoggedIn() async {
-    PreferenceUtils.setBool(PrefKeys.loggedIn, true);
-  }
-  void loginFirebase() async {
-    try {
-      // Not validate => return
-      if (!formKey.currentState!.validate()) {
-        return;
+
+  Future<void> loginAPI(BuildContext context) async {
+    final userData = await getUserData();
+    if (formKey.currentState!.validate()) {
+      if (userData == null) {
+        String email = emailController.text;
+        String password = passwordController.text;
+        await loginUserAPI(context, email, password);
       }
-
-      String email = emailController.text;
-      String password = passwordController.text;
-
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      // Login successful
-      print('Login successful');
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('userData', 'someUserData'); // Save user data or token
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Home()),
-      );
-      displayToast('Login successful');
-    } catch (error) {
-      // Handle login failure
-      print('Login failed');
-      print('Error: $error');
-      displayToast('Login failed');
     }
   }
 
-
-  Future<void> loginUserAPI(BuildContext context, String email, String password) async {
+  Future<void> loginUserAPI(BuildContext context, String email,
+      String password) async {
     const String apiUrl = 'http://www.logistics-api.somee.com/login'; // Replace with your actual API endpoint
 
     final Map<String, String> headers = {
@@ -428,28 +364,4 @@ class LoginScreenState extends State<LoginScreen> {
       displayToast('Error during login request');
     }
   }
-
-
-
-  Future<void> loginAPI(BuildContext context) async {
-    final userData = await getUserData();
-    if (formKey.currentState!.validate()) {
-      if (userData == null) {
-        String email = emailController.text;
-        String password = passwordController.text;
-        await loginUserAPI(context, email, password); // Pass context to loginUserAPI
-      }
-    }
-  }
-
-
-  void navToForgetPassword(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const ResetPassword()),
-    );
-  }
-
-
 }
-
