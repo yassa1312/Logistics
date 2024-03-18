@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import 'package:logistics/LoginScreen.dart';
 import 'package:logistics/auth_service.dart';
 import 'dart:convert';
 
 import 'package:logistics/main.dart';
-
-
 
 class CheckoutPage extends StatelessWidget {
   final String sourceLocation;
@@ -36,68 +33,50 @@ class CheckoutPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'From: $sourceLocation',
-              style: const TextStyle(fontSize: 18),
-            ),
+            Text('From: $sourceLocation', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
-            Text(
-              'To: $destinationLocation',
-              style: const TextStyle(fontSize: 18),
-            ),
+            Text('To: $destinationLocation', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
-            Text(
-              'Choosen truck: $selectedTruck',
-              style: const TextStyle(fontSize: 18),
-            ),
+            Text('Chosen truck: $selectedTruck', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
-            Text(
-              'Cost: $totalCost',
-              style: const TextStyle(fontSize: 18),
-            ),
+            Text('Cost: $totalCost', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
-            const Text(
-              'Services:',
-              style: TextStyle(fontSize: 18),
-            ),
+            const Text('Services:', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 5),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: selectedServices
-                  .map((service) => Text(
-                '- $service',
-                style: const TextStyle(fontSize: 16),
-              ))
+                  .map((service) => Text('- $service', style: const TextStyle(fontSize: 16)))
                   .toList(),
             ),
             const SizedBox(height: 30),
-        ElevatedButton(
-          onPressed: () async {
-            // Call the createShipmentRequest function with the selected locations
-            await createShipmentRequest(
-                sourceLocation, destinationLocation, selectedTruck);
+            ElevatedButton(
+              onPressed: () async {
+                bool success = await createShipmentRequest(
+                    context, sourceLocation, destinationLocation, selectedTruck);
 
-            displayToast('Shipment request created successfully!');
-            // Navigate to the login page
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => Home()),
-            );
-          },
-          child: const Text(
-            "Order Confirm",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
+                if (success) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => Home()),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange, // Background color
+              ),
+              child: const Text(
+                'Order Confirm',
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
             ),
-          ),
-        ),
           ],
         ),
       ),
     );
   }
 }
+
 void displayToast(String message) {
   Fluttertoast.showToast(
     msg: message,
@@ -109,8 +88,9 @@ void displayToast(String message) {
     fontSize: 18.0,
   );
 }
-Future<void> createShipmentRequest(
-    String pickUpLocation, String dropOffLocation, String selectedTruck) async {
+
+Future<bool> createShipmentRequest(BuildContext context, String pickUpLocation,
+    String dropOffLocation, String selectedTruck) async {
   final url = Uri.parse('http://www.logistics-api.somee.com/api/User/CreateRequest');
 
   try {
@@ -118,7 +98,7 @@ Future<void> createShipmentRequest(
 
     if (token == null) {
       print('Access token is null');
-      return;
+      return false;
     }
 
     final response = await http.post(
@@ -135,18 +115,21 @@ Future<void> createShipmentRequest(
     );
 
     if (response.statusCode == 200) {
-      // If the server returns a 200 OK response,
-      // then parse the JSON or handle the success.
       print('Shipment request created: ${response.body}');
-
-      // Show a confirmation dialog or navigate to another page
+      displayToast('Shipment request created successfully');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Home()),
+      );
+      return true;
     } else {
-      // If the server returns an error response,
-      // then throw an exception or handle the error.
       print('Failed to create shipment request: ${response.body}');
+      displayToast('Failed to create shipment request');
+      return false;
     }
   } catch (exception) {
-    // Handle exceptions by printing the error
     print('Error creating shipment request: $exception');
+    displayToast('Error creating shipment request');
+    return false;
   }
 }
