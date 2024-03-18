@@ -5,6 +5,8 @@ import 'package:logistics/LoginScreen.dart';
 import 'package:logistics/auth_service.dart';
 import 'dart:convert';
 
+import 'package:logistics/main.dart';
+
 
 
 class CheckoutPage extends StatelessWidget {
@@ -79,7 +81,7 @@ class CheckoutPage extends StatelessWidget {
             // Navigate to the login page
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => LoginScreen()),
+              MaterialPageRoute(builder: (context) => Home()),
             );
           },
           child: const Text(
