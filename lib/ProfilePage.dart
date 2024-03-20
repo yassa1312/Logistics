@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:logistics/PasswordChange.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:logistics/PasswordChange.dart';
 import 'package:logistics/auth_service.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -18,7 +19,6 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-
 
     // Fetch data from the API
     fetchProfileData();
@@ -60,14 +60,25 @@ class _ProfilePageState extends State<ProfilePage> {
         print('Response Status Code: ${response.statusCode}');
         print('Response Reason Phrase: ${response.reasonPhrase}');
         print('Response Body: $responseString');
-        // Get response
 
         if (response.statusCode == 200) {
           print('Response: $responseString');
-          // Optionally, you can update UI or show a success message here
+          Fluttertoast.showToast(
+            msg: "Profile updated successfully",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+          );
         } else {
           print('Failed to edit profile: ${response.reasonPhrase}');
-          // Optionally, you can handle error response here
+          Fluttertoast.showToast(
+            msg: "Failed to update profile: ${response.reasonPhrase}",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+          );
         }
       } else {
         print('Access token is null.');
@@ -140,7 +151,6 @@ class _ProfilePageState extends State<ProfilePage> {
             SizedBox(height: 20),
             TextFormField(
               controller: _nameController,
-
               decoration: InputDecoration(
                 labelText: 'Name',
                 prefixIcon: Icon(Icons.account_box, color: Colors.orange),
@@ -151,7 +161,6 @@ class _ProfilePageState extends State<ProfilePage> {
             SizedBox(height: 10),
             TextFormField(
               controller: _emailController,
-
               decoration: InputDecoration(
                 labelText: 'Email',
                 border: OutlineInputBorder(),
@@ -198,8 +207,4 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-void main() {
-  runApp(MaterialApp(
-    home: ProfilePage(),
-  ));
-}
+

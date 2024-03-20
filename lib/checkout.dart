@@ -116,7 +116,6 @@ Future<bool> createShipmentRequest(BuildContext context, String pickUpLocation,
 
     if (response.statusCode == 200) {
       print('Shipment request created: ${response.body}');
-      print(response.body);
       print('Status Code: ${response.statusCode}');
       displayToast('Shipment request created successfully');
       Navigator.pushReplacement(
@@ -126,7 +125,6 @@ Future<bool> createShipmentRequest(BuildContext context, String pickUpLocation,
       return true;
     } else {
       print('Failed to create shipment request: ${response.body}');
-      print(response.body);
       print('Status Code: ${response.statusCode}');
       displayToast('Failed to create shipment request');
       return false;
