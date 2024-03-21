@@ -5,6 +5,7 @@ import 'package:logistics/auth_service.dart';
 import 'dart:convert';
 
 import 'package:logistics/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CheckoutPage extends StatelessWidget {
   final String sourceLocation;
@@ -56,6 +57,7 @@ class CheckoutPage extends StatelessWidget {
                     context, sourceLocation, destinationLocation, selectedTruck);
 
                 if (success) {
+                  fetchDataAndSaveToSharedPrefs();
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => Home()),
@@ -134,4 +136,44 @@ Future<bool> createShipmentRequest(BuildContext context, String pickUpLocation,
     displayToast('Error creating shipment request');
     return false;
   }
+}
+
+Future<void> fetchDataAndSaveToSharedPrefs() async {
+  try {
+    String? token = await AuthService.getAccessToken();
+
+    if (token != null) {
+      var headers = {
+        'Authorization': 'Bearer $token',
+        'accept': '*/*',
+      };
+
+      var response = await http.get(
+        Uri.parse('http://www.logistics-api.somee.com/api/User/MyRequests'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        // Decode and handle the response
+        List<dynamic> responseData = jsonDecode(response.body);
+
+        // Extracting and saving request_Id
+        if (responseData.isNotEmpty) {
+          String requestId = responseData[0]['request_Id'];
+          await saveRequestIdToPrefs(requestId);
+          print('request_Id saved to shared preferences: $requestId');
+        }
+      } else {
+        print('Failed to fetch profile data: ${response.reasonPhrase}');
+      }
+    } else {
+      print('Access token is null.');
+    }
+  } catch (error) {
+    print("Error fetching data: $error");
+  }
+}
+Future<void> saveRequestIdToPrefs(String requestId) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString('request_Id', requestId);
 }

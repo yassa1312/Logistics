@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:logistics/LoginScreen.dart';
+import 'package:logistics/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'main.dart';
 import 'services.dart';
 import 'calculations.dart';
+import 'package:http/http.dart' as http;
 
 final List<String> imageUrls = [
   'assets/icon1.jpeg',
@@ -77,7 +78,6 @@ class HomePage extends StatelessWidget {
                       MaterialPageRoute(
                           builder: (context) => CalculationPage()),
                     );
-
                     // Open Google Maps
                   },
                   child: Container(
@@ -123,7 +123,7 @@ class HomePage extends StatelessWidget {
                 ),
                 const SizedBox(height: 30),
 
-                //SUGGESSTIONS
+                //SUGGESTIONS
                 Container(
                   width: double.infinity,
                   padding: EdgeInsets.all(16.0),
@@ -209,7 +209,7 @@ class HomePage extends StatelessWidget {
                       ),
                       SizedBox(height: 10.0),
 
-                      //pictures, titles, descriptions scrollable horizentaly
+                      //pictures, titles, descriptions scrollable horizontally
                       Container(
                         height: 230.0,
                         child: ListView.builder(
@@ -229,11 +229,11 @@ class HomePage extends StatelessWidget {
                                       decoration: BoxDecoration(
                                         image: DecorationImage(
                                           image:
-                                              AssetImage(imageUrls[index + 3]),
+                                          AssetImage(imageUrls[index + 3]),
                                           fit: BoxFit.cover,
                                         ),
                                         borderRadius:
-                                            BorderRadius.circular(8.0),
+                                        BorderRadius.circular(8.0),
                                       ),
                                     ),
                                     SizedBox(height: 5.0),
@@ -258,12 +258,62 @@ class HomePage extends StatelessWidget {
                       )
                     ],
                   ),
-                )
+                ),
+
+                // Cancel My Request Button
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Handle cancel request action
+                      // Example: call a function to cancel the request
+                      deleteRequest();
+                    },
+                    child: Text('Cancel My Request'),
+                  ),
+                ),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  Future<void> deleteRequest() async {
+    try {
+      // Fetch requestId from shared preferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? requestId = prefs.getString('request_Id');
+      String? token = await AuthService.getAccessToken();
+
+      if (requestId == null) {
+        print('Request ID not found in shared preferences.');
+        return;
+      }
+
+      // Construct the URL
+      String url = 'http://www.logistics-api.somee.com/api/User/DeleteMyRequests/$requestId';
+
+      // Define headers
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'accept': '*/*'};
+
+      // Make the DELETE request
+      var response = await http.delete(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      // Check the response status code
+      if (response.statusCode == 200) {
+        print('Request with ID $requestId deleted successfully.');
+      } else {
+        print('Failed to delete request. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error deleting request: $error');
+    }
   }
 }
