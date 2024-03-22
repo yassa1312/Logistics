@@ -13,12 +13,7 @@
           "package_name": "com.example.logistics"
         }
       },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAUyWogGMNsLDc86u0DnmaxLbXSbLuicTo"
-        }
-      ],
+
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": []
