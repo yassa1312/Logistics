@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -32,16 +33,17 @@ class Order {
       rideType: json['ride_Type'] ?? '',
     );
   }
-
-
 }
-
 
 class OrdersPage extends StatefulWidget {
   const OrdersPage({Key? key}) : super(key: key);
 
   @override
   _OrdersPageState createState() => _OrdersPageState();
+
+  void fetchOrders() {
+
+  }
 }
 
 class _OrdersPageState extends State<OrdersPage> {
@@ -49,23 +51,23 @@ class _OrdersPageState extends State<OrdersPage> {
   bool _isLoading = false;
   String _errorMessage = '';
 
+  late Timer _timer;
+
   @override
   void initState() {
     super.initState();
-    _checkAndFetchOrders();
+    fetchOrders(); // Initially fetch orders
+    // Set up a timer to periodically fetch orders
+    _timer = Timer.periodic(Duration(minutes: 5), (Timer t) => fetchOrders());
   }
 
-  Future<void> _checkAndFetchOrders() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool fetchedOnce = prefs.getBool('fetchedOnce') ?? false;
-
-    if (!fetchedOnce) {
-      await _fetchOrders();
-      prefs.setBool('fetchedOnce', true);
-    }
+  @override
+  void dispose() {
+    _timer.cancel(); // Cancel timer to avoid memory leaks
+    super.dispose();
   }
 
-  Future<void> _fetchOrders() async {
+  Future<void> fetchOrders() async {
     setState(() {
       _isLoading = true;
       _errorMessage = '';
@@ -156,7 +158,7 @@ class _OrdersPageState extends State<OrdersPage> {
         backgroundColor: Colors.orange,
       ),
       body: RefreshIndicator(
-        onRefresh: _fetchOrders,
+        onRefresh: fetchOrders,
         child: _isLoading
             ? Center(
           child: CircularProgressIndicator(),
@@ -177,7 +179,7 @@ class _OrdersPageState extends State<OrdersPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _fetchOrders,
+        onPressed: fetchOrders,
         tooltip: 'Refresh',
         child: Icon(Icons.refresh),
         backgroundColor: Colors.orange,
@@ -257,8 +259,11 @@ class OrderTile extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => OrderDetailsPage(order: order,),
+        builder: (context) => OrderDetailsPage(
+          order: order,
+        ),
       ),
     );
   }
 }
+

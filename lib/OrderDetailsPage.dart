@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'auth_service.dart';
 import 'the Order.dart';
+ // Import OrdersPage to access its methods
 
 class OrderDetailsPage extends StatelessWidget {
   final Order order;
@@ -107,9 +109,9 @@ class OrderDetailsPage extends StatelessWidget {
               child: Text('Cancel', style: TextStyle(color: Colors.black)),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop();
-                _deleteOrder(context, order);
+                await _deleteOrder(context, order); // Wait for deletion
               },
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
@@ -121,11 +123,10 @@ class OrderDetailsPage extends StatelessWidget {
       },
     );
   }
-
   Future<void> _deleteOrder(BuildContext context, Order order) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? requestId = prefs.getString('requestId'); // Corrected 'requestId' to 'requestId'
+      String? requestId = prefs.getString('requestId');
       String? token = await AuthService.getAccessToken();
 
       if (requestId == null) {
@@ -146,20 +147,37 @@ class OrderDetailsPage extends StatelessWidget {
       );
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Order ${order.requestId} deleted successfully')), // Corrected 'order.id' to 'order.requestId'
+        Fluttertoast.showToast(
+          msg: 'Order ${order.requestId} deleted successfully',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
-        // You might want to navigate back to the previous screen or perform other actions after deletion
+        // Navigate back to the order page
+        Navigator.pop(context);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to delete order ${order.requestId}')), // Corrected 'order.id' to 'order.requestId'
+        Fluttertoast.showToast(
+          msg: 'Failed to delete order ${order.requestId}',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
       }
     } catch (error) {
       print('Error deleting order: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error deleting order')),
+      Fluttertoast.showToast(
+        msg: 'Error deleting order',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
       );
     }
   }
+
 }

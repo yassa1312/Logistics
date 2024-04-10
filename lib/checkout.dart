@@ -12,6 +12,7 @@ class CheckoutPage extends StatelessWidget {
   final String sourceLocation;
   final String destinationLocation;
   final String selectedTruck;
+  final String selectedType;
   final String totalCost;
   final List<String> selectedServices;
 
@@ -19,6 +20,7 @@ class CheckoutPage extends StatelessWidget {
     required this.sourceLocation,
     required this.destinationLocation,
     required this.selectedTruck,
+    required this.selectedType,
     required this.totalCost,
     required this.selectedServices,
   });
@@ -37,7 +39,7 @@ class CheckoutPage extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                _launchMapUrl(sourceLocation); // Open Google Maps with sourceLocation
+                _launchMapUrl(sourceLocation);
               },
               child: Text(
                 'From: $sourceLocation',
@@ -47,7 +49,7 @@ class CheckoutPage extends StatelessWidget {
             const SizedBox(height: 10),
             GestureDetector(
               onTap: () {
-                _launchMapUrl(destinationLocation); // Open Google Maps with sourceLocation
+                _launchMapUrl(destinationLocation);
               },
               child: Text(
                 'To: $destinationLocation',
@@ -56,6 +58,8 @@ class CheckoutPage extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text('Selected Truck: $selectedTruck', style: TextStyle(fontSize: 18)),
+            const SizedBox(height: 10),
+            Text('Selected Type: $selectedType', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
             Text('Total Cost: $totalCost', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
@@ -71,14 +75,14 @@ class CheckoutPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 bool success = await createShipmentRequest(
-                    context, sourceLocation, destinationLocation, selectedTruck);
+                    context, sourceLocation, destinationLocation, selectedTruck, selectedType);
 
                 if (success) {
                   fetchDataAndSaveToSharedPrefs();
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => PaymentPage(totalCost: totalCost),
+                      builder: (context) => Home()//PaymentPage(totalCost: totalCost),
                     ),
                   );
                 }
@@ -109,6 +113,95 @@ class CheckoutPage extends StatelessWidget {
       throw 'Could not launch $googleMapsUrl';
     }
   }
+
+  Future<bool> createShipmentRequest(BuildContext context, String pickUpLocation,
+      String dropOffLocation, String selectedTruck, String selectedType) async {
+    final url = Uri.parse('http://www.logistics-api.somee.com/api/User/CreateRequest');
+
+    try {
+      String? token = await AuthService.getAccessToken();
+
+      if (token == null) {
+        print('Access token is null');
+        return false;
+      }
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token', //TODO Service
+        },
+        body: json.encode({
+          'pick_Up_Location': pickUpLocation,
+          'drop_Off_Location': dropOffLocation,
+          'ride_Type': selectedTruck,
+          "Delivery_Kind":selectedType,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('Shipment request created: ${response.body}');
+        print('Status Code: ${response.statusCode}');
+        displayToast('Shipment request created successfully');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Home()),
+        );
+        return true;
+      } else {
+        print('Failed to create shipment request: ${response.body}');
+        print('Status Code: ${response.statusCode}');
+        displayToast('Failed to create shipment request');
+        return false;
+      }
+    } catch (exception) {
+      print('Error creating shipment request: $exception');
+      displayToast('Error creating shipment request');
+      return false;
+    }
+  }
+
+  Future<void> fetchDataAndSaveToSharedPrefs() async {
+    try {
+      String? token = await AuthService.getAccessToken();
+
+      if (token != null) {
+        var headers = {
+          'Authorization': 'Bearer $token',
+          'accept': '*/*',
+        };
+
+        var response = await http.get(
+          Uri.parse('http://www.logistics-api.somee.com/api/User/MyRequests'),
+          headers: headers,
+        );
+
+        if (response.statusCode == 200) {
+          // Decode and handle the response
+          List<dynamic> responseData = jsonDecode(response.body);
+
+          // Extracting and saving request_Id
+          if (responseData.isNotEmpty) {
+            String requestId = responseData[0]['request_Id'];
+            await saveRequestIdToPrefs(requestId);
+            print('request_Id saved to shared preferences: $requestId');
+          }
+        } else {
+          print('Failed to fetch profile data: ${response.reasonPhrase}');
+        }
+      } else {
+        print('Access token is null.');
+      }
+    } catch (error) {
+      print("Error fetching data: $error");
+    }
+  }
+
+  Future<void> saveRequestIdToPrefs(String requestId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('request_Id', requestId);
+  }
 }
 
 void displayToast(String message) {
@@ -121,92 +214,4 @@ void displayToast(String message) {
     textColor: Colors.white,
     fontSize: 18.0,
   );
-}
-
-Future<bool> createShipmentRequest(BuildContext context, String pickUpLocation,
-    String dropOffLocation, String selectedTruck) async {
-  final url = Uri.parse('http://www.logistics-api.somee.com/api/User/CreateRequest');
-
-  try {
-    String? token = await AuthService.getAccessToken();
-
-    if (token == null) {
-      print('Access token is null');
-      return false;
-    }
-
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token', //TODO Service
-      },
-      body: json.encode({
-        'pick_Up_Location': pickUpLocation,
-        'drop_Off_Location': dropOffLocation,
-        'ride_Type': selectedTruck,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      print('Shipment request created: ${response.body}');
-      print('Status Code: ${response.statusCode}');
-      displayToast('Shipment request created successfully');
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Home()),
-      );
-      return true;
-    } else {
-      print('Failed to create shipment request: ${response.body}');
-      print('Status Code: ${response.statusCode}');
-      displayToast('Failed to create shipment request');
-      return false;
-    }
-  } catch (exception) {
-    print('Error creating shipment request: $exception');
-    displayToast('Error creating shipment request');
-    return false;
-  }
-}
-
-Future<void> fetchDataAndSaveToSharedPrefs() async {
-  try {
-    String? token = await AuthService.getAccessToken();
-
-    if (token != null) {
-      var headers = {
-        'Authorization': 'Bearer $token',
-        'accept': '*/*',
-      };
-
-      var response = await http.get(
-        Uri.parse('http://www.logistics-api.somee.com/api/User/MyRequests'),
-        headers: headers,
-      );
-
-      if (response.statusCode == 200) {
-        // Decode and handle the response
-        List<dynamic> responseData = jsonDecode(response.body);
-
-        // Extracting and saving request_Id
-        if (responseData.isNotEmpty) {
-          String requestId = responseData[0]['request_Id'];
-          await saveRequestIdToPrefs(requestId);
-          print('request_Id saved to shared preferences: $requestId');
-        }
-      } else {
-        print('Failed to fetch profile data: ${response.reasonPhrase}');
-      }
-    } else {
-      print('Access token is null.');
-    }
-  } catch (error) {
-    print("Error fetching data: $error");
-  }
-}
-
-Future<void> saveRequestIdToPrefs(String requestId) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.setString('request_Id', requestId);
 }

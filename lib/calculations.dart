@@ -80,6 +80,7 @@ class _CalculationPageState extends State<CalculationPage> {
       double cost = CostCalculator.calculateTotalCost(
         SelectedLocation,
         SelectedLocation2,
+
         selectedTruck,
         isInsuredTransportation,
         isTakeCare,
@@ -730,6 +731,7 @@ class _CalculationPageState extends State<CalculationPage> {
                                       sourceLocation: SelectedLocation,
                                       destinationLocation: SelectedLocation2,
                                       selectedTruck: selectedTruck,
+                                      selectedType: ShipmentType ,
                                       totalCost: totalCost,
                                       selectedServices: [
                                         if (isInsuredTransportation)
