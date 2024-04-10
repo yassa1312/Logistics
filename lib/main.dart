@@ -23,7 +23,7 @@ void main() async {
         projectId:'com.example.logistics' ,
       ))
       :await Firebase.initializeApp();
-  runApp(const SignUpApp());
+  runApp( SignUpApp());//SignUpApp
 }
 // ignore: deprecated_member_use
 class MyApp extends StatelessWidget {
@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
       title: 'SPLT App',
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
-      home: LoginScreen(),
+      home: LoginScreen(),//LoginScreen
     );
   }
 }

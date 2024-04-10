@@ -20,24 +20,24 @@ class CostCalculator {
 
   static const Map<String, double> truckCosts = {
     'Average Classic Box Truck': 100.0,
-    'High Classic Box Truck': 150.0,
+    'Large Truck': 150.0,
     'Motor Tri-cycle': 50,
     'Pickup Truck': 70,
     'Platform Truck': 250,
-    'Refrigerator Truck': 150.0,
+    'Refrigerated Truck': 150.0,
     'Half-ton Classic Truck': 100.0
   };
 
   static const double serviceCostIncreasePercentage = 0.1; // 10%
 
   static double calculateTotalCost(
-    String sourceLocation,
-    String destinationLocation,
-    String selectedTruck,
-    bool isInsuredTransportation,
-    bool isTakeCare,
-    bool isExtraWrapping,
-  ) {
+      String sourceLocation,
+      String destinationLocation,
+      String selectedTruck,
+      bool isInsuredTransportation,
+      bool isTakeCare,
+      bool isExtraWrapping,
+      ) {
     double totalCost =
         locationCosts['$sourceLocation-$destinationLocation'] ?? 0.0;
     totalCost += truckCosts[selectedTruck] ?? 0.0;
@@ -57,8 +57,8 @@ class CalculationPage extends StatefulWidget {
 }
 
 class _CalculationPageState extends State<CalculationPage> {
-  String ShipmentType = 'Normal Shipment';
-  String SelectedCapacity = 'Average (4x3 meter)';
+  String ShipmentType = 'Normal Truck';
+  String SelectedCapacity = 'Average (4 ton)';
   String selectedTruck = 'Average Classic Box Truck';
   String selectedTruckKey = '';
   String SelectedLocation = 'Select source';
@@ -91,7 +91,7 @@ class _CalculationPageState extends State<CalculationPage> {
 
   bool get isLocationsSelected =>
       SelectedLocation != 'Select source' &&
-      SelectedLocation2 != 'Select destination';
+          SelectedLocation2 != 'Select destination';
 
   List<int> truckKeys = [1, 2, 3, 4];
 
@@ -111,8 +111,7 @@ class _CalculationPageState extends State<CalculationPage> {
     'Haram',
     'Ramses',
     'Salam',
-    'Maadi',
-    'Asher'
+    'Maadi'
   ];
   final List<String> shipmentList = [
     'Normal shipment',
@@ -122,51 +121,53 @@ class _CalculationPageState extends State<CalculationPage> {
     'Packages',
     'Electronics'
   ];
+
   final List<String> capacityList = [
-    'Average (4x3 meter)',
-    'Very Low',
-    'Low (1x1 meter)',
-    'High (3x3 meter)',
-    'Heavy (5x5 meter)',
+    'Very Low (1 ton)',
+    'Low (2 ton)',
+    'Average (4 ton)',
+    'High (8 ton)',
+    'Heavy (10 ton)',
     'No idea'
   ];
   Map<String, String> truckMap = {
-    'Normal shipmentAverage (4x3 meter)': 'Average Classic Box Truck',
-    'Normal shipmentLow (1x1 meter)': 'Motor Tri-cycle',
-    'Normal shipmentHigh (3x3 meter)': 'Pickup Truck',
-    'Normal shipmentHeavy (5x5 meter)': 'Platform Truck',
-    'IndusterialAverage (4x3 meter)': 'Average Classic Box Truck',
-    'IndusterialLow (1x1 meter)': 'Average Classic Box Truck',
-    'IndusterialHigh (3x3 meter)': 'Pickup Truck',
-    'IndusterialHeavy (5x5 meter)': 'Platform Truck',
-    'FurnitureAverage (4x3 meter)': 'Half-ton Classic Truck',
-    'FurnitureLow (1x1 meter)': 'Motor Tri-cycle',
-    'FurnitureHigh (3x3 meter)': 'Pickup Truck',
-    'FurnitureHeavy (5x5 meter)': 'Platform Truck',
-    'Frozen food Average(4x3 meter)': 'Refrigerator Truck',
-    'Frozen foodVery low': 'Refrigerator Truck',
-    'Frozen foodLow (1x1 meter)': 'Refrigerator Truck',
-    'Frozen foodBelow average': 'Refrigerator Truck',
-    'Frozen foodHigh (3x3 meter)': 'Refrigerator Truck',
-    'Frozen foodHeavy (5x5 meter)': 'Refrigerator Truck',
+    'Normal shipmentAverage (4 ton)': 'Average Classic Box Truck',
+    'Normal shipmentLow (1 ton)': 'Motor Tri-cycle',
+    'Normal shipmentHigh (8 ton)': 'Pickup Truck',
+    'Normal shipmentHeavy (10 ton)': 'Platform Truck',
+    'IndusterialAverage (4 ton)': 'Average Classic Box Truck',
+    'IndusterialLow (1 ton)': 'Average Classic Box Truck',
+    'IndusterialHigh (8 ton)': 'Pickup Truck',
+    'IndusterialHeavy (10 ton)': 'Platform Truck',
+    'FurnitureAverage (4 ton)': 'Half-ton Classic Truck',
+    'FurnitureLow (1 ton)': 'Motor Tri-cycle',
+    'FurnitureHigh (8 ton)': 'Pickup Truck',
+    'FurnitureHeavy (10 ton)': 'Platform Truck',
+    'Frozen food Average(4 ton)': 'Refrigerated Truck',
+    'Frozen foodVery low(1 ton)': 'Refrigerated Truck',
+    'Frozen foodLow (2 ton)': 'Refrigerated Truck',
+    'Frozen foodBelow (1 ton)': 'Refrigerated Truck',
+    'Frozen foodHigh (8 tonn)': 'Refrigerated Truck',
+    'Frozen foodHeavy (10 ton)': 'Refrigerated Truck',
     'Packages': 'Average Classic Box Truck',
-    'ElectronicsVery low': 'Average Classic Box Truck',
-    'ElectronicsLow (1x1 meter)': 'Average Classic Box Truck',
-    'ElectronicsAverage(4x3 meter)': 'Average Classic Box Truck',
-    'ElectronicsBelow average': 'Average Classic Box Truck',
-    'ElectronicsHigh (3x3 meter)': 'High Classic Box Truck',
-    'ElectronicsHeavy (5x5 meter)': 'High Classic Box Truck',
+    'ElectronicsVery low(1 ton)': 'Average Classic Box Truck',
+    'ElectronicsLow (2 ton)': 'Average Classic Box Truck',
+    'ElectronicsAverage(4 ton)': 'Average Classic Box Truck',
+    'ElectronicsBelow average(2 ton)': 'Average Classic Box Truck',
+    'ElectronicsHigh (8 ton)': 'Large Truck',
+    'ElectronicsHeavy (10 ton)': 'Large Truck',
   };
 
   Map<String, String> truckImageMap = {
     'Average Classic Box Truck': 'assets/truck3.jpg',
-    'High Classic Box Truck': 'assets/truck6.jpg',
+    'Large Truck': 'assets/truck6.jpg',
     'Half-ton Classic Truck': 'assets/truck4.jpg',
     'Motor Tri-cycle': 'assets/truck5.jpg',
     'Pickup Truck': 'assets/truck7.jpg',
     'Platform Truck': 'assets/truck1.jpg',
-    'Refrigerator Truck': 'assets/truck2.jpg',
+    'Refrigerated Truck': 'assets/truck2.jpg',
   };
+
 
   @override
   Widget build(BuildContext context) {
@@ -215,7 +216,7 @@ class _CalculationPageState extends State<CalculationPage> {
                           color: Colors.orange.withOpacity(0.7),
                         ),
                         padding:
-                            EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -267,7 +268,7 @@ class _CalculationPageState extends State<CalculationPage> {
                           color: Colors.orange.withOpacity(0.7),
                         ),
                         padding:
-                            EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -318,21 +319,41 @@ class _CalculationPageState extends State<CalculationPage> {
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
+                                  String customLocation = '';
                                   return AlertDialog(
                                     title: Text('Select your pick-up location'),
                                     content: SingleChildScrollView(
                                       child: ListBody(
-                                        children: pickUpList.map((location) {
-                                          return ListTile(
-                                            title: Text(location),
-                                            onTap: () {
+                                        children: [
+                                          // Text field for entering a custom location
+                                          TextField(
+                                            decoration: InputDecoration(
+                                              hintText: 'Enter custom location',
+                                            ),
+                                            onChanged: (value) {
                                               setState(() {
-                                                SelectedLocation = location;
+                                                customLocation = value; // Update the custom location
+                                              });
+                                            },
+                                            onSubmitted: (value) {
+                                              setState(() {
+                                                SelectedLocation = customLocation; // Set the selected location to the custom location
                                               });
                                               Navigator.of(context).pop();
                                             },
-                                          );
-                                        }).toList(),
+                                          ),
+                                          ...pickUpList.map((location) {
+                                            return ListTile(
+                                              title: Text(location),
+                                              onTap: () {
+                                                setState(() {
+                                                  SelectedLocation = location;
+                                                });
+                                                Navigator.of(context).pop();
+                                              },
+                                            );
+                                          }).toList(),
+                                        ],
                                       ),
                                     ),
                                   );
@@ -347,8 +368,7 @@ class _CalculationPageState extends State<CalculationPage> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(
                                     child: Text(
@@ -366,22 +386,40 @@ class _CalculationPageState extends State<CalculationPage> {
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
+                                  String customLocation = '';
                                   return AlertDialog(
-                                    title: Text(
-                                        'Select your destination location'),
+                                    title: Text('Select your destination location'),
                                     content: SingleChildScrollView(
                                       child: ListBody(
-                                        children: pickUpList.map((location) {
-                                          return ListTile(
-                                            title: Text(location),
-                                            onTap: () {
+                                        children: [
+                                          // Text field for entering a custom location
+                                          TextField(
+                                            decoration: const InputDecoration(
+                                              hintText: 'Enter custom location',
+                                            ),
+                                            onChanged: (value) {
+                                              customLocation = value; // Update the custom location
+                                            },
+                                            textInputAction: TextInputAction.done, // Only trigger on "Done" button
+                                            onSubmitted: (value) {
                                               setState(() {
-                                                SelectedLocation2 = location;
+                                                SelectedLocation2 = value; // Set the selected location to the custom location
                                               });
                                               Navigator.of(context).pop();
                                             },
-                                          );
-                                        }).toList(),
+                                          ),
+                                          ...pickUpList.map((location) {
+                                            return ListTile(
+                                              title: Text(location),
+                                              onTap: () {
+                                                setState(() {
+                                                  SelectedLocation2 = location;
+                                                });
+                                                Navigator.of(context).pop();
+                                              },
+                                            );
+                                          }).toList(),
+                                        ],
                                       ),
                                     ),
                                   );
@@ -396,8 +434,7 @@ class _CalculationPageState extends State<CalculationPage> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(
                                     child: Text(

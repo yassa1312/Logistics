@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:logistics/home.dart';
+import 'package:logistics/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'ElectronicWallet.dart';
+import 'CreditCardPaymentPage.dart';
+import 'PayPalPaymentPage.dart';
 
 class PaymentPage extends StatefulWidget {
+  final String totalCost;
+  PaymentPage({required this.totalCost});
+
   @override
   _PaymentPageState createState() => _PaymentPageState();
 }
@@ -9,7 +19,6 @@ class PaymentPage extends StatefulWidget {
 class _PaymentPageState extends State<PaymentPage> {
   Dio dio = Dio();
   bool _isLoading = true;
-  late String _totalAmount = '';
   late List<String> _paymentMethods = [];
   late String _selectedPaymentMethod = '';
 
@@ -22,18 +31,13 @@ class _PaymentPageState extends State<PaymentPage> {
 
   Future<void> _fetchPaymentDetails() async {
     try {
-      // Make API call to fetch payment details
-      Response response = await dio.get('YOUR_PAYMENT_DETAILS_API_ENDPOINT');
-
-      // Extract data from response
-      Map<String, dynamic> data = response.data;
-
-      // Update state with fetched data
-      setState(() {
-        _totalAmount = data['totalAmount'];
-        _paymentMethods = List<String>.from(data['paymentMethods']);
-        _selectedPaymentMethod = _paymentMethods.isNotEmpty ? _paymentMethods[0] : '';
-        _isLoading = false;
+      // Simulate fetching payment details from API
+      await Future.delayed(Duration(seconds: 2), () {
+        setState(() {
+          _paymentMethods = ['Credit Card', 'PayPal', 'Electronic Wallet','Cash']; // Example payment methods
+          _selectedPaymentMethod = _paymentMethods.isNotEmpty ? _paymentMethods[0] : '';
+          _isLoading = false;
+        });
       });
     } catch (e) {
       // Handle error
@@ -44,10 +48,37 @@ class _PaymentPageState extends State<PaymentPage> {
       });
     }
   }
-
   void _makePayment() async {
     // Implement payment logic here
+    switch (_selectedPaymentMethod) {
+      case 'Credit Card':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => CreditCardPaymentPage()),
+        );
+        break;
+      case 'PayPal':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => PayPalPaymentPage()),
+        );
+        break;
+      case 'Electronic Wallet':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ElectronicWalletPaymentPage()),
+        );
+      case 'Cash':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Home()),
+        );
+        break;
+      default:
+        print('Invalid payment method');
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -61,26 +92,28 @@ class _PaymentPageState extends State<PaymentPage> {
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : Center(
+          : SingleChildScrollView(
+        padding: EdgeInsets.symmetric(vertical: 20.0),
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Total Amount: \$_totalAmount', // Display fetched total amount
-                style: TextStyle(fontSize: 20, color: Colors.orange),
+                'Total Amount: ${widget.totalCost}', // Display total amount
+                style: TextStyle(fontSize: 20, color: Colors.black),
+                textAlign: TextAlign.center,
               ),
               SizedBox(height: 20),
-              Text(
-                'Payment Method:',
-                style: TextStyle(fontSize: 18, color: Colors.orange),
-              ),
               DropdownButton<String>(
                 items: _paymentMethods.map((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(value),
+                    child: Text(
+                      value,
+                      style: TextStyle(fontSize: 18, color: Colors.black), // Adjust the font size as needed
+                    ),
                   );
                 }).toList(),
                 onChanged: (String? newValue) {
@@ -88,10 +121,9 @@ class _PaymentPageState extends State<PaymentPage> {
                     _selectedPaymentMethod = newValue!;
                   });
                 },
-                dropdownColor: Colors.black,
                 value: _selectedPaymentMethod,
-                style: TextStyle(color: Colors.orange),
               ),
+
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _makePayment,
@@ -107,3 +139,7 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 }
+
+
+
+

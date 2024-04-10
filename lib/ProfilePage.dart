@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:logistics/PasswordChange.dart';
 import 'package:logistics/auth_service.dart';
+import 'LoginScreen.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -12,6 +13,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _imageUrlController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
@@ -43,7 +45,7 @@ class _ProfilePageState extends State<ProfilePage> {
         // Prepare request body
         request.headers.addAll(headers);
         request.body = jsonEncode({
-          'password': 'Passw0rd', //TODO// Provide a valid password here
+          'password': _passwordController.text,
           'name': _nameController.text,
           'email': _emailController.text,
           'phoneNumber': _phoneNumberController.text,
@@ -126,6 +128,78 @@ class _ProfilePageState extends State<ProfilePage> {
       print("Error fetching data: $error");
     }
   }
+  void _showProfileUpdateDialog(BuildContext context) {
+    TextEditingController passwordController = TextEditingController(); // Controller for the password field
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Update Profile'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Are you sure you want to update your profile?',
+              ),
+              SizedBox(height: 10),
+              TextFormField(
+                controller: passwordController,
+                obscureText: true, // Hide the entered text
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              onPressed: () {
+                String password = passwordController.text;
+                if (password.isEmpty) {
+                  // Display toast indicating that password is required
+                  displayToast('Password is required');
+                } else {
+                  // Proceed with updating the profile
+                  editUserProfile();
+                  Navigator.of(context).pop(); // Close the dialog
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                textStyle: TextStyle(color: Colors.white),
+              ),
+              child: const Text('Yes'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                textStyle: TextStyle(color: Colors.white),
+              ),
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  void displayToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.orange,
+      textColor: Colors.white,
+      fontSize: 18.0,
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -181,8 +255,9 @@ class _ProfilePageState extends State<ProfilePage> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                editUserProfile();
+                _showProfileUpdateDialog(context);
               },
+
               child: Text('Edit'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,

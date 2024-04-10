@@ -3,9 +3,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:logistics/auth_service.dart';
 import 'dart:convert';
-
+import 'package:url_launcher/url_launcher.dart';
 import 'package:logistics/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'PaymentPage.dart';
 
 class CheckoutPage extends StatelessWidget {
   final String sourceLocation;
@@ -34,20 +35,36 @@ class CheckoutPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('From: $sourceLocation', style: const TextStyle(fontSize: 18)),
+            GestureDetector(
+              onTap: () {
+                _launchMapUrl(sourceLocation); // Open Google Maps with sourceLocation
+              },
+              child: Text(
+                'From: $sourceLocation',
+                style: TextStyle(fontSize: 18, color: Colors.blue),
+              ),
+            ),
             const SizedBox(height: 10),
-            Text('To: $destinationLocation', style: const TextStyle(fontSize: 18)),
+            GestureDetector(
+              onTap: () {
+                _launchMapUrl(destinationLocation); // Open Google Maps with sourceLocation
+              },
+              child: Text(
+                'To: $destinationLocation',
+                style: TextStyle(fontSize: 18, color: Colors.blue),
+              ),
+            ),
             const SizedBox(height: 10),
-            Text('Chosen truck: $selectedTruck', style: const TextStyle(fontSize: 18)),
+            Text('Selected Truck: $selectedTruck', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
-            Text('Cost: $totalCost', style: const TextStyle(fontSize: 18)),
+            Text('Total Cost: $totalCost', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
-            const Text('Services:', style: TextStyle(fontSize: 18)),
+            const Text('Selected Services:', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 5),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: selectedServices
-                  .map((service) => Text('- $service', style: const TextStyle(fontSize: 16)))
+                  .map((service) => Text('- $service', style: TextStyle(fontSize: 16)))
                   .toList(),
             ),
             const SizedBox(height: 30),
@@ -60,22 +77,37 @@ class CheckoutPage extends StatelessWidget {
                   fetchDataAndSaveToSharedPrefs();
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => Home()),
+                    MaterialPageRoute(
+                      builder: (context) => PaymentPage(totalCost: totalCost),
+                    ),
                   );
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange, // Background color
+                foregroundColor: Colors.white, backgroundColor: Colors.orange,
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
               ),
               child: const Text(
-                'Order Confirm',
-                style: TextStyle(color: Colors.white, fontSize: 20),
+                'Confirm Order',
+                style: TextStyle(fontSize: 20),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _launchMapUrl(String location) async {
+    String googleMapsUrl = 'https://www.google.com/maps/search/?api=1&query=$location';
+    if (await canLaunch(googleMapsUrl)) {
+      await launch(googleMapsUrl);
+    } else {
+      throw 'Could not launch $googleMapsUrl';
+    }
   }
 }
 
@@ -107,7 +139,7 @@ Future<bool> createShipmentRequest(BuildContext context, String pickUpLocation,
       url,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',//TODO Servise
+        'Authorization': 'Bearer $token', //TODO Service
       },
       body: json.encode({
         'pick_Up_Location': pickUpLocation,
@@ -173,6 +205,7 @@ Future<void> fetchDataAndSaveToSharedPrefs() async {
     print("Error fetching data: $error");
   }
 }
+
 Future<void> saveRequestIdToPrefs(String requestId) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setString('request_Id', requestId);
