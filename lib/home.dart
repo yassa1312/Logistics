@@ -273,8 +273,7 @@ class HomePage extends StatelessWidget {
                           builder: (context) => OrdersPage(),
                         ),
                       );
-                      deleteRequest();//TODO Make counter to make -1 of numbers of request
-                    },
+                      },
                     child: Text('My Orders'),
                   ),
                 ),
@@ -286,40 +285,5 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Future<void> deleteRequest() async {
-    try {
-      // Fetch requestId from shared preferences
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? requestId = prefs.getString('request_Id');
-      String? token = await AuthService.getAccessToken();
 
-      if (requestId == null) {
-        print('Request ID not found in shared preferences.');
-        return;
-      }
-
-      // Construct the URL
-      String url = 'http://www.logistics-api.somee.com/api/User/DeleteMyRequests/$requestId';
-
-      // Define headers
-      Map<String, String> headers = {
-        'Authorization': 'Bearer $token',
-        'accept': '*/*'};
-
-      // Make the DELETE request
-      var response = await http.delete(
-        Uri.parse(url),
-        headers: headers,
-      );
-
-      // Check the response status code
-      if (response.statusCode == 200) {
-        print('Request with ID $requestId deleted successfully.');
-      } else {
-        print('Failed to delete request. Status code: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error deleting request: $error');
-    }
-  }
 }

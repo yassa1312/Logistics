@@ -59,7 +59,7 @@ class CalculationPage extends StatefulWidget {
 class _CalculationPageState extends State<CalculationPage> {
   String ShipmentType = 'Normal Truck';
   String SelectedCapacity = 'Average (4 ton)';
-  String selectedTruck = 'Average Classic Box Truck';
+  String selectedTruck = 'Refrigerated Truck';
   String selectedTruckKey = '';
   String SelectedLocation = 'Select source';
   String SelectedLocation2 = 'Select destination';

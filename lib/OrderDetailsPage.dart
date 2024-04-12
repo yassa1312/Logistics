@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:logistics/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'auth_service.dart';
 import 'the Order.dart';
@@ -17,7 +18,8 @@ class OrderDetailsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Order Details - ${order.requestId}', // Assuming 'requestId' is the unique identifier for the order
+          'Order Details',
+          // Assuming 'requestId' is the unique identifier for the order
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.orange,
@@ -32,6 +34,7 @@ class OrderDetailsPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    _buildDetailItem('Order Id', order.requestId),
                     _buildDetailItem('Pick Up Location', order.pickUpLocation),
                     _buildDetailItem('Drop Off Location', order.dropOffLocation),
                     _buildDetailItem('Time Stamp On Creation', order.timeStampOnCreation),
@@ -44,7 +47,8 @@ class OrderDetailsPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () => _showDeleteConfirmationDialog(context, order),
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.redAccent),
+                backgroundColor: MaterialStateProperty.all<Color>(
+                    Colors.redAccent),
                 elevation: MaterialStateProperty.all<double>(10),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
@@ -53,7 +57,8 @@ class OrderDetailsPage extends StatelessWidget {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                padding: const EdgeInsets.symmetric(
+                    vertical: 10, horizontal: 20),
                 child: Text(
                   'Delete Order',
                   style: TextStyle(fontSize: 18, color: Colors.white),
@@ -72,7 +77,8 @@ class OrderDetailsPage extends StatelessWidget {
       children: [
         Text(
           title,
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
+          style: TextStyle(
+              fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
         ),
         SizedBox(height: 8),
         Container(
@@ -91,7 +97,8 @@ class OrderDetailsPage extends StatelessWidget {
     );
   }
 
-  Future<void> _showDeleteConfirmationDialog(BuildContext context, Order order) async {
+  Future<void> _showDeleteConfirmationDialog(BuildContext context,
+      Order order) async {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -110,8 +117,7 @@ class OrderDetailsPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                Navigator.of(context).pop();
-                await _deleteOrder(context, order); // Wait for deletion
+                await _deleteOrder(context, order);
               },
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
@@ -123,54 +129,50 @@ class OrderDetailsPage extends StatelessWidget {
       },
     );
   }
+
   Future<void> _deleteOrder(BuildContext context, Order order) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? requestId = prefs.getString('requestId');
-      String? token = await AuthService.getAccessToken();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? requestId = prefs.getString('requestId');
+    String? token = await AuthService.getAccessToken();
 
-      if (requestId == null) {
-        print('Request ID not found in shared preferences.');
-        return;
-      }
+    if (requestId == null) {
+      print('Request ID not found in shared preferences.');
+      return;
+    }
 
-      String url = 'http://www.logistics-api.somee.com/api/User/DeleteMyRequests/$requestId';
+    String url =
+        'http://www.logistics-api.somee.com/api/User/DeleteMyRequests/$requestId';
 
-      Map<String, String> headers = {
-        'Authorization': 'Bearer $token',
-        'accept': '*/*',
-      };
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      'accept': '*/*',
+    };
 
-      var response = await http.delete(
-        Uri.parse(url),
-        headers: headers,
-      );
+    var response = await http.delete(
+      Uri.parse(url),
+      headers: headers,
+    );
 
-      if (response.statusCode == 200) {
-        Fluttertoast.showToast(
-          msg: 'Order ${order.requestId} deleted successfully',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-        // Navigate back to the order page
-        Navigator.pop(context);
-      } else {
-        Fluttertoast.showToast(
-          msg: 'Failed to delete order ${order.requestId}',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-      }
-    } catch (error) {
-      print('Error deleting order: $error');
+    print('Response status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
       Fluttertoast.showToast(
-        msg: 'Error deleting order',
+        msg: 'Order deleted successfully', // Include a line break (\n)
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Home()),
+      );
+    } else {
+      // Handle other status codes
+      Fluttertoast.showToast(
+        msg: 'Failed to delete order. Status code: ${response.statusCode}',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.red,
@@ -179,5 +181,4 @@ class OrderDetailsPage extends StatelessWidget {
       );
     }
   }
-
 }

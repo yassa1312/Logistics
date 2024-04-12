@@ -78,11 +78,10 @@ class CheckoutPage extends StatelessWidget {
                     context, sourceLocation, destinationLocation, selectedTruck, selectedType);
 
                 if (success) {
-                  fetchDataAndSaveToSharedPrefs();
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => Home()//PaymentPage(totalCost: totalCost),
+                      builder: (context) => Home()//PaymentPage(totalCost: totalCost),//TODO
                     ),
                   );
                 }
@@ -162,47 +161,6 @@ class CheckoutPage extends StatelessWidget {
     }
   }
 
-  Future<void> fetchDataAndSaveToSharedPrefs() async {
-    try {
-      String? token = await AuthService.getAccessToken();
-
-      if (token != null) {
-        var headers = {
-          'Authorization': 'Bearer $token',
-          'accept': '*/*',
-        };
-
-        var response = await http.get(
-          Uri.parse('http://www.logistics-api.somee.com/api/User/MyRequests'),
-          headers: headers,
-        );
-
-        if (response.statusCode == 200) {
-          // Decode and handle the response
-          List<dynamic> responseData = jsonDecode(response.body);
-
-          // Extracting and saving request_Id
-          if (responseData.isNotEmpty) {
-            String requestId = responseData[0]['request_Id'];
-            await saveRequestIdToPrefs(requestId);
-            print('request_Id saved to shared preferences: $requestId');
-          }
-        } else {
-          print('Failed to fetch profile data: ${response.reasonPhrase}');
-        }
-      } else {
-        print('Access token is null.');
-      }
-    } catch (error) {
-      print("Error fetching data: $error");
-    }
-  }
-
-  Future<void> saveRequestIdToPrefs(String requestId) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('request_Id', requestId);
-  }
-}
 
 void displayToast(String message) {
   Fluttertoast.showToast(
@@ -214,4 +172,5 @@ void displayToast(String message) {
     textColor: Colors.white,
     fontSize: 18.0,
   );
+}
 }

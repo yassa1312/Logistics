@@ -4,8 +4,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'OrderDetailsPage.dart';
-import 'auth_service.dart';
+import 'OrderDetailsPage.dart'; // Make sure this import is correct
+import 'auth_service.dart'; // Make sure this import is correct
 
 class Order {
   final String requestId;
@@ -41,9 +41,7 @@ class OrdersPage extends StatefulWidget {
   @override
   _OrdersPageState createState() => _OrdersPageState();
 
-  void fetchOrders() {
 
-  }
 }
 
 class _OrdersPageState extends State<OrdersPage> {
@@ -51,20 +49,10 @@ class _OrdersPageState extends State<OrdersPage> {
   bool _isLoading = false;
   String _errorMessage = '';
 
-  late Timer _timer;
-
   @override
   void initState() {
     super.initState();
     fetchOrders(); // Initially fetch orders
-    // Set up a timer to periodically fetch orders
-    _timer = Timer.periodic(Duration(minutes: 5), (Timer t) => fetchOrders());
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel(); // Cancel timer to avoid memory leaks
-    super.dispose();
   }
 
   Future<void> fetchOrders() async {
@@ -171,7 +159,10 @@ class _OrdersPageState extends State<OrdersPage> {
             ? ListView.builder(
           itemCount: _orders.length,
           itemBuilder: (context, index) {
-            return OrderTile(order: _orders[index]);
+            return OrderTile(
+              order: _orders[index],
+              refreshOrders: fetchOrders, // Pass the fetchOrders function
+            );
           },
         )
             : Center(
@@ -190,9 +181,11 @@ class _OrdersPageState extends State<OrdersPage> {
 
 class OrderTile extends StatelessWidget {
   final Order order;
+  final Function refreshOrders; // Define this callback function
 
   const OrderTile({
     required this.order,
+    required this.refreshOrders, // Pass this callback through constructor
     Key? key,
   }) : super(key: key);
 
@@ -226,7 +219,7 @@ class OrderTile extends StatelessWidget {
   Widget _buildOrderInfo(String title, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -237,14 +230,12 @@ class OrderTile extends StatelessWidget {
               color: Colors.blue,
             ),
           ),
-          SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black,
-              ),
+          SizedBox(height: 4), // Add a SizedBox for spacing
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.black,
             ),
           ),
         ],
@@ -258,12 +249,11 @@ class OrderTile extends StatelessWidget {
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => OrderDetailsPage(
-          order: order,
-        ),
-      ),
-    );
+      MaterialPageRoute(builder: (context) => OrderDetailsPage(order: order)),
+    ).then((result) {
+      if (result == true) {
+        refreshOrders(); // Call the refreshOrders function when needed
+      }
+    });
   }
 }
-

@@ -34,7 +34,7 @@ class _PaymentPageState extends State<PaymentPage> {
       // Simulate fetching payment details from API
       await Future.delayed(Duration(seconds: 2), () {
         setState(() {
-          _paymentMethods = ['Credit Card', 'PayPal', 'Electronic Wallet','Cash']; // Example payment methods
+          _paymentMethods = ['Cash','Credit Card', 'PayPal', 'Electronic Wallet']; // Example payment methods
           _selectedPaymentMethod = _paymentMethods.isNotEmpty ? _paymentMethods[0] : '';
           _isLoading = false;
         });
@@ -51,6 +51,11 @@ class _PaymentPageState extends State<PaymentPage> {
   void _makePayment() async {
     // Implement payment logic here
     switch (_selectedPaymentMethod) {
+      case 'Cash':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Home()),
+        );
       case 'Credit Card':
         Navigator.push(
           context,
@@ -67,11 +72,6 @@ class _PaymentPageState extends State<PaymentPage> {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => ElectronicWalletPaymentPage()),
-        );
-      case 'Cash':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => Home()),
         );
         break;
       default:
