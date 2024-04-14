@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:logistics/EndTripPage.dart';
 import 'package:logistics/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'auth_service.dart';
@@ -44,27 +45,61 @@ class OrderDetailsPage extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => _showDeleteConfirmationDialog(context, order),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(
-                    Colors.redAccent),
-                elevation: MaterialStateProperty.all<double>(10),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EndTripPage(requestId: order.requestId),
+                        ),
+                      );
+
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(Colors.orange),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                      child: Text(
+                        'Comment',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: 10, horizontal: 20),
-                child: Text(
-                  'Delete Order',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
+              ],
             ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => _showDeleteConfirmationDialog(context, order),
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(Colors.redAccent),
+                      elevation: MaterialStateProperty.all<double>(10),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                      child: Text(
+                        'Delete Order',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
           ],
         ),
       ),
@@ -180,5 +215,52 @@ class OrderDetailsPage extends StatelessWidget {
         fontSize: 16.0,
       );
     }
+  }
+}
+Future<void> endTrip(String requestId, String comment, int rating) async {
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? requestId = prefs.getString('requestId');
+
+
+    if (requestId == null) {
+      print('Request ID not found in shared preferences.');
+      return;
+    }
+    String url = 'http://www.logistics-api.somee.com/api/Trip/EndTrip';
+
+    // JSON payload
+    Map<String, dynamic> data = {
+      'request_Id': requestId,
+      'comment': comment,
+      'rating': rating,
+    };
+
+    // Convert data to JSON string
+    String body = json.encode(data);
+
+    // Define headers
+    Map<String, String> headers = {
+      'accept': '*/*',
+      'Content-Type': 'application/json',
+    };
+
+    // Make PUT request
+    var response = await http.put(
+      Uri.parse(url),
+      headers: headers,
+      body: body,
+    );
+
+    if (response.statusCode == 200) {
+      print('Trip ended successfully');
+      // Handle success as needed
+    } else {
+      print('Failed to end trip: ${response.statusCode}');
+      // Handle failure as needed
+    }
+  } catch (error) {
+    print('Error ending trip: $error');
+    // Handle error as needed
   }
 }

@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
       title: 'SPLT App',
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
-      home: LoginScreen(),//LoginScreen
+      home: LoginScreen(),
     );
   }
 }

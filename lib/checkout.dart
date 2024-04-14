@@ -122,6 +122,7 @@ class CheckoutPage extends StatelessWidget {
 
       if (token == null) {
         print('Access token is null');
+        displayToast('Failed to get access token');
         return false;
       }
 
@@ -129,13 +130,13 @@ class CheckoutPage extends StatelessWidget {
         url,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token', //TODO Service
+          'Authorization': 'Bearer $token',
         },
         body: json.encode({
           'pick_Up_Location': pickUpLocation,
           'drop_Off_Location': dropOffLocation,
           'ride_Type': selectedTruck,
-          "Delivery_Kind":selectedType,
+          "Delivery_Kind": selectedType,
         }),
       );
 
@@ -148,9 +149,17 @@ class CheckoutPage extends StatelessWidget {
           MaterialPageRoute(builder: (context) => Home()),
         );
         return true;
-      } else {
-        print('Failed to create shipment request: ${response.body}');
+      } else if (response.statusCode == 400) {
+        print('You reached the max limit of active requests');
         print('Status Code: ${response.statusCode}');
+        displayToast('You reached the max limit of active requests');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Home()),
+        );
+        return false;
+      } else {
+        print('Unexpected status code: ${response.statusCode}');
         displayToast('Failed to create shipment request');
         return false;
       }
@@ -161,16 +170,19 @@ class CheckoutPage extends StatelessWidget {
     }
   }
 
+  void displayToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.orange,
+      textColor: Colors.white,
+      fontSize: 18.0,
+    );
+  }
 
-void displayToast(String message) {
-  Fluttertoast.showToast(
-    msg: message,
-    toastLength: Toast.LENGTH_SHORT,
-    gravity: ToastGravity.BOTTOM,
-    timeInSecForIosWeb: 1,
-    backgroundColor: Colors.orange,
-    textColor: Colors.white,
-    fontSize: 18.0,
-  );
-}
+
+
+
 }
