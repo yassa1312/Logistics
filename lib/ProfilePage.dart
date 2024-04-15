@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
@@ -15,17 +16,17 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _imageUrlController = TextEditingController();
+  Uint8List? _imageBytes;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-
-    // Fetch data from the API
     fetchProfileData();
   }
+  // Declare a variable to store the image data as bytes
+
 
   void editUserProfile() async {
     try {
@@ -121,7 +122,9 @@ class _ProfilePageState extends State<ProfilePage> {
             _nameController.text = responseData['name'] ?? '';
             _emailController.text = responseData['email'] ?? '';
             _phoneNumberController.text = responseData['phoneNumber'] ?? '';
-            _imageUrlController.text = responseData['imageUrl'] ?? '';
+            setState(() {
+              _imageBytes = base64Decode(responseData['imageData'] ?? '');
+            });
           });
         } else {
           print('Failed to fetch profile data: ${response.reasonPhrase}');
@@ -218,15 +221,21 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: _imageUrlController.text.isNotEmpty
-                  ? NetworkImage(_imageUrlController.text)
-                  : null,
-              child: _imageUrlController.text.isEmpty
-                  ? Icon(Icons.person, size: 50)
-                  : null,
-            ),
+            if (_imageBytes != null) // Check if image bytes are not null
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.orange,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.memory( // Use Image.memory instead of Image.file
+                    _imageBytes!, // Pass _imageBytes as the image data
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+
             SizedBox(height: 20),
             TextFormField(
               controller: _nameController,
