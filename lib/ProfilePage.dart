@@ -216,84 +216,84 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundColor: Colors.orange,
         title: Text('Profile'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (_imageBytes != null) // Check if image bytes are not null
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.orange,
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.memory( // Use Image.memory instead of Image.file
-                    _imageBytes!, // Pass _imageBytes as the image data
-                    fit: BoxFit.cover,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (_imageBytes != null) // Check if image bytes are not null
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.orange,
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.memory( // Use Image.memory instead of Image.file
+                      _imageBytes!, // Pass _imageBytes as the image data
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-              ),
 
-            SizedBox(height: 20),
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: 'Name',
-                prefixIcon: Icon(Icons.account_box, color: Colors.orange),
-                border: OutlineInputBorder(),
-                labelStyle: TextStyle(color: Colors.orange),
+              SizedBox(height: 20),
+              TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'Name',
+                  prefixIcon: Icon(Icons.account_box, color: Colors.orange),
+                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(color: Colors.orange),
+                ),
               ),
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.email, color: Colors.orange),
-                labelStyle: TextStyle(color: Colors.orange),
+              SizedBox(height: 10),
+              TextFormField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.email, color: Colors.orange),
+                  labelStyle: TextStyle(color: Colors.orange),
+                ),
               ),
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _phoneNumberController,
-              decoration: InputDecoration(
-                labelText: 'Phone Number',
-                prefixIcon: Icon(Icons.phone, color: Colors.orange),
-                border: OutlineInputBorder(),
-                labelStyle: TextStyle(color: Colors.orange),
+              SizedBox(height: 10),
+              TextFormField(
+                controller: _phoneNumberController,
+                decoration: InputDecoration(
+                  labelText: 'Phone Number',
+                  prefixIcon: Icon(Icons.phone, color: Colors.orange),
+                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(color: Colors.orange),
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                _showProfileUpdateDialog(context);
-              },
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  _showProfileUpdateDialog(context);
+                },
 
-              child: Text('Edit'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
+                child: Text('Edit'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                ),
               ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PasswordChange()),
-                );
-              },
-              child: Text('Password Change'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PasswordChange()),
+                  );
+                },
+                child: Text('Password Change'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
-

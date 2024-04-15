@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:logistics/LoginScreen.dart';
+import 'package:logistics/test.dart';
 import 'home.dart';
 import 'services.dart';
 import 'activity.dart';
@@ -51,6 +52,7 @@ class _HomeState extends State<Home> {
     services(),
     Activity(),
     Account(),
+    TestImage(),
   ];
 
   @override
@@ -83,6 +85,10 @@ class _HomeState extends State<Home> {
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: 'Account',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.camera),
+              label: 'Image',
             ),
           ],
         ),
