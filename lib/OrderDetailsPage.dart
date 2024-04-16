@@ -57,7 +57,6 @@ class OrderDetailsPage extends StatelessWidget {
                           builder: (context) => EndTripPage(requestId: order.requestId),
                         ),
                       );
-
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(Colors.orange),

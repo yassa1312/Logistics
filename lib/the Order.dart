@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'OrderDetailsPage.dart'; // Make sure this import is correct
 import 'auth_service.dart'; // Make sure this import is correct
@@ -205,8 +206,14 @@ class OrderTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildOrderInfo('Request ID:', order.requestId),
-              _buildOrderInfo('Pick Up Location:', order.pickUpLocation),
-              _buildOrderInfo('Drop Off Location:', order.dropOffLocation),
+              MapLocationWidget(
+                locationLabel: 'Pick Up Location:',
+                location: order.pickUpLocation,
+              ),
+              MapLocationWidget(
+                locationLabel: 'Drop Off Location:',
+                location: order.dropOffLocation,
+              ),
               _buildOrderInfo('Time Stamp On Creation:', order.timeStampOnCreation),
               _buildOrderInfo('Ride Type:', order.rideType),
             ],
@@ -243,6 +250,7 @@ class OrderTile extends StatelessWidget {
     );
   }
 
+
   void _showOrderDetails(BuildContext context, Order order) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('requestId', order.requestId);
@@ -255,5 +263,54 @@ class OrderTile extends StatelessWidget {
         refreshOrders(); // Call the refreshOrders function when needed
       }
     });
+  }
+}
+class MapLocationWidget extends StatelessWidget {
+  final String locationLabel;
+  final String location;
+
+  const MapLocationWidget({
+    Key? key,
+    required this.locationLabel,
+    required this.location,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        _launchMapUrl(location);
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$locationLabel',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.blue,
+            ),
+          ),
+          SizedBox(height: 4), // Add a SizedBox for spacing
+          Text(
+            '$location',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.blue,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _launchMapUrl(String location) async {
+    String googleMapsUrl = 'https://www.google.com/maps/search/?api=1&query=$location';
+    if (await canLaunch(googleMapsUrl)) {
+      await launch(googleMapsUrl);
+    } else {
+      throw 'Could not launch $googleMapsUrl';
+    }
   }
 }
