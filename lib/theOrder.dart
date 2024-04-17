@@ -14,6 +14,7 @@ class Order {
   final String dropOffLocation;
   final String timeStampOnCreation;
   final String rideType;
+  final bool finished; // Add finished property
 
   Order({
     required this.requestId,
@@ -21,6 +22,7 @@ class Order {
     required this.dropOffLocation,
     required this.timeStampOnCreation,
     required this.rideType,
+    required this.finished, // Initialize finished property
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,7 @@ class Order {
           ? DateTime.parse(json['time_Stamp_On_Creation']).toString()
           : '',
       rideType: json['ride_Type'] ?? '',
+      finished: json['finished'] ?? '', // Initialize finished property
     );
   }
 }
@@ -117,14 +120,15 @@ class _OrdersPageState extends State<OrdersPage> {
         pickUpLocation: 'Location A',
         dropOffLocation: 'Location B',
         timeStampOnCreation: '2022-04-10 10:00:00',
-        rideType: 'Normal',
+        rideType: 'Normal', finished: true,
+
       ),
       Order(
         requestId: '2',
         pickUpLocation: 'Location C',
         dropOffLocation: 'Location D',
         timeStampOnCreation: '2022-04-11 12:00:00',
-        rideType: 'Premium',
+        rideType: 'Premium', finished: false,
       ),
       // Add more dummy orders as needed
     ];
@@ -216,12 +220,33 @@ class OrderTile extends StatelessWidget {
               ),
               _buildOrderInfo('Time Stamp On Creation:', order.timeStampOnCreation),
               _buildOrderInfo('Ride Type:', order.rideType),
+              _buildOrderInfo1('finished:', order.finished),
             ],
           ),
         ),
       ),
     );
   }
+  Widget _buildOrderInfo1(String label, bool value) {
+    return Row(
+      children: [
+        Text(
+          label, // Changed title to label
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: Colors.blue,
+          ),
+        ),
+        SizedBox(width: 5),
+        Icon(
+          value ? Icons.check_circle : Icons.cancel,
+          color: value ? Colors.green : Colors.red,
+        ),
+      ],
+    );
+  }
+
 
   Widget _buildOrderInfo(String title, String value) {
     return Padding(
@@ -250,17 +275,16 @@ class OrderTile extends StatelessWidget {
     );
   }
 
-
   void _showOrderDetails(BuildContext context, Order order) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('requestId', order.requestId);
-
+    prefs.setBool('finished', order.finished); // Store finished status
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => OrderDetailsPage(order: order)),
     ).then((result) {
       if (result == true) {
-        refreshOrders(); // Call the refreshOrders function when needed
+        refreshOrders();
       }
     });
   }

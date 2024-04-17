@@ -6,7 +6,7 @@ import 'package:logistics/EndTripPage.dart';
 import 'package:logistics/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'auth_service.dart';
-import 'the Order.dart';
+import 'theOrder.dart';
  // Import OrdersPage to access its methods
 
 class OrderDetailsPage extends StatelessWidget {
@@ -40,6 +40,7 @@ class OrderDetailsPage extends StatelessWidget {
                     _buildDetailItem('Drop Off Location', order.dropOffLocation),
                     _buildDetailItem('Time Stamp On Creation', order.timeStampOnCreation),
                     _buildDetailItem('Ride Type', order.rideType),
+                    _buildOrderInfo1('finished:', order.finished),
                   ],
                 ),
               ),
@@ -104,7 +105,25 @@ class OrderDetailsPage extends StatelessWidget {
       ),
     );
   }
-
+  Widget _buildOrderInfo1(String label, bool value) {
+    return Row(
+      children: [
+        Text(
+          label, // Changed title to label
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: Colors.blue,
+          ),
+        ),
+        SizedBox(width: 5),
+        Icon(
+          value ? Icons.check_circle : Icons.cancel,
+          color: value ? Colors.green : Colors.red,
+        ),
+      ],
+    );
+  }
   Widget _buildDetailItem(String title, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,17 +184,23 @@ class OrderDetailsPage extends StatelessWidget {
   }
 
   Future<void> _deleteOrder(BuildContext context, Order order) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? requestId = prefs.getString('requestId');
-    String? token = await AuthService.getAccessToken();
-
-    if (requestId == null) {
-      print('Request ID not found in shared preferences.');
+    if (order.finished) {
+      Fluttertoast.showToast(
+        msg: 'Order is already completed and cannot be deleted.',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
       return;
     }
 
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = await AuthService.getAccessToken();
+
     String url =
-        'http://www.logistics-api.somee.com/api/User/DeleteMyRequests/$requestId';
+        'http://www.logistics-api.somee.com/api/User/DeleteMyRequests/${order.requestId}';
 
     Map<String, String> headers = {
       'Authorization': 'Bearer $token',
@@ -192,7 +217,7 @@ class OrderDetailsPage extends StatelessWidget {
 
     if (response.statusCode == 200) {
       Fluttertoast.showToast(
-        msg: 'Order deleted successfully', // Include a line break (\n)
+        msg: 'Order deleted successfully',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.green,
@@ -204,7 +229,6 @@ class OrderDetailsPage extends StatelessWidget {
         MaterialPageRoute(builder: (context) => Home()),
       );
     } else {
-      // Handle other status codes
       Fluttertoast.showToast(
         msg: 'Failed to delete order. Status code: ${response.statusCode}',
         toastLength: Toast.LENGTH_SHORT,
@@ -214,52 +238,5 @@ class OrderDetailsPage extends StatelessWidget {
         fontSize: 16.0,
       );
     }
-  }
-}
-Future<void> endTrip(String requestId, String comment, int rating) async {
-  try {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? requestId = prefs.getString('requestId');
-
-
-    if (requestId == null) {
-      print('Request ID not found in shared preferences.');
-      return;
-    }
-    String url = 'http://www.logistics-api.somee.com/api/Trip/EndTrip';
-
-    // JSON payload
-    Map<String, dynamic> data = {
-      'request_Id': requestId,
-      'comment': comment,
-      'rating': rating,
-    };
-
-    // Convert data to JSON string
-    String body = json.encode(data);
-
-    // Define headers
-    Map<String, String> headers = {
-      'accept': '*/*',
-      'Content-Type': 'application/json',
-    };
-
-    // Make PUT request
-    var response = await http.put(
-      Uri.parse(url),
-      headers: headers,
-      body: body,
-    );
-
-    if (response.statusCode == 200) {
-      print('Trip ended successfully');
-      // Handle success as needed
-    } else {
-      print('Failed to end trip: ${response.statusCode}');
-      // Handle failure as needed
-    }
-  } catch (error) {
-    print('Error ending trip: $error');
-    // Handle error as needed
   }
 }

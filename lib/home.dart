@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logistics/LoginScreen.dart';
 import 'package:logistics/auth_service.dart';
-import 'package:logistics/the%20Order.dart';
+import 'package:logistics/theOrder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'services.dart';
 import 'calculations.dart';
@@ -123,7 +123,7 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 30),
+
 
                 //SUGGESTIONS
                 Container(
@@ -151,7 +151,7 @@ class HomePage extends StatelessWidget {
                             );
                           },
                           child: Text(
-                            'View All',
+                            'View All Services',
                             style: TextStyle(
                               fontSize: 13.0,
                               fontWeight: FontWeight.bold,
@@ -192,9 +192,6 @@ class HomePage extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
-
-                //MORE WAYS TO USE
 
                 Container(
                   width: double.infinity,
@@ -259,22 +256,6 @@ class HomePage extends StatelessWidget {
                             }),
                       )
                     ],
-                  ),
-                ),
-
-                // Cancel My Request Button
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OrdersPage(),
-                        ),
-                      );
-                      },
-                    child: Text('My Orders'),
                   ),
                 ),
               ],

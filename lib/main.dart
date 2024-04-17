@@ -5,6 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:logistics/LoginScreen.dart';
 import 'package:logistics/test.dart';
+import 'package:logistics/theOrder.dart';
 import 'home.dart';
 import 'services.dart';
 import 'activity.dart';
@@ -49,7 +50,7 @@ class _HomeState extends State<Home> {
 
   final List<Widget> _pages = [
     HomePage(),
-    services(),
+    OrdersPage(),
     Activity(),
     Account(),
     TestImage(),
@@ -75,8 +76,8 @@ class _HomeState extends State<Home> {
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.apps),
-              label: 'Services',
+              icon: Icon(Icons.list_alt),
+              label: 'My Orders',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.history),
