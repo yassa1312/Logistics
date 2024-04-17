@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:logistics/auth_service.dart';
 import 'dart:convert';
 
 import 'package:logistics/main.dart';
+import 'package:logistics/the%20Order.dart';
 
 class EndTripPage extends StatefulWidget {
   final String requestId;
@@ -120,66 +122,80 @@ class _EndTripPageState extends State<EndTripPage> {
 
   Future<void> endTrip(String requestId, String comment, int rating) async {
     try {
-      String url = 'http://www.logistics-api.somee.com/api/Trip/EndTrip';
+      String? token = await AuthService.getAccessToken();
 
-      // JSON payload
-      Map<String, dynamic> data = {
-        'request_Id': requestId,
-        'comment': comment,
-        'rating': rating,
-      };
+      if (token != null) {
+        String url = 'http://www.logistics-api.somee.com/api/Trip/EndTrip';
 
-      // Convert data to JSON string
-      String body = json.encode(data);
+        // Define request body
+        Map<String, dynamic> requestBody = {
+          'request_Id': widget.requestId,
+          'comment': comment,
+          'rating': rating,
+        };
 
-      // Define headers
-      Map<String, String> headers = {
-        'accept': '*/*',
-        'Content-Type': 'application/json',
-      };
+        // Encode request body to JSON
+        String body = json.encode(requestBody);
 
-      // Make PUT request
-      var response = await http.put(
-        Uri.parse(url),
-        headers: headers,
-        body: body,
-      );
+        // Define headers
+        Map<String, String> headers = {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+          'accept': '*/*',
+        };
 
-      if (response.statusCode == 200) {
-        print('Trip ended successfully');
-        Fluttertoast.showToast(
-          msg: 'Trip ended successfully',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 16.0,
+        // Make PUT request
+        var response = await http.put(
+          Uri.parse(url),
+          headers: headers,
+          body: body,
         );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Home()),
-        );
+
+        // Handle response
+        if (response.statusCode == 200) {
+          print('Trip ended successfully');
+          Fluttertoast.showToast(
+            msg: "Trip ended successfully",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => Home()),
+          );
+          // Handle success as needed
+        } else {
+          print('Failed to end trip: ${response.statusCode}');
+          Fluttertoast.showToast(
+            msg: "Failed to end trip: ${response.statusCode}",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+          // Handle failure as needed
+        }
       } else {
-        print('Failed to end trip: ${response.statusCode}');
-        Fluttertoast.showToast(
-          msg: 'Failed to end trip. Status code: ${response.statusCode}',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
+        print('Access token is null.');
       }
     } catch (error) {
-      print('Error ending trip: $error');
+      print("Error ending trip: $error");
       Fluttertoast.showToast(
-        msg: 'Error ending trip: $error',
+        msg: "Error ending trip: $error",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
         backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: 16.0,
       );
+      // Handle error as needed
     }
   }
 }
