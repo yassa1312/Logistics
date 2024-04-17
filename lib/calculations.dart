@@ -328,8 +328,10 @@ class _CalculationPageState extends State<CalculationPage> {
                                         children: [
                                           // Text field for entering a custom location
                                           TextField(
+                                            maxLength: 28, // Set maximum length to 24 characters
                                             decoration: InputDecoration(
                                               hintText: 'Enter custom location',
+                                              counterText: null, // Hide the character counter
                                             ),
                                             onChanged: (value) {
                                               setState(() {
@@ -343,6 +345,7 @@ class _CalculationPageState extends State<CalculationPage> {
                                               Navigator.of(context).pop();
                                             },
                                           ),
+
                                           ...pickUpList.map((location) {
                                             return ListTile(
                                               title: Text(location),
@@ -395,8 +398,10 @@ class _CalculationPageState extends State<CalculationPage> {
                                         children: [
                                           // Text field for entering a custom location
                                           TextField(
-                                            decoration: const InputDecoration(
+                                            maxLength: 28, // Set maximum length to 24 characters
+                                            decoration: InputDecoration(
                                               hintText: 'Enter custom location',
+                                              counterText: null, // Hide the character counter
                                             ),
                                             onChanged: (value) {
                                               customLocation = value; // Update the custom location
