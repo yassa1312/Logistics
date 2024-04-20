@@ -127,8 +127,6 @@ class _TestImageState extends State<TestImage> {
       return false;
     }
   }
-
-
   void _logout() async {
     await AuthService.clearUserData1();
     await AuthService.clearUserData(); // Clear user data from SharedPreferences
