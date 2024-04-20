@@ -54,7 +54,7 @@ class _HomeState extends State<Home> {
     OrdersPage(),
     Activity(),
     Account(),
-    RunMyApp(),
+    ImageCode(),
   ];
 
   @override
