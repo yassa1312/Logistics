@@ -737,6 +737,7 @@ class _CalculationPageState extends State<CalculationPage> {
                                       destinationLocation: SelectedLocation2,
                                       selectedTruck: selectedTruck,
                                       selectedType: ShipmentType ,
+                                      selectedCapacity:SelectedCapacity,
                                       totalCost: totalCost,
                                       selectedServices: [
                                         if (isInsuredTransportation)

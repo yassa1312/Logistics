@@ -40,7 +40,6 @@ class OrderDetailsPage extends StatelessWidget {
                     _buildDetailItem('Drop Off Location', order.dropOffLocation),
                     _buildDetailItem('Time Stamp On Creation', order.timeStampOnCreation),
                     _buildDetailItem('Ride Type', order.rideType),
-                    _buildOrderInfo1('finished:', order.finished),
                   ],
                 ),
               ),
@@ -52,12 +51,25 @@ class OrderDetailsPage extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EndTripPage(requestId: order.requestId),
-                        ),
-                      );
+                      if (order.endTripTime == null || order.endTripTime.isEmpty) {
+                        // Show a Flutter toast message indicating that the trip has not ended yet
+                        Fluttertoast.showToast(
+                          msg: 'Trip has not ended yet.',
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
+                      } else {
+                        // Navigate to the EndTripPage if the trip has ended
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EndTripPage(requestId: order.requestId),
+                          ),
+                        );
+                      }
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(Colors.orange),
@@ -71,6 +83,7 @@ class OrderDetailsPage extends StatelessWidget {
                     ),
                   ),
                 ),
+
               ],
             ),
             SizedBox(height: 10),
@@ -196,8 +209,33 @@ class OrderDetailsPage extends StatelessWidget {
       return;
     }
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (order.startTripTime.isNotEmpty) {
+      Fluttertoast.showToast(
+        msg: 'Order has already started and cannot be deleted.',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      return;
+    }
+
+
     String? token = await AuthService.getAccessToken();
+
+    if (token == null) {
+      // Handle the case where the access token is not available
+      Fluttertoast.showToast(
+        msg: 'Authentication error. Please log in again.',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      return;
+    }
 
     String url =
         'http://www.logistics-api.somee.com/api/User/DeleteMyRequests/${order.requestId}';
@@ -207,30 +245,43 @@ class OrderDetailsPage extends StatelessWidget {
       'accept': '*/*',
     };
 
-    var response = await http.delete(
-      Uri.parse(url),
-      headers: headers,
-    );
-
-    print('Response status code: ${response.statusCode}');
-    print('Response body: ${response.body}');
-
-    if (response.statusCode == 200) {
-      Fluttertoast.showToast(
-        msg: 'Order deleted successfully',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.green,
-        textColor: Colors.white,
-        fontSize: 16.0,
+    try {
+      var response = await http.delete(
+        Uri.parse(url),
+        headers: headers,
       );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Home()),
-      );
-    } else {
+
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        Fluttertoast.showToast(
+          msg: 'Order deleted successfully',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Home()),
+        );
+      } else {
+        Fluttertoast.showToast(
+          msg: 'Failed to delete order. Status code: ${response.statusCode}',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      }
+    } catch (e) {
+      // Handle any exceptions that occur during the HTTP request
+      print('Exception occurred: $e');
       Fluttertoast.showToast(
-        msg: 'Failed to delete order. Status code: ${response.statusCode}',
+        msg: 'Failed to delete order. Please try again later.',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.red,

@@ -13,6 +13,7 @@ class CheckoutPage extends StatelessWidget {
   final String destinationLocation;
   final String selectedTruck;
   final String selectedType;
+  final String selectedCapacity;
   final String totalCost;
   final List<String> selectedServices;
 
@@ -23,6 +24,7 @@ class CheckoutPage extends StatelessWidget {
     required this.selectedType,
     required this.totalCost,
     required this.selectedServices,
+    required this.selectedCapacity,
   });
 
   @override
@@ -61,6 +63,8 @@ class CheckoutPage extends StatelessWidget {
             const SizedBox(height: 10),
             Text('Selected Type: $selectedType', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
+            Text('Selected Type: $selectedCapacity', style: TextStyle(fontSize: 18)),
+            const SizedBox(height: 10),
             Text('Total Cost: $totalCost', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
             const Text('Selected Services:', style: TextStyle(fontSize: 18)),
@@ -75,7 +79,7 @@ class CheckoutPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 bool success = await createShipmentRequest(
-                    context, sourceLocation, destinationLocation, selectedTruck, selectedType);
+                    context, sourceLocation, destinationLocation, selectedTruck, selectedType, selectedCapacity);
 
                 if (success) {
                   Navigator.pushReplacement(
@@ -114,7 +118,7 @@ class CheckoutPage extends StatelessWidget {
   }
 
   Future<bool> createShipmentRequest(BuildContext context, String pickUpLocation,
-      String dropOffLocation, String selectedTruck, String selectedType) async {
+      String dropOffLocation, String selectedTruck, String selectedType, String selectedCapacity) async {
     final url = Uri.parse('http://www.logistics-api.somee.com/api/User/CreateRequest');
 
     try {
@@ -137,6 +141,7 @@ class CheckoutPage extends StatelessWidget {
           'drop_Off_Location': dropOffLocation,
           'ride_Type': selectedTruck,
           "Delivery_Kind": selectedType,
+          "Load_Weight": selectedCapacity
         }),
       );
 
@@ -153,10 +158,7 @@ class CheckoutPage extends StatelessWidget {
         print('You reached the max limit of active requests');
         print('Status Code: ${response.statusCode}');
         displayToast('You reached the max limit of active requests');
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Home()),
-        );
+        print('Shipment request created: ${response.body}');
         return false;
       } else {
         print('Unexpected status code: ${response.statusCode}');

@@ -13,6 +13,8 @@ class Order {
   final String pickUpLocation;
   final String dropOffLocation;
   final String timeStampOnCreation;
+  final String startTripTime;
+  final String endTripTime;
   final String rideType;
   final bool finished; // Add finished property
 
@@ -21,6 +23,8 @@ class Order {
     required this.pickUpLocation,
     required this.dropOffLocation,
     required this.timeStampOnCreation,
+    required this.startTripTime,
+    required this.endTripTime,
     required this.rideType,
     required this.finished, // Initialize finished property
   });
@@ -32,6 +36,12 @@ class Order {
       dropOffLocation: json['drop_Off_Location'] ?? '',
       timeStampOnCreation: json['time_Stamp_On_Creation'] != null
           ? DateTime.parse(json['time_Stamp_On_Creation']).toString()
+          : '',
+      startTripTime: json['start_Trip_Time'] != null
+          ? DateTime.parse(json['start_Trip_Time']).toString()
+          : '',
+      endTripTime: json['end_Trip_Time'] != null
+          ? DateTime.parse(json['end_Trip_Time']).toString()
           : '',
       rideType: json['ride_Type'] ?? '',
       finished: json['finished'] ?? '', // Initialize finished property
@@ -120,6 +130,8 @@ class _OrdersPageState extends State<OrdersPage> {
         pickUpLocation: 'Location A',
         dropOffLocation: 'Location B',
         timeStampOnCreation: '2022-04-10 10:00:00',
+        startTripTime: '2022-04-10 10:00:00',
+        endTripTime: '2022-04-10 10:00:00',
         rideType: 'Normal', finished: true,
 
       ),
@@ -128,6 +140,8 @@ class _OrdersPageState extends State<OrdersPage> {
         pickUpLocation: 'Location C',
         dropOffLocation: 'Location D',
         timeStampOnCreation: '2022-04-11 12:00:00',
+        startTripTime: '2022-04-10 10:00:00',
+        endTripTime: '2022-04-10 10:00:00',
         rideType: 'Premium', finished: false,
       ),
       // Add more dummy orders as needed
@@ -220,7 +234,7 @@ class OrderTile extends StatelessWidget {
               ),
               _buildOrderInfo('Time Stamp On Creation:', order.timeStampOnCreation),
               _buildOrderInfo('Ride Type:', order.rideType),
-              _buildOrderInfo1('finished:', order.finished),
+              _buildStatusInfo2(order),
             ],
           ),
         ),
@@ -247,7 +261,57 @@ class OrderTile extends StatelessWidget {
     );
   }
 
+  Widget _buildStatusInfo2(Order order) {
+    String status = '';
 
+    if (order.timeStampOnCreation.isNotEmpty &&
+        order.startTripTime.isNotEmpty &&
+        order.endTripTime.isNotEmpty) {
+      status = 'Completed';
+    } else if (order.timeStampOnCreation.isNotEmpty &&
+        order.startTripTime.isNotEmpty) {
+      status = 'In Progress';
+    } else if (order.timeStampOnCreation.isNotEmpty) {
+      status = 'Pending';
+    }
+
+    Color statusColor = _getStatusColor(status);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Status:',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: Colors.blue,
+          ),
+        ),
+        SizedBox(height: 4), // Add a SizedBox for spacing
+        Text(
+          status,
+          style: TextStyle(
+            fontSize: 16,
+            color: statusColor, // Change the color here
+          ),
+        ),
+      ],
+    );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Pending':
+        return Colors.orange;
+      case 'In Progress':
+        return Colors.blue;
+      case 'Completed':
+        return Colors.green;
+      default:
+        return Colors.black;
+    }
+  }
   Widget _buildOrderInfo(String title, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -278,6 +342,8 @@ class OrderTile extends StatelessWidget {
   void _showOrderDetails(BuildContext context, Order order) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('requestId', order.requestId);
+    prefs.setString('endTripTime', order.endTripTime);
+    prefs.setString('startTripTime', order.startTripTime);
     prefs.setBool('finished', order.finished); // Store finished status
     Navigator.push(
       context,

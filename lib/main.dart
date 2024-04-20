@@ -4,7 +4,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:logistics/LoginScreen.dart';
-import 'package:logistics/test.dart';
+import 'package:logistics/ImageCode.dart';
+import 'package:logistics/testStinge.dart';
 import 'package:logistics/theOrder.dart';
 import 'home.dart';
 import 'services.dart';
@@ -53,7 +54,7 @@ class _HomeState extends State<Home> {
     OrdersPage(),
     Activity(),
     Account(),
-    TestImage(),
+    RunMyApp(),
   ];
 
   @override

@@ -125,7 +125,7 @@ class _EndTripPageState extends State<EndTripPage> {
       String? token = await AuthService.getAccessToken();
 
       if (token != null) {
-        String url = 'http://www.logistics-api.somee.com/api/Trip/EndTrip';
+        String url = 'http://www.logistics-api.somee.com/api/User/TripComment';
 
         // Define request body
         Map<String, dynamic> requestBody = {
