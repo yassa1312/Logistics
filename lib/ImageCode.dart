@@ -3,27 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:logistics/auth_service.dart';
 import 'package:logistics/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'LoginScreen.dart';
 import 'Home.dart'; // Make sure to import your Home screen widget
 
-class AuthService {
-  static Future<String?> getAccessToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('accessToken');
-  }
-
-  static Future<void> clearUserData1() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('userData');
-  }
-
-  static Future<void> clearUserData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('accessToken');
-  }
-}
 
 class ImageCode extends StatefulWidget {
   @override
@@ -56,8 +41,9 @@ class _ImageCodeState extends State<ImageCode> {
   }
 
   Future<bool> _sendImage(BuildContext context) async {
+    String? baseUrl = await AuthService.getURL();
     final url = Uri.parse(
-        'http://www.logistics-api.somee.com/api/Admin/UploadFileApi');
+        '$baseUrl/api/Admin/UploadFileAPI');
 
     // Check if access token and image URL are available
     String? token = await AuthService.getAccessToken();
