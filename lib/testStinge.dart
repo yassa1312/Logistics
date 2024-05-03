@@ -133,8 +133,6 @@ class _RunMyAppState extends State<RunMyApp> {
     }
 
     try {
-      // Convert image bytes to hexadecimal string
-      String imageDataString = _imageBytes.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join('');
 
       // Make HTTP POST request
       final response = await http.post(
@@ -143,9 +141,9 @@ class _RunMyAppState extends State<RunMyApp> {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({
-          "imageData": imageDataString,
-        }),
+        body: jsonEncode(
+          "$base64String",
+        ),
       );
 
       // Check response status
