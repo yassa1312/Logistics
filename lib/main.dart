@@ -52,7 +52,7 @@ class _HomeState extends State<Home> {
   final List<Widget> _pages = [
     HomePage(),
     OrdersPage(),
-    Activity(),
+    RunMyApp(),
     Account(),
     ImageCode(),
   ];

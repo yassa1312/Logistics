@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:logistics/EndTripPage.dart';
 import 'package:logistics/GiveReason.dart';
+import 'package:logistics/ProfilePageDriver.dart';
 import 'package:logistics/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'auth_service.dart';
@@ -125,6 +126,51 @@ class OrderDetailsPage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                       child: Text(
                         'Cancel',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (order.timeStampOnAcceptance.isNotEmpty) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProfilePageDriver(requestId: order.requestId),
+                          ),
+                        );
+                      } else {
+                        // Show a Flutter toast message indicating that the trip has not been accepted yet
+                        Fluttertoast.showToast(
+                          msg: 'Trip has not been accepted yet.',
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
+                      }
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+                      elevation: MaterialStateProperty.all<double>(10),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                      child: Text(
+                        'Driver',
                         style: TextStyle(fontSize: 18, color: Colors.white),
                       ),
                     ),

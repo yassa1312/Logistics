@@ -133,7 +133,9 @@ class _RunMyAppState extends State<RunMyApp> {
     }
 
     try {
-      // Create request body with imageData field containing base64String
+      // Convert image bytes to hexadecimal string
+      String imageDataString = _imageBytes.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join('');
+
       // Make HTTP POST request
       final response = await http.post(
         url,
@@ -142,10 +144,9 @@ class _RunMyAppState extends State<RunMyApp> {
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
-          "imageData": base64String,
+          "imageData": imageDataString,
         }),
       );
-
 
       // Check response status
       if (response.statusCode == 200) {
@@ -165,4 +166,5 @@ class _RunMyAppState extends State<RunMyApp> {
       return false;
     }
   }
+
 }
