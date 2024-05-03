@@ -1,0 +1,129 @@
+{
+    "request_Id": "a9dbbae5-fcec-4e06-bcf2-6314b7df07d7",
+    "driverName": "yassa",
+    "driverPhone": "123456",
+    "pick_Up_Location": "modern academy maadi",
+    "drop_Off_Location": "metro maadi",
+    "time_Stamp_On_Creation": "2024-04-20T20:28:12.0541012+00:00",
+    "time_Stamp_On_Acceptance": "2024-04-20T20:31:00.717022+00:00",
+    "start_Trip_Time": "2024-04-20T20:31:14.3611835+00:00",
+    "end_Trip_Time": "2024-04-20T21:07:42.9910831+00:00",
+    "ride_Type": "Refrigerated Truck",
+    "delivery_Kind": "Normal Truck",
+    "load_Weight": "Average (4 ton)",
+    "comment": "it work good",
+    "rating": 5,
+    "duration": null,
+    "finished": true,
+    "load_Image": null
+  },
+  Container(
+                          margin: EdgeInsets.symmetric(vertical: 10),
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                'Suggested Truck:',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    builder: (BuildContext context) {
+                                      return Container(
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                                0.8,
+                                        padding: EdgeInsets.all(16),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: [
+                                            Text(
+                                              'Select Truck',
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            SizedBox(height: 10),
+                                            Expanded(
+                                              child: ListView.builder(
+                                                itemCount: truckMap.values
+                                                    .toSet()
+                                                    .length,
+                                                itemBuilder:
+                                                    (BuildContext context,
+                                                        int index) {
+                                                  String truckName = truckMap
+                                                      .values
+                                                      .toSet()
+                                                      .elementAt(index);
+
+                                                  String truckImage =
+                                                      truckImageMap[truckName]!;
+                                                  return ListTile(
+                                                    leading: Image.asset(
+                                                      truckImage,
+                                                      width: 50,
+                                                      height: 50,
+                                                    ),
+                                                    title: Text(truckName),
+                                                    onTap: () {
+                                                      setState(() {
+                                                        selectedTruck = truckName;
+                                                      });
+                                                      Navigator.of(context).pop();
+                                                    },
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                                child: Container(
+                                    padding: EdgeInsets.all(10),
+                                    margin: EdgeInsets.symmetric(vertical: 10),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Column(children: [
+                                      Row(
+                                        children: [
+                                          Image.asset(
+                                            truckImageMap[selectedTruck]!,
+                                            width: 50,
+                                            height: 50,
+                                          ),
+                                          SizedBox(width: 10),
+                                          Expanded(
+                                            child: Text(
+                                              selectedTruck,
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                          Icon(Icons.keyboard_arrow_down),
+                                        ],
+                                      ),
+                                      Text('Tap to change'),
+                                    ])),
+                              )
+                            ],
+                          ),
+                        )

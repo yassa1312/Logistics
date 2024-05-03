@@ -15,7 +15,6 @@ class CheckoutPage extends StatelessWidget {
   final String selectedType;
   final String selectedCapacity;
   final String totalCost;
-  final List<String> selectedServices;
 
   CheckoutPage({
     required this.sourceLocation,
@@ -23,7 +22,6 @@ class CheckoutPage extends StatelessWidget {
     required this.selectedTruck,
     required this.selectedType,
     required this.totalCost,
-    required this.selectedServices,
     required this.selectedCapacity,
   });
 
@@ -63,23 +61,19 @@ class CheckoutPage extends StatelessWidget {
             const SizedBox(height: 10),
             Text('Selected Type: $selectedType', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
-            Text('Selected Type: $selectedCapacity', style: TextStyle(fontSize: 18)),
+            Text('Selected Capacity: $selectedCapacity Ton', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
             Text('Total Cost: $totalCost', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
-            const Text('Selected Services:', style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 5),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: selectedServices
-                  .map((service) => Text('- $service', style: TextStyle(fontSize: 16)))
-                  .toList(),
-            ),
-            const SizedBox(height: 30),
             ElevatedButton(
               onPressed: () async {
                 bool success = await createShipmentRequest(
-                    context, sourceLocation, destinationLocation, selectedTruck, selectedType, selectedCapacity);
+                    context, sourceLocation,
+                    destinationLocation,
+                    selectedTruck,
+                    selectedType,
+                    selectedCapacity,
+                    totalCost);
 
                 if (success) {
                   Navigator.pushReplacement(
@@ -118,8 +112,9 @@ class CheckoutPage extends StatelessWidget {
   }
 
   Future<bool> createShipmentRequest(BuildContext context, String pickUpLocation,
-      String dropOffLocation, String selectedTruck, String selectedType, String selectedCapacity) async {
-    final url = Uri.parse('http://www.logistics-api.somee.com/api/User/CreateRequest');
+      String dropOffLocation, String selectedTruck, String selectedType, String selectedCapacity, String totalCost) async {
+    String? baseUrl = await AuthService.getURL();
+    final url = Uri.parse('$baseUrl/api/User/CreateRequest');
 
     try {
       String? token = await AuthService.getAccessToken();
@@ -141,7 +136,8 @@ class CheckoutPage extends StatelessWidget {
           'drop_Off_Location': dropOffLocation,
           'ride_Type': selectedTruck,
           "Delivery_Kind": selectedType,
-          "Load_Weight": selectedCapacity
+          "Load_Weight": selectedCapacity,
+          "cost":totalCost
         }),
       );
 

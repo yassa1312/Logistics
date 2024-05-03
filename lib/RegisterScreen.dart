@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:logistics/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logistics/LoginScreen.dart';
 import 'package:http/http.dart' as http;
@@ -331,8 +332,9 @@ class RegistrationAPI {
     };
 
     try {
+      String? baseUrl = await AuthService.getURL();
       var response = await http.post(
-        Uri.parse('http://www.logistics-api.somee.com/api/Account/Register'),
+        Uri.parse('$baseUrl/api/Account/Register'),
         headers: headers,
         body: json.encode(data),
       );

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:logistics/EndTripPage.dart';
+import 'package:logistics/GiveReason.dart';
 import 'package:logistics/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'auth_service.dart';
@@ -51,7 +52,7 @@ class OrderDetailsPage extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      if (order.endTripTime == null || order.endTripTime.isEmpty) {
+                      if (order.endTripTime.isEmpty) {
                         // Show a Flutter toast message indicating that the trip has not ended yet
                         Fluttertoast.showToast(
                           msg: 'Trip has not ended yet.',
@@ -83,9 +84,55 @@ class OrderDetailsPage extends StatelessWidget {
                     ),
                   ),
                 ),
-
               ],
             ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (order.timeStampOnAcceptance.isEmpty) {
+                        // Show a Flutter toast message indicating that the trip has not ended yet
+                        Fluttertoast.showToast(
+                          msg: 'Trip has not Acceptance yet.',
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
+                      } else {
+                        // Navigate to the EndTripPage if the trip has ended
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GiveReason(requestId: order.requestId),
+                          ),
+                        );
+                      }
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(Colors.grey),
+                      elevation: MaterialStateProperty.all<double>(10),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
             SizedBox(height: 10),
             Row(
               children: [
@@ -112,31 +159,12 @@ class OrderDetailsPage extends StatelessWidget {
                 ),
               ],
             ),
-
           ],
         ),
       ),
     );
   }
-  Widget _buildOrderInfo1(String label, bool value) {
-    return Row(
-      children: [
-        Text(
-          label, // Changed title to label
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: Colors.blue,
-          ),
-        ),
-        SizedBox(width: 5),
-        Icon(
-          value ? Icons.check_circle : Icons.cancel,
-          color: value ? Colors.green : Colors.red,
-        ),
-      ],
-    );
-  }
+
   Widget _buildDetailItem(String title, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,10 +236,9 @@ class OrderDetailsPage extends StatelessWidget {
       );
       return;
     }
-
-    if (order.startTripTime.isNotEmpty) {
+    if (order.timeStampOnAcceptance.isNotEmpty || order.startTripTime.isNotEmpty) {
       Fluttertoast.showToast(
-        msg: 'Order has already started and cannot be deleted.',
+        msg: 'Order is already Started.',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.red,
@@ -221,6 +248,17 @@ class OrderDetailsPage extends StatelessWidget {
       return;
     }
 
+    if (order.timeStampOnAcceptance.isNotEmpty) {
+      Fluttertoast.showToast(
+        msg: 'Order has already Accepted and cannot be deleted.',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      return;
+    }
 
     String? token = await AuthService.getAccessToken();
 
@@ -236,9 +274,9 @@ class OrderDetailsPage extends StatelessWidget {
       );
       return;
     }
-
+    String? baseUrl = await AuthService.getURL();
     String url =
-        'http://www.logistics-api.somee.com/api/User/DeleteMyRequests/${order.requestId}';
+        '$baseUrl/api/User/DeleteMyRequests/${order.requestId}';
 
     Map<String, String> headers = {
       'Authorization': 'Bearer $token',
@@ -268,6 +306,8 @@ class OrderDetailsPage extends StatelessWidget {
           MaterialPageRoute(builder: (context) => Home()),
         );
       } else {
+        print('Response status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
         Fluttertoast.showToast(
           msg: 'Failed to delete order. Status code: ${response.statusCode}',
           toastLength: Toast.LENGTH_SHORT,

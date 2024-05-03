@@ -101,8 +101,8 @@ class _PasswordChangeState extends State<PasswordChange> {
     }
 
     String? token = await AuthService.getAccessToken(); // Moved outside the try block
-
-    var url = Uri.parse('http://www.logistics-api.somee.com/api/Account/ChangemyPassword');
+    String? baseUrl = await AuthService.getURL();
+    var url = Uri.parse('$baseUrl/api/Account/ChangeMyPassword');
     var headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',

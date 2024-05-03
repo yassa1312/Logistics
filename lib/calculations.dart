@@ -58,7 +58,7 @@ class CalculationPage extends StatefulWidget {
 
 class _CalculationPageState extends State<CalculationPage> {
   String ShipmentType = 'Normal Truck';
-  String SelectedCapacity = 'Average (4 ton)';
+  String SelectedCapacity = '4';
   String selectedTruck = 'Refrigerated Truck';
   String selectedTruckKey = '';
   String SelectedLocation = 'Select source';
@@ -80,7 +80,6 @@ class _CalculationPageState extends State<CalculationPage> {
       double cost = CostCalculator.calculateTotalCost(
         SelectedLocation,
         SelectedLocation2,
-
         selectedTruck,
         isInsuredTransportation,
         isTakeCare,
@@ -124,39 +123,36 @@ class _CalculationPageState extends State<CalculationPage> {
   ];
 
   final List<String> capacityList = [
-    'Very Low (1 ton)',
-    'Low (2 ton)',
-    'Average (4 ton)',
-    'High (8 ton)',
-    'Heavy (10 ton)',
-    'No idea'
+    '1',
+    '2',
+    '4',
+    '8',
+    '10',
   ];
   Map<String, String> truckMap = {
-    'Normal shipmentAverage (4 ton)': 'Average Classic Box Truck',
-    'Normal shipmentLow (1 ton)': 'Motor Tri-cycle',
-    'Normal shipmentHigh (8 ton)': 'Pickup Truck',
-    'Normal shipmentHeavy (10 ton)': 'Platform Truck',
-    'IndusterialAverage (4 ton)': 'Average Classic Box Truck',
-    'IndusterialLow (1 ton)': 'Average Classic Box Truck',
-    'IndusterialHigh (8 ton)': 'Pickup Truck',
-    'IndusterialHeavy (10 ton)': 'Platform Truck',
-    'FurnitureAverage (4 ton)': 'Half-ton Classic Truck',
-    'FurnitureLow (1 ton)': 'Motor Tri-cycle',
-    'FurnitureHigh (8 ton)': 'Pickup Truck',
-    'FurnitureHeavy (10 ton)': 'Platform Truck',
-    'Frozen food Average(4 ton)': 'Refrigerated Truck',
-    'Frozen foodVery low(1 ton)': 'Refrigerated Truck',
-    'Frozen foodLow (2 ton)': 'Refrigerated Truck',
-    'Frozen foodBelow (1 ton)': 'Refrigerated Truck',
-    'Frozen foodHigh (8 tonn)': 'Refrigerated Truck',
-    'Frozen foodHeavy (10 ton)': 'Refrigerated Truck',
+    'Normal shipment4': 'Average Classic Box Truck',
+    'Normal shipment1': 'Motor Tri-cycle',
+    'Normal shipment8': 'Pickup Truck',
+    'Normal shipment10': 'Platform Truck',
+    'Industerial4': 'Average Classic Box Truck',
+    'Industerial1': 'Average Classic Box Truck',
+    'Industerial8': 'Pickup Truck',
+    'Industerial10': 'Platform Truck',
+    'Furniture4': 'Half-ton Classic Truck',
+    'Furniture1': 'Motor Tri-cycle',
+    'Furniture8': 'Pickup Truck',
+    'Furniture10': 'Platform Truck',
+    'Frozen food4': 'Refrigerated Truck',
+    'Frozen food1': 'Refrigerated Truck',
+    'Frozen food2': 'Refrigerated Truck',
+    'Frozen food8': 'Refrigerated Truck',
+    'Frozen food10': 'Refrigerated Truck',
     'Packages': 'Average Classic Box Truck',
-    'ElectronicsVery low(1 ton)': 'Average Classic Box Truck',
-    'ElectronicsLow (2 ton)': 'Average Classic Box Truck',
-    'ElectronicsAverage(4 ton)': 'Average Classic Box Truck',
-    'ElectronicsBelow average(2 ton)': 'Average Classic Box Truck',
-    'ElectronicsHigh (8 ton)': 'Large Truck',
-    'ElectronicsHeavy (10 ton)': 'Large Truck',
+    'Electronics1': 'Average Classic Box Truck',
+    'Electronics2': 'Average Classic Box Truck',
+    'Electronics4': 'Average Classic Box Truck',
+    'Electronics8': 'Large Truck',
+    'Electronics10': 'Large Truck',
   };
 
   Map<String, String> truckImageMap = {
@@ -466,7 +462,6 @@ class _CalculationPageState extends State<CalculationPage> {
                     )
                   ],
                 ),
-                SizedBox(height: 20),
                 Container(
                   padding: EdgeInsets.all(16),
                   child: Column(
@@ -529,47 +524,46 @@ class _CalculationPageState extends State<CalculationPage> {
                       SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () {
-                          showModalBottomSheet(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text(
-                                      'What is the estimated capacity of your shipment?'),
-                                  content: SingleChildScrollView(
-                                    child: ListBody(
-                                      children:
-                                          capacityList.map((selectedCapacity) {
-                                        return ListTile(
-                                          title: Text(selectedCapacity),
-                                          onTap: () {
-                                            setState(() {
-                                              SelectedCapacity =
-                                                  selectedCapacity;
-                                              selectedTruck = truckMap[
-                                                      '$ShipmentType$SelectedCapacity'] ??
-                                                  'Average Classic Box Truck';
-                                              updateSelectedTruck;
-                                            });
-                                            Navigator.of(context).pop();
-                                          },
-                                        );
-                                      }).toList(),
-                                    ),
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('What is the estimated capacity in Ton of your shipment?'),
+                                content: SingleChildScrollView(
+                                  child: ListBody(
+                                    children: capacityList.map((selectedCapacity) {
+                                      return ListTile(
+                                        title: Text('$selectedCapacity Ton'), // Modified line
+                                        onTap: () {
+                                          setState(() {
+                                            SelectedCapacity = selectedCapacity;
+                                            selectedTruck = truckMap['$ShipmentType$SelectedCapacity'] ?? 'Average Classic Box Truck';
+                                            updateSelectedTruck;
+                                          });
+                                          Navigator.of(context).pop();
+                                        },
+                                      );
+                                    }).toList(),
                                   ),
-                                );
-                              });
+                                ),
+                              );
+                            },
+                          );
                         },
                         child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(SelectedCapacity),
-                              Icon(Icons.keyboard_arrow_down),
-                            ]),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('$SelectedCapacity Ton', style: TextStyle(fontWeight: FontWeight.bold)), // Modified line
+                            Icon(Icons.keyboard_arrow_down),
+                          ],
+                        ),
+
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange,
                         ),
                       ),
-                      SizedBox(height: 20),
+
+                      SizedBox(height: 10),
                       Container(
                         margin: EdgeInsets.symmetric(vertical: 10),
                         padding: EdgeInsets.all(16),
@@ -595,12 +589,12 @@ class _CalculationPageState extends State<CalculationPage> {
                                   builder: (BuildContext context) {
                                     return Container(
                                       height:
-                                          MediaQuery.of(context).size.height *
-                                              0.8,
+                                      MediaQuery.of(context).size.height *
+                                          0.8,
                                       padding: EdgeInsets.all(16),
                                       child: Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.stretch,
+                                        CrossAxisAlignment.stretch,
                                         children: [
                                           Text(
                                             'Select Truck',
@@ -617,14 +611,14 @@ class _CalculationPageState extends State<CalculationPage> {
                                                   .length,
                                               itemBuilder:
                                                   (BuildContext context,
-                                                      int index) {
+                                                  int index) {
                                                 String truckName = truckMap
                                                     .values
                                                     .toSet()
                                                     .elementAt(index);
 
                                                 String truckImage =
-                                                    truckImageMap[truckName]!;
+                                                truckImageMap[truckName]!;
                                                 return ListTile(
                                                   leading: Image.asset(
                                                     truckImage,
@@ -683,36 +677,7 @@ class _CalculationPageState extends State<CalculationPage> {
                     ],
                   ),
                 ),
-                CheckboxListTile(
-                  title: Text('Insured transportation'),
-                  activeColor: Colors.orange,
-                  value: isInsuredTransportation,
-                  onChanged: (bool? newValue) {
-                    setState(() {
-                      isInsuredTransportation = newValue!;
-                    });
-                  },
-                ),
-                CheckboxListTile(
-                  title: Text('TakeCare'),
-                  activeColor: Colors.orange,
-                  value: isTakeCare,
-                  onChanged: (bool? newValue) {
-                    setState(() {
-                      isTakeCare = newValue!;
-                    });
-                  },
-                ),
-                CheckboxListTile(
-                  title: Text('Extra wrapping'),
-                  activeColor: Colors.orange,
-                  value: isExtraWrapping,
-                  onChanged: (bool? newValue) {
-                    setState(() {
-                      isExtraWrapping = newValue!;
-                    });
-                  },
-                ),
+
                 Container(
                   decoration: BoxDecoration(
                     border: Border(top: BorderSide(color: Colors.grey)),
@@ -739,12 +704,6 @@ class _CalculationPageState extends State<CalculationPage> {
                                       selectedType: ShipmentType ,
                                       selectedCapacity:SelectedCapacity,
                                       totalCost: totalCost,
-                                      selectedServices: [
-                                        if (isInsuredTransportation)
-                                          'Insured transportation',
-                                        if (isTakeCare) 'TakeCare',
-                                        if (isExtraWrapping) 'Extra wrapping',
-                                      ],
                                     ),
                                   ),
                                 );

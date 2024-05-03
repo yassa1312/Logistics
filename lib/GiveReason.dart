@@ -7,25 +7,25 @@ import 'dart:convert';
 import 'package:logistics/main.dart';
 
 
-class EndTripPage extends StatefulWidget {
+class GiveReason extends StatefulWidget {
   final String requestId;
 
-  EndTripPage({required this.requestId});
+  GiveReason({required this.requestId});
 
   @override
-  _EndTripPageState createState() => _EndTripPageState();
+  _GiveReasonState createState() => _GiveReasonState();
 }
 
-class _EndTripPageState extends State<EndTripPage> {
+class _GiveReasonState extends State<GiveReason> {
   String comment = '';
-  int rating = 1;
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'End Trip',
+          'Give reason',
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.orange,
@@ -49,40 +49,16 @@ class _EndTripPageState extends State<EndTripPage> {
               ),
             ),
             SizedBox(height: 20),
-            Row(
-              children: [
-                Text(
-                  'Rate: ',
-                  style: TextStyle(fontSize: 20), // Increase the font size
-                ),
-                SizedBox(width: 10),
-                Row(
-                  children: List.generate(5, (index) {
-                    int starValue = index + 1;
-                    return IconButton(
-                      onPressed: () {
-                        setState(() {
-                          rating = starValue;
-                        });
-                      },
-                      icon: Icon(
-                        starValue <= rating ? Icons.star : Icons.star_border,
-                        color: Colors.orange,
-                      ),
-                    );
-                  }),
-                ),
-              ],
-            ),
+
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                await endTrip(widget.requestId, comment, rating);
+                await endTrip(widget.requestId, comment);
               },
               style: ElevatedButton.styleFrom(
                 textStyle: TextStyle(fontSize: 20), // Increase the font size
               ),
-              child: Text('End Trip'),
+              child: Text('Cancel Trip'),
             ),
 
           ],
@@ -120,18 +96,17 @@ class _EndTripPageState extends State<EndTripPage> {
     );
   }
 
-  Future<void> endTrip(String requestId, String comment, int rating) async {
+  Future<void> endTrip(String requestId, String comment) async {
     try {
       String? token = await AuthService.getAccessToken();
       String? baseUrl = await AuthService.getURL();
       if (token != null) {
-        String url = '$baseUrl/api/User/TripComment';
+        String url = '$baseUrl/api/User/CancelRequest';
 
         // Define request body
         Map<String, dynamic> requestBody = {
           'request_Id': widget.requestId,
           'comment': comment,
-          'rating': rating,
         };
 
         // Encode request body to JSON
@@ -153,9 +128,9 @@ class _EndTripPageState extends State<EndTripPage> {
 
         // Handle response
         if (response.statusCode == 200) {
-          print('Trip ended successfully');
+          print('Trip Cancel successfully');
           Fluttertoast.showToast(
-            msg: "Trip ended successfully",
+            msg: "Trip Cancel successfully",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,

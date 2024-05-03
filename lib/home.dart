@@ -141,7 +141,7 @@ class HomePage extends StatelessWidget {
                             color: Colors.orange,
                           ),
                         ),
-                        SizedBox(width: 120),
+                        SizedBox(width: 80),
                         GestureDetector(
                           onTap: () {
                             Navigator.push(
