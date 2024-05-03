@@ -122,7 +122,8 @@ class _RunMyAppState extends State<RunMyApp> {
   }
 
   Future<bool> _sendImage() async {
-    final url = Uri.parse('http://www.logistics-api.somee.com/api/Account/UploadFile');
+    String? baseUrl = await AuthService.getURL();
+    final url = Uri.parse('$baseUrl/api/Account/UploadFile');
     String? token = await AuthService.getAccessToken();
 
     if (token == null) {
@@ -141,7 +142,7 @@ class _RunMyAppState extends State<RunMyApp> {
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
-          "imageData": ["$base64String"],
+          "imageData": base64String,
         }),
       );
 
@@ -164,7 +165,4 @@ class _RunMyAppState extends State<RunMyApp> {
       return false;
     }
   }
-
-
-
 }
