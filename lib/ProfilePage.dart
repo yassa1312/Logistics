@@ -38,11 +38,11 @@ class _ProfilePageState extends State<ProfilePage> {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json', // Specify content type
         };
-
+        String? baseUrl = await AuthService.getURL();
         var request = http.Request(
             'PUT',
             Uri.parse(
-                'http://www.logistics-api.somee.com/api/Account/EditMyProfile'));
+                '$baseUrl/api/Account/EditMyProfile'));
 
         // Prepare request body
         request.headers.addAll(headers);
@@ -105,9 +105,9 @@ class _ProfilePageState extends State<ProfilePage> {
         var headers = {
           'Authorization': 'Bearer $token',
         };
-
+        String? baseUrl = await AuthService.getURL();
         var response = await http.get(
-          Uri.parse('http://www.logistics-api.somee.com/api/Account/MyProfile'),
+          Uri.parse('$baseUrl/api/Account/MyProfile'),
           headers: headers,
         );
 
@@ -123,8 +123,13 @@ class _ProfilePageState extends State<ProfilePage> {
             _emailController.text = responseData['email'] ?? '';
             _phoneNumberController.text = responseData['phoneNumber'] ?? '';
             setState(() {
-              _imageBytes = base64Decode(responseData['imageData'] ?? '');
+              if (responseData["profile_Image"] != null) {
+                _imageBytes = base64Decode(responseData["profile_Image"]);
+              } else {
+                _imageBytes = null;
+              }
             });
+
           });
         } else {
           print('Failed to fetch profile data: ${response.reasonPhrase}');
@@ -222,7 +227,9 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (_imageBytes != null) // Check if image bytes are not null
+              if (_imageBytes == null)
+                SizedBox(height: 0),
+              if (_imageBytes != null)
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
@@ -230,13 +237,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: Image.memory( // Use Image.memory instead of Image.file
-                      _imageBytes!, // Pass _imageBytes as the image data
+                    child: Image.memory(
+                      _imageBytes!,
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
-
               SizedBox(height: 20),
               TextFormField(
                 controller: _nameController,
