@@ -14,18 +14,21 @@ class SelectedTruckController extends ChangeNotifier {
 
 class CostCalculator {
   static const Map<String, double> locationCosts = {
-    'October-Asher': 50.0,
-    'Haram-Ramses': 70.0,
+    'October-Asher': 50,
+    'Haram-Ramses': 70,
+    'Haram-Asher': 160,
+    'Haram-October': 100,
+    'October-Haram': 100,
   };
 
   static const Map<String, double> truckCosts = {
-    'Average Classic Box Truck': 100.0,
-    'Large Truck': 150.0,
+    'Average Classic Box Truck': 100,
+    'Large Truck': 150,
     'Motor Tri-cycle': 50,
     'Pickup Truck': 70,
     'Platform Truck': 250,
-    'Refrigerated Truck': 150.0,
-    'Half-ton Classic Truck': 100.0
+    'Refrigerated Truck': 150,
+    'Half-ton Classic Truck': 100
   };
 
   static const double serviceCostIncreasePercentage = 0.1; // 10%
@@ -39,8 +42,8 @@ class CostCalculator {
       bool isExtraWrapping,
       ) {
     double totalCost =
-        locationCosts['$sourceLocation-$destinationLocation'] ?? 0.0;
-    totalCost += truckCosts[selectedTruck] ?? 0.0;
+        locationCosts['$sourceLocation-$destinationLocation'] ?? 0;
+    totalCost += truckCosts[selectedTruck] ?? 0;
 
     if (isInsuredTransportation)
       totalCost *= (1 + serviceCostIncreasePercentage);
@@ -63,15 +66,11 @@ class _CalculationPageState extends State<CalculationPage> {
   String selectedTruckKey = '';
   String SelectedLocation = 'Select source';
   String SelectedLocation2 = 'Select destination';
+
   bool isInsuredTransportation = false;
   bool isTakeCare = false;
   bool isExtraWrapping = false;
 
-  final Map<String, double> locationCosts = {
-    'October-Asher': 50.0,
-    'Haram-Ramses': 70.0,
-    // Define costs for other location pairs
-  };
 
   String get totalCost {
     if (!isLocationsSelected) {
@@ -85,7 +84,7 @@ class _CalculationPageState extends State<CalculationPage> {
         isTakeCare,
         isExtraWrapping,
       );
-      return '${cost.toStringAsFixed(2)}\ EGP'; // Return formatted cost string
+      return '${cost.toStringAsFixed(0)}'; // Return formatted cost string
     }
   }
 
@@ -687,7 +686,7 @@ class _CalculationPageState extends State<CalculationPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Total cost = $totalCost',
+                        'Total cost = $totalCost EGP',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       ElevatedButton(

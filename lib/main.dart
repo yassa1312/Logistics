@@ -4,8 +4,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:logistics/LoginScreen.dart';
-import 'package:logistics/ImageCode.dart';
-import 'package:logistics/testStinge.dart';
+import 'package:logistics/ImageCodeWorkPath.dart';
+import 'package:logistics/ImageToArrayofDecode64.dart';
 import 'package:logistics/theOrder.dart';
 import 'home.dart';
 import 'services.dart';
@@ -52,7 +52,7 @@ class _HomeState extends State<Home> {
   final List<Widget> _pages = [
     HomePage(),
     OrdersPage(),
-    RunMyApp(),
+    Activity(),
     Account(),
     ImageCode(),
   ];

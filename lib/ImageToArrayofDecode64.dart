@@ -72,16 +72,33 @@ class _RunMyAppState extends State<RunMyApp> {
                     fit: BoxFit.cover,
                   ),
                 SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () async {
-                    final picker = ImagePicker();
-                    final pickedImage =
-                    await picker.pickImage(source: ImageSource.gallery);
-                    if (pickedImage != null) {
-                      ImagetoBase64(File(pickedImage.path));
-                    }
-                  },
-                  child: Text('Select Image'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        final picker = ImagePicker();
+                        final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+                        if (pickedImage != null) {
+                          ImagetoBase64(File(pickedImage.path));
+                        }
+                      },
+                      icon: Icon(Icons.photo_library),
+                      label: Text('Gallery'),
+                    ),
+                    SizedBox(width: 20),
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        final picker = ImagePicker();
+                        final pickedImage = await picker.pickImage(source: ImageSource.camera);
+                        if (pickedImage != null) {
+                          ImagetoBase64(File(pickedImage.path));
+                        }
+                      },
+                      icon: Icon(Icons.camera_alt),
+                      label: Text('Camera'),
+                    ),
+                  ],
                 ),
                 ElevatedButton(
                   onPressed: () {

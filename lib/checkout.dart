@@ -21,8 +21,8 @@ class CheckoutPage extends StatelessWidget {
     required this.destinationLocation,
     required this.selectedTruck,
     required this.selectedType,
-    required this.totalCost,
     required this.selectedCapacity,
+    required this.totalCost,
   });
 
   @override
@@ -63,7 +63,7 @@ class CheckoutPage extends StatelessWidget {
             const SizedBox(height: 10),
             Text('Selected Capacity: $selectedCapacity Ton', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
-            Text('Total Cost: $totalCost', style: TextStyle(fontSize: 18)),
+            Text('Total Cost: $totalCost EGP', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
@@ -73,7 +73,7 @@ class CheckoutPage extends StatelessWidget {
                     selectedTruck,
                     selectedType,
                     selectedCapacity,
-                    totalCost);
+                    totalCost );
 
                 if (success) {
                   Navigator.pushReplacement(
@@ -112,7 +112,8 @@ class CheckoutPage extends StatelessWidget {
   }
 
   Future<bool> createShipmentRequest(BuildContext context, String pickUpLocation,
-      String dropOffLocation, String selectedTruck, String selectedType, String selectedCapacity, String totalCost) async {
+      String dropOffLocation, String selectedTruck,
+      String selectedType, String selectedCapacity, String totalCost) async {
     String? baseUrl = await AuthService.getURL();
     final url = Uri.parse('$baseUrl/api/User/CreateRequest');
 
@@ -137,7 +138,7 @@ class CheckoutPage extends StatelessWidget {
           'ride_Type': selectedTruck,
           "Delivery_Kind": selectedType,
           "Load_Weight": selectedCapacity,
-          "cost":totalCost
+          "cost": totalCost,
         }),
       );
 
