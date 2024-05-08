@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:logistics/PasswordChange.dart';
 import 'package:logistics/auth_service.dart';
 import 'package:logistics/main.dart';
@@ -16,17 +18,99 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  Uint8List? _imageBytes;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
+  Uint8List? _imageBytes;
+  String base64String = '';
+
 
   @override
   void initState() {
     super.initState();
     fetchProfileData();
+    _imageBytes = Uint8List(0);
   }
   // Declare a variable to store the image data as bytes
+  void ImagetoBase64(File imageFile) async {
+    Uint8List bytes = await imageFile.readAsBytes();
+    String base64String = base64Encode(bytes);
+    setState(() {
+      this.base64String = base64String;
+      _imageBytes = bytes;
+    });
+  }
 
+  void _showProfileUpdateDialog(BuildContext context) {
+    TextEditingController passwordController = TextEditingController(); // Controller for the password field
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Update Profile'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Are you sure you want to update your profile?',
+              ),
+              SizedBox(height: 10),
+              TextFormField(
+                controller: _passwordController,
+                obscureText: true, // Hide the entered text
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              onPressed: () {
+                String password = _passwordController.text;
+                if (password.isEmpty) {
+                  // Display toast indicating that password is required
+                  displayToast('Password is required');
+                } else {
+                  // Proceed with updating the profile
+                  editUserProfile();
+                  Navigator.of(context).pop(); // Close the dialog
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                textStyle: TextStyle(color: Colors.white),
+              ),
+              child: const Text('Yes'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                textStyle: TextStyle(color: Colors.white),
+              ),
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  void displayToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.orange,
+      textColor: Colors.white,
+      fontSize: 18.0,
+    );
+  }
 
   void editUserProfile() async {
     try {
@@ -51,7 +135,6 @@ class _ProfilePageState extends State<ProfilePage> {
           'name': _nameController.text,
           'email': _emailController.text,
           'phoneNumber': _phoneNumberController.text,
-          // Add other fields as needed
         });
 
         // Print request body for debugging
@@ -141,79 +224,50 @@ class _ProfilePageState extends State<ProfilePage> {
       print("Error fetching data: $error");
     }
   }
-  void _showProfileUpdateDialog(BuildContext context) {
-    TextEditingController passwordController = TextEditingController(); // Controller for the password field
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Update Profile'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Are you sure you want to update your profile?',
-              ),
-              SizedBox(height: 10),
-              TextFormField(
-                controller: _passwordController,
-                obscureText: true, // Hide the entered text
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                String password = _passwordController.text;
-                if (password.isEmpty) {
-                  // Display toast indicating that password is required
-                  displayToast('Password is required');
-                } else {
-                  // Proceed with updating the profile
-                  editUserProfile();
-                  Navigator.of(context).pop(); // Close the dialog
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                textStyle: TextStyle(color: Colors.white),
-              ),
-              child: const Text('Yes'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                textStyle: TextStyle(color: Colors.white),
-              ),
-              child: const Text('Cancel'),
-            ),
-          ],
-        );
-      },
-    );
+  Future<bool> _sendImage() async {
+    String? baseUrl = await AuthService.getURL();
+    final url = Uri.parse('$baseUrl/api/Account/UploadFile');
+    String? token = await AuthService.getAccessToken();
+
+    if (token == null) {
+      print('Access token is missing.');
+      displayToast('Access token is missing.');
+      return false;
+    }
+
+    try {
+
+      // Make HTTP POST request
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(
+          "$base64String",
+        ),
+      );
+
+      // Check response status
+      if (response.statusCode == 200) {
+        print('Image sent successfully!');
+        displayToast('Image sent successfully!');
+        return true;
+      } else {
+        print('Error sending image: ${response.statusCode}');
+        print('Error sending image: ${response.body}');
+
+        displayToast('Error sending image: ${response.statusCode}');
+        return false;
+      }
+    } catch (exception) {
+      print('Error sending image: $exception');
+      displayToast('Error sending image');
+      return false;
+    }
   }
-  void displayToast(String message) {
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.orange,
-      textColor: Colors.white,
-      fontSize: 18.0,
-    );
-  }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -243,7 +297,61 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                 ),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      final picker = ImagePicker();
+                      final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+                      if (pickedImage != null) {
+                        ImagetoBase64(File(pickedImage.path));
+                      }
+                    },
+                    icon: Icon(Icons.photo_library),
+                    label: Text('Gallery'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                    ),
+                  ),
+                  SizedBox(width: 20),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      final picker = ImagePicker();
+                      final pickedImage = await picker.pickImage(source: ImageSource.camera);
+                      if (pickedImage != null) {
+                        ImagetoBase64(File(pickedImage.path));
+                      }
+                    },
+                    icon: Icon(Icons.camera_alt),
+                    label: Text('Camera'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                    ),
+                  ),
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (base64String.isNotEmpty) {
+                    _sendImage().then((success) {
+                      if (success) {
+                        // Handle success
+                      } else {
+                        // Handle failure
+                      }
+                    }).catchError((error) {
+                      // Handle error
+                    });
+                  }
+                },
+                child: Text('Send Image'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                ),
+              ),
+              SizedBox(height: 10),
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
