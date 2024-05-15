@@ -32,6 +32,7 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
   final TextEditingController _colorController = TextEditingController();
   final TextEditingController _carModelController = TextEditingController();
   final TextEditingController _capacityController = TextEditingController();
+  Uint8List? _carImageBytes;
 
   @override
   void initState() {
@@ -77,6 +78,11 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
               _colorController.text = carData['color'] ?? '';
               _carModelController.text = carData['car_Model'] ?? '';
               _capacityController.text = carData['capacity']?.toString() ?? '';
+
+              if (carData["carImage"] != null) {
+                _carImageBytes = base64Decode(carData["carImage"]);
+              }
+
             }
           });
         } else {
@@ -91,135 +97,6 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
   }
 
 
-  Future<bool> _sendImage(BuildContext context) async {
-    String? baseUrl = await AuthService.getURL();
-    final url = Uri.parse('$baseUrl/api/Admin/UploadFileApi');
-
-    // Check if access token and image URL are available
-    String? token = await AuthService.getAccessToken();
-    if (token == null || _imageUrlController.text.isEmpty) {
-      print('Access token or image URL is missing.');
-      displayToast('Access token or image URL is missing.');
-      return false;
-    }
-
-    // Create a File object from the image URL
-    File imageFile = File(_imageUrlController.text);
-
-    // Check if the image file exists
-    if (!imageFile.existsSync()) {
-      print('Image file does not exist.');
-      displayToast('Image file does not exist.');
-      return false;
-    }
-
-    // Read image file as bytes
-    List<int> bytes = await imageFile.readAsBytes();
-
-    // Extract filename from image path
-    String fileName = imageFile.path.split('/').last; // Extracts the last part of the path as the filename
-
-    try {
-      // Create a multipart request
-      var request = http.MultipartRequest(
-        'POST',
-        url,
-      );
-
-      // Set authorization header
-      request.headers['Authorization'] = 'Bearer $token';
-
-      // Add image file to the request
-      var image = await http.MultipartFile.fromPath(
-        'File', // field name expected by the server
-        imageFile.path,
-      );
-      request.files.add(image);
-
-      // Add filename to the request
-      request.fields['FileName'] = fileName;
-
-      // Send the request
-      var response = await request.send();
-
-      // Print entire response
-      print('Response Status Code: ${response.statusCode}');
-
-      // Check response status
-      if (response.statusCode == 200) {
-        print('Image sent successfully!');
-        displayToast( 'Image sent successfully!');
-        return true;
-      } else {
-        print('Error sending image: ${response.statusCode}');
-        displayToast('Error sending image: ${response.statusCode}');
-        return false;
-      }
-    } catch (exception) {
-      print('Error sending image: $exception');
-      displayToast( 'Error sending image');
-      return false;
-    }
-  }
-
-
-  void _showProfileUpdateDialog(BuildContext context) {
-    TextEditingController passwordController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Update Profile'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Are you sure you want to update your profile?',
-              ),
-              SizedBox(height: 10),
-              TextFormField(
-                controller: _passwordController,
-                obscureText: true, // Hide the entered text
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                String password = _passwordController.text;
-                if (password.isEmpty) {
-                  // Display toast indicating that password is required
-                  displayToast('Password is required');
-                }
-
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                textStyle: TextStyle(color: Colors.white),
-              ),
-              child: const Text('Yes'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                textStyle: TextStyle(color: Colors.white),
-              ),
-              child: const Text('Cancel'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   void displayToast(String message) {
     Fluttertoast.showToast(
@@ -233,16 +110,7 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
     );
   }
 
-  void _pickImage(ImageSource source) async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: source);
 
-    if (pickedImage != null) {
-      setState(() {
-        _imageUrlController.text = pickedImage.path;
-      });
-    }
-  }
 
   Future<List<int>> fetchImageBytes(String imageUrl) async {
     final response = await http.get(Uri.parse(imageUrl));
@@ -273,6 +141,20 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (_carImageBytes != null)
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.orange,
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.memory(
+                      _carImageBytes!,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
               SizedBox(height: 20),
               TextFormField(
                 controller: _nameController,
@@ -311,20 +193,6 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
                 decoration: const InputDecoration(
                   labelText: 'Plate Num',
                   prefixIcon: Icon(Icons.confirmation_num_outlined,color: Colors.orange,),
-                  labelStyle: TextStyle(
-                    color: Colors.orange,
-                  ),
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.text,
-                controller: _caR_VINController,
-                decoration: const InputDecoration(
-                  labelText: 'CAR_VIN',
-                  prefixIcon: Icon(Icons.numbers,color: Colors.orange,),
                   labelStyle: TextStyle(
                     color: Colors.orange,
                   ),
@@ -392,7 +260,6 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
                         prefixIcon: const Icon(Icons.front_loader,color: Colors.orange,),
                       ),
                     ),
-
                   ],
                 ),
               ),

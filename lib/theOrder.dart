@@ -1,10 +1,10 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import 'TheOrderDetailsPage.dart'; // Make sure this import is correct
 import 'auth_service.dart'; // Make sure this import is correct
 
@@ -20,7 +20,8 @@ class Order {
   final bool finished;
   final String? driverName;
   final String? driverPhone;
-
+  final String? Image;
+  final int cost;
   Order({
     required this.requestId,
     required this.pickUpLocation,
@@ -33,6 +34,8 @@ class Order {
     required this.finished,
     this.driverName,
     this.driverPhone,
+    this.Image,
+    required this.cost,
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -40,6 +43,7 @@ class Order {
       requestId: json['request_Id'] ?? '',
       pickUpLocation: json['pick_Up_Location'] ?? '',
       dropOffLocation: json['drop_Off_Location'] ?? '',
+      cost: json['cost'] ?? '',
       timeStampOnCreation: json['time_Stamp_On_Creation'] != null
           ? DateTime.parse(json['time_Stamp_On_Creation']).toString()
           : '',
@@ -52,7 +56,6 @@ class Order {
       timeStampOnAcceptance: json['time_Stamp_On_Acceptance'] != null
           ? DateTime.parse(json['time_Stamp_On_Acceptance']).toString()
           : '',
-
       rideType: json['ride_Type'] ?? '',
       finished: json['finished'] ?? false,
       driverName: json['driverName'] != null && json['time_Stamp_On_Acceptance'] != null
@@ -151,6 +154,7 @@ class _OrdersPageState extends State<OrdersPage> {
         startTripTime: '2022-04-10 10:00:00',
         endTripTime: '2022-04-10 10:00:00',
         rideType: 'Normal', finished: true,
+        cost: 10,
 
       ),
       Order(
@@ -161,7 +165,7 @@ class _OrdersPageState extends State<OrdersPage> {
         timeStampOnCreation: '2022-04-11 12:00:00',
         startTripTime: '2022-04-10 10:00:00',
         endTripTime: '2022-04-10 10:00:00',
-        rideType: 'Premium', finished: false,
+        rideType: 'Premium', finished: false,cost: 10,
       ),
       // Add more dummy orders as needed
     ];
@@ -260,6 +264,7 @@ class OrderTile extends StatelessWidget {
                 _buildOrderInfo('Time Stamp On EndTrip', order.endTripTime),
               _buildOrderInfo('Ride Type:', order.rideType),
               _buildStatusInfo2(order),
+              _buildOrderInfo3('cost', order.cost,"EPG"),
             ],
           ),
         ),
@@ -288,6 +293,44 @@ class OrderTile extends StatelessWidget {
               fontSize: 16,
               color: Colors.black,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildOrderInfo3(String title, int value, String unit) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.blue,
+            ),
+          ),
+          SizedBox(height: 4), // Add a SizedBox for spacing
+          Row(
+            children: [
+              Text(
+                value.toString(),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(width: 4), // Add a SizedBox for spacing
+              Text(
+                unit,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -367,7 +410,6 @@ class OrderTile extends StatelessWidget {
     });
   }
 }
-
 class MapLocationWidget extends StatelessWidget {
   final String locationLabel;
   final String location;

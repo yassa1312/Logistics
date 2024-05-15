@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
-import 'package:logistics/LoginScreen.dart';
 import 'package:logistics/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,21 +20,35 @@ class RunMyApp extends StatefulWidget {
 }
 
 class _RunMyAppState extends State<RunMyApp> {
-  String base64String = '';
-  late Uint8List _imageBytes;
+  late Uint8List _imageBytes1;
+  late Uint8List _imageBytes2;
+  late Uint8List _imageBytes3;
+  String base64String1 = '';
+  String base64String2 = '';
+  String base64String3 = '';
 
   @override
   void initState() {
     super.initState();
-    _imageBytes = Uint8List(0);
+    _imageBytes1 = Uint8List(0);
+    _imageBytes2 = Uint8List(0);
+    _imageBytes3 = Uint8List(0);
   }
 
-  void ImagetoBase64(File imageFile) async {
+  void ImagetoBase64(File imageFile, int imageIndex) async {
     Uint8List bytes = await imageFile.readAsBytes();
     String base64String = base64Encode(bytes);
     setState(() {
-      this.base64String = base64String;
-      _imageBytes = bytes;
+      if (imageIndex == 1) {
+        base64String1 = base64String;
+        _imageBytes1 = bytes;
+      } else if (imageIndex == 2) {
+        base64String2 = base64String;
+        _imageBytes2 = bytes;
+      } else if (imageIndex == 3) {
+        base64String3 = base64String;
+        _imageBytes3 = bytes;
+      }
     });
   }
 
@@ -51,7 +64,6 @@ class _RunMyAppState extends State<RunMyApp> {
     );
   }
 
-  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -66,43 +78,14 @@ class _RunMyAppState extends State<RunMyApp> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (_imageBytes.isNotEmpty)
-                  Image.memory(
-                    _imageBytes,
-                    fit: BoxFit.cover,
-                  ),
+                buildImageSection1(),
                 SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        final picker = ImagePicker();
-                        final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-                        if (pickedImage != null) {
-                          ImagetoBase64(File(pickedImage.path));
-                        }
-                      },
-                      icon: Icon(Icons.photo_library),
-                      label: Text('Gallery'),
-                    ),
-                    SizedBox(width: 20),
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        final picker = ImagePicker();
-                        final pickedImage = await picker.pickImage(source: ImageSource.camera);
-                        if (pickedImage != null) {
-                          ImagetoBase64(File(pickedImage.path));
-                        }
-                      },
-                      icon: Icon(Icons.camera_alt),
-                      label: Text('Camera'),
-                    ),
-                  ],
-                ),
+                buildImageSection2(),
+                SizedBox(height: 20),
+                buildImageSection3(),
                 ElevatedButton(
                   onPressed: () {
-                    if (base64String.isNotEmpty) {
+                    if (base64String1.isNotEmpty || base64String2.isNotEmpty || base64String3.isNotEmpty) {
                       _sendImage().then((success) {
                         if (success) {
                           // Handle success
@@ -114,27 +97,138 @@ class _RunMyAppState extends State<RunMyApp> {
                       });
                     }
                   },
-                  child: Text('Send Image'),
+                  child: Text('Send Images'),
                 ),
-                SizedBox(height: 20),
-                if (base64String.isNotEmpty)
-                  TextFormField(
-                    initialValue: base64String,
-                    maxLines: null, // Allow multiple lines
-                    decoration: const InputDecoration(
-                      labelText: 'Image Byte Array',
-                      labelStyle: TextStyle(
-                        color: Colors.orange,
-                      ),
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.image, color: Colors.orange),
-                    ),
-                  ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget buildImageSection1() {
+    return Column(
+      children: [
+        if (_imageBytes1.isNotEmpty)
+          Image.memory(
+            _imageBytes1,
+            fit: BoxFit.cover,
+          ),
+        SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton.icon(
+              onPressed: () async {
+                final picker = ImagePicker();
+                final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+                if (pickedImage != null) {
+                  ImagetoBase64(File(pickedImage.path), 1);
+                }
+              },
+              icon: Icon(Icons.photo_library),
+              label: Text('Gallery 1'),
+            ),
+            SizedBox(width: 20),
+            ElevatedButton.icon(
+              onPressed: () async {
+                final picker = ImagePicker();
+                final pickedImage = await picker.pickImage(source: ImageSource.camera);
+                if (pickedImage != null) {
+                  ImagetoBase64(File(pickedImage.path), 1);
+                }
+              },
+              icon: Icon(Icons.camera_alt),
+              label: Text('Camera 1'),
+            ),
+          ],
+        ),
+
+      ],
+    );
+  }
+
+  Widget buildImageSection2() {
+    return Column(
+      children: [
+        if (_imageBytes2.isNotEmpty)
+          Image.memory(
+            _imageBytes2,
+            fit: BoxFit.cover,
+          ),
+        SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton.icon(
+              onPressed: () async {
+                final picker = ImagePicker();
+                final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+                if (pickedImage != null) {
+                  ImagetoBase64(File(pickedImage.path), 2);
+                }
+              },
+              icon: Icon(Icons.photo_library),
+              label: Text('Gallery 2'),
+            ),
+            SizedBox(width: 20),
+            ElevatedButton.icon(
+              onPressed: () async {
+                final picker = ImagePicker();
+                final pickedImage = await picker.pickImage(source: ImageSource.camera);
+                if (pickedImage != null) {
+                  ImagetoBase64(File(pickedImage.path), 2);
+                }
+              },
+              icon: Icon(Icons.camera_alt),
+              label: Text('Camera 2'),
+            ),
+          ],
+        ),
+
+      ],
+    );
+  }
+
+  Widget buildImageSection3() {
+    return Column(
+      children: [
+        if (_imageBytes3.isNotEmpty)
+          Image.memory(
+            _imageBytes3,
+            fit: BoxFit.cover,
+          ),
+        SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton.icon(
+              onPressed: () async {
+                final picker = ImagePicker();
+                final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+                if (pickedImage != null) {
+                  ImagetoBase64(File(pickedImage.path), 3);
+                }
+              },
+              icon: Icon(Icons.photo_library),
+              label: Text('Gallery 3'),
+            ),
+            SizedBox(width: 20),
+            ElevatedButton.icon(
+              onPressed: () async {
+                final picker = ImagePicker();
+                final pickedImage = await picker.pickImage(source: ImageSource.camera);
+                if (pickedImage != null) {
+                  ImagetoBase64(File(pickedImage.path), 3);
+                }
+              },
+              icon: Icon(Icons.camera_alt),
+              label: Text('Camera 3'),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -150,7 +244,6 @@ class _RunMyAppState extends State<RunMyApp> {
     }
 
     try {
-
       // Make HTTP POST request
       final response = await http.post(
         url,
@@ -158,28 +251,29 @@ class _RunMyAppState extends State<RunMyApp> {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode(
-          "$base64String",
-        ),
+        body: jsonEncode({
+          "image1": base64String1,
+          "image2": base64String2,
+          "image3": base64String3,
+        }),
       );
 
       // Check response status
       if (response.statusCode == 200) {
-        print('Image sent successfully!');
-        displayToast('Image sent successfully!');
+        print('Images sent successfully!');
+        displayToast('Images sent successfully!');
         return true;
       } else {
-        print('Error sending image: ${response.statusCode}');
-        print('Error sending image: ${response.body}');
+        print('Error sending images: ${response.statusCode}');
+        print('Error sending images: ${response.body}');
 
-        displayToast('Error sending image: ${response.statusCode}');
+        displayToast('Error sending images: ${response.statusCode}');
         return false;
       }
     } catch (exception) {
-      print('Error sending image: $exception');
-      displayToast('Error sending image');
+      print('Error sending images: $exception');
+      displayToast('Error sending images');
       return false;
     }
   }
-
 }

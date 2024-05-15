@@ -1,14 +1,18 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:http/http.dart' as http;
-import 'package:logistics/auth_service.dart';
-import 'dart:convert';
+import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:logistics/auth_service.dart';
 import 'package:logistics/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'PaymentPage.dart';
 
-class CheckoutPage extends StatelessWidget {
+class CheckoutPage extends StatefulWidget {
   final String sourceLocation;
   final String destinationLocation;
   final String selectedTruck;
@@ -26,80 +30,185 @@ class CheckoutPage extends StatelessWidget {
   });
 
   @override
+  _CheckoutPageState createState() => _CheckoutPageState();
+}
+
+class _CheckoutPageState extends State<CheckoutPage> {
+  Uint8List? _imageBytes;
+  String base64String = '';
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Checkout'),
         backgroundColor: Colors.orange,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GestureDetector(
-              onTap: () {
-                _launchMapUrl(sourceLocation);
-              },
-              child: Text(
-                'From: $sourceLocation',
-                style: TextStyle(fontSize: 18, color: Colors.blue),
-              ),
-            ),
-            const SizedBox(height: 10),
-            GestureDetector(
-              onTap: () {
-                _launchMapUrl(destinationLocation);
-              },
-              child: Text(
-                'To: $destinationLocation',
-                style: TextStyle(fontSize: 18, color: Colors.blue),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text('Selected Truck: $selectedTruck', style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 10),
-            Text('Selected Type: $selectedType', style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 10),
-            Text('Selected Capacity: $selectedCapacity Ton', style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 10),
-            Text('Total Cost: $totalCost EGP', style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                bool success = await createShipmentRequest(
-                    context, sourceLocation,
-                    destinationLocation,
-                    selectedTruck,
-                    selectedType,
-                    selectedCapacity,
-                    totalCost );
-
-                if (success) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => Home()//PaymentPage(totalCost: totalCost),//TODO
-                    ),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.orange,
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  _launchMapUrl(widget.sourceLocation);
+                },
+                child: Text(
+                  'From: ${widget.sourceLocation}',
+                  style: TextStyle(fontSize: 18, color: Colors.blue),
                 ),
               ),
-              child: const Text(
-                'Confirm Order',
-                style: TextStyle(fontSize: 20),
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () {
+                  _launchMapUrl(widget.destinationLocation);
+                },
+                child: Text(
+                  'To: ${widget.destinationLocation}',
+                  style: TextStyle(fontSize: 18, color: Colors.blue),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+              Text('Selected Truck: ${widget.selectedTruck}', style: TextStyle(fontSize: 18)),
+              const SizedBox(height: 10),
+              Text('Selected Type: ${widget.selectedType}', style: TextStyle(fontSize: 18)),
+              const SizedBox(height: 10),
+              Text('Selected Capacity: ${widget.selectedCapacity} Ton', style: TextStyle(fontSize: 18)),
+              const SizedBox(height: 10),
+              Text('Total Cost: ${widget.totalCost} EGP', style: TextStyle(fontSize: 18)),
+              const SizedBox(height: 20),
+              Text(
+                'If You Want to Add an Image:',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  children: [
+                    if (_imageBytes != null)
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.orange,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3), // changes position of shadow
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.memory(
+                            _imageBytes!,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            final picker = ImagePicker();
+                            final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+                            if (pickedImage != null) {
+                              ImagetoBase64(File(pickedImage.path));
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.orange,
+                            padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: Text('Gallery'),
+                        ),
+                        SizedBox(width: 20),
+                        ElevatedButton(
+                          onPressed: () async {
+                            final picker = ImagePicker();
+                            final pickedImage = await picker.pickImage(source: ImageSource.camera);
+                            if (pickedImage != null) {
+                              ImagetoBase64(File(pickedImage.path));
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.orange,
+                            padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: Text('Camera'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  bool success = await createShipmentRequest(
+                      context,
+                      widget.sourceLocation,
+                      widget.destinationLocation,
+                      widget.selectedTruck,
+                      widget.selectedType,
+                      widget.selectedCapacity,
+                      widget.totalCost);
+
+                  if (success) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Home(),
+                      ),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.orange,
+                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: const Text(
+                  'Confirm Order',
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+
+  void ImagetoBase64(File imageFile) async {
+    Uint8List bytes = await imageFile.readAsBytes();
+    String tempBase64String = base64Encode(bytes);
+    setState(() {
+      base64String = tempBase64String;
+      _imageBytes = bytes;
+    });
   }
 
   void _launchMapUrl(String location) async {
@@ -138,6 +247,7 @@ class CheckoutPage extends StatelessWidget {
           'ride_Type': selectedTruck,
           "Delivery_Kind": selectedType,
           "Load_Weight": selectedCapacity,
+          "load_Image": "$base64String",
           "cost": totalCost,
         }),
       );
@@ -180,8 +290,4 @@ class CheckoutPage extends StatelessWidget {
       fontSize: 18.0,
     );
   }
-
-
-
-
 }

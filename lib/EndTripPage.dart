@@ -80,7 +80,9 @@ class _EndTripPageState extends State<EndTripPage> {
                 await endTrip(widget.requestId, comment, rating);
               },
               style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white, backgroundColor: Colors.orange, // Text color
                 textStyle: TextStyle(fontSize: 20), // Increase the font size
+                // Increase the font size
               ),
               child: Text('End Trip'),
             ),

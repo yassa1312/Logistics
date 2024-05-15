@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:logistics/PasswordChange.dart';
 import 'package:logistics/auth_service.dart';
+import 'package:logistics/confirmPage.dart';
 import 'package:logistics/main.dart';
 import 'LoginScreen.dart';
 
@@ -20,7 +21,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
-  Uint8List? _imageBytes;
+  late Uint8List _imageBytes = Uint8List(0);
   String base64String = '';
 
 
@@ -130,13 +131,19 @@ class _ProfilePageState extends State<ProfilePage> {
 
         // Prepare request body
         request.headers.addAll(headers);
-        request.body = jsonEncode({
+        Map<String, dynamic> requestBody = {
           'password': _passwordController.text,
           'name': _nameController.text,
           'email': _emailController.text,
           'phoneNumber': _phoneNumberController.text,
-        });
+        };
 
+        // Add profile image only if base64String is not empty
+        if (base64String.isNotEmpty) {
+          requestBody['profile_Image'] = base64String;
+        }
+
+        request.body = jsonEncode(requestBody);
         // Print request body for debugging
         print('Request Body: ${request.body}');
 
@@ -209,7 +216,7 @@ class _ProfilePageState extends State<ProfilePage> {
               if (responseData["profile_Image"] != null) {
                 _imageBytes = base64Decode(responseData["profile_Image"]);
               } else {
-                _imageBytes = null;
+                _imageBytes.isEmpty;
               }
             });
 
@@ -224,50 +231,61 @@ class _ProfilePageState extends State<ProfilePage> {
       print("Error fetching data: $error");
     }
   }
-
-  Future<bool> _sendImage() async {
-    String? baseUrl = await AuthService.getURL();
-    final url = Uri.parse('$baseUrl/api/Account/UploadFile');
+  Future<Map<String, dynamic>> confirmEmailCode() async {
+    String url = "http://logistics-api-8.somee.com/api/Account/ConfirmEmailCode";
     String? token = await AuthService.getAccessToken();
-
     if (token == null) {
-      print('Access token is missing.');
-      displayToast('Access token is missing.');
-      return false;
+      // Handle case when token is not available
+      return {
+        'statusCode': -1,
+        'error': 'Access token is null',
+      };
     }
+    Map<String, String> headers = {
+      "accept": "*/*",
+      "Authorization": "Bearer $token",
+    };
 
-    try {
 
-      // Make HTTP POST request
-      final response = await http.post(
-        url,
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode(
-          "$base64String",
-        ),
-      );
+      final response = await http.post(Uri.parse(url), headers: headers);
 
-      // Check response status
       if (response.statusCode == 200) {
-        print('Image sent successfully!');
-        displayToast('Image sent successfully!');
-        return true;
+        // Successful request
+        Fluttertoast.showToast(
+          msg: "${response.reasonPhrase}",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ConfirmEmail()),
+        );
+        return {
+          'statusCode': response.statusCode,
+          'data': jsonDecode(response.body),
+        };
       } else {
-        print('Error sending image: ${response.statusCode}');
-        print('Error sending image: ${response.body}');
-
-        displayToast('Error sending image: ${response.statusCode}');
-        return false;
+        // Request failed
+        Fluttertoast.showToast(
+          msg: "Your email is already confirmed",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        return {
+          'statusCode': response.statusCode,
+          'error': response.body,
+        };
       }
-    } catch (exception) {
-      print('Error sending image: $exception');
-      displayToast('Error sending image');
-      return false;
-    }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -281,74 +299,90 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (_imageBytes == null)
-                SizedBox(height: 0),
-              if (_imageBytes != null)
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.orange,
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.memory(
-                      _imageBytes!,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      final picker = ImagePicker();
-                      final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-                      if (pickedImage != null) {
-                        ImagetoBase64(File(pickedImage.path));
-                      }
-                    },
-                    icon: Icon(Icons.photo_library),
-                    label: Text('Gallery'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
+                child: Column(
+                  children: [
+                    Text(
+                      'Add an Image',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                  ),
-                  SizedBox(width: 20),
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      final picker = ImagePicker();
-                      final pickedImage = await picker.pickImage(source: ImageSource.camera);
-                      if (pickedImage != null) {
-                        ImagetoBase64(File(pickedImage.path));
-                      }
-                    },
-                    icon: Icon(Icons.camera_alt),
-                    label: Text('Camera'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
+                    const SizedBox(height: 10),
+                    if (_imageBytes.isNotEmpty) // Check if image bytes are not empty
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.orange,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3), // changes position of shadow
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.memory(
+                            _imageBytes,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    if (_imageBytes.isEmpty) // Display message if no image selected
+                      Text(
+                        'No image selected',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            final picker = ImagePicker();
+                            final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+                            if (pickedImage != null) {
+                              ImagetoBase64(File(pickedImage.path));
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.orange,
+                            padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: Text('Gallery'),
+                        ),
+                        SizedBox(width: 20),
+                        ElevatedButton(
+                          onPressed: () async {
+                            final picker = ImagePicker();
+                            final pickedImage = await picker.pickImage(source: ImageSource.camera);
+                            if (pickedImage != null) {
+                              ImagetoBase64(File(pickedImage.path));
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.orange,
+                            padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: Text('Camera'),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  if (base64String.isNotEmpty) {
-                    _sendImage().then((success) {
-                      if (success) {
-                        // Handle success
-                      } else {
-                        // Handle failure
-                      }
-                    }).catchError((error) {
-                      // Handle error
-                    });
-                  }
-                },
-                child: Text('Send Image'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
+                  ],
                 ),
               ),
               SizedBox(height: 10),
@@ -389,7 +423,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
                 child: Text('Edit'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white, backgroundColor: Colors.orange, // Text color
+                  textStyle: TextStyle(fontSize: 18),
                 ),
               ),
               ElevatedButton(
@@ -401,7 +436,19 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
                 child: Text('Password Change'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white, backgroundColor: Colors.orange, // Text color
+                  textStyle: TextStyle(fontSize: 18),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  confirmEmailCode();
+                },
+
+                child: Text('Confirm Email'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white, backgroundColor: Colors.orange, // Text color
+                  textStyle: TextStyle(fontSize: 18),
                 ),
               ),
             ],

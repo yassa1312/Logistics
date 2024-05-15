@@ -510,7 +510,8 @@ class _CalculationPageState extends State<CalculationPage> {
                               Icon(Icons.keyboard_arrow_down),
                             ]),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
+                          foregroundColor: Colors.white, backgroundColor: Colors.orange, // Text color
+                          textStyle: TextStyle(fontSize: 16),
                         ),
                       ),
                       SizedBox(height: 10),
@@ -558,7 +559,8 @@ class _CalculationPageState extends State<CalculationPage> {
                         ),
 
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
+                          foregroundColor: Colors.white, backgroundColor: Colors.orange, // Text color
+                          textStyle: TextStyle(fontSize: 16),
                         ),
                       ),
 

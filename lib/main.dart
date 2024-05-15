@@ -15,17 +15,7 @@ import 'account.dart';
 // ignore: deprecated_member_use
 DatabaseReference usersRef = FirebaseDatabase.instance.reference().child("user");
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  Platform.isAndroid
-      ? await Firebase.initializeApp(
-      options: const FirebaseOptions(
-        apiKey: 'AIzaSyAUyWogGMNsLDc86u0DnmaxLbXSbLuicTo' ,
-        appId: '1:921546570785:android:cdc7f7fecf810a6288b760' ,
-        messagingSenderId: '921546570785' ,
-        projectId:'com.example.logistics' ,
-      ))
-      :await Firebase.initializeApp();
+void main() {
   runApp( SignUpApp());//SignUpApp
 }
 // ignore: deprecated_member_use

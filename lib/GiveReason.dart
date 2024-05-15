@@ -56,7 +56,9 @@ class _GiveReasonState extends State<GiveReason> {
                 await endTrip(widget.requestId, comment);
               },
               style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white, backgroundColor: Colors.orange, // Text color
                 textStyle: TextStyle(fontSize: 20), // Increase the font size
+                // Increase the font size
               ),
               child: Text('Cancel Trip'),
             ),

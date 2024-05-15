@@ -260,7 +260,7 @@ class LoginScreenState extends State<LoginScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  "Don't have an account? ",
+                                  "Don't have an account?",
                                   style: TextStyle(
                                     fontSize: 18,
                                   ),
@@ -277,6 +277,29 @@ class LoginScreenState extends State<LoginScreen> {
                                   },
                                   child: Text(
                                     "Register",
+                                    style: TextStyle(
+                                      color: Colors.orange,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                        const ResetPassword(),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    "Forgot Password?",
                                     style: TextStyle(
                                       color: Colors.orange,
                                       fontSize: 18,
