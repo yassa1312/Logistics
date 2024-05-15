@@ -44,7 +44,6 @@ class _HomeState extends State<Home> {
     OrdersPage(),
     Activity(),
     Account(),
-    ImageCode(),
   ];
 
   @override
@@ -78,10 +77,7 @@ class _HomeState extends State<Home> {
               icon: Icon(Icons.person),
               label: 'Account',
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.camera),
-              label: 'Image',
-            ),
+
           ],
         ),
       ),

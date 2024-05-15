@@ -173,7 +173,7 @@ class _EndTripPageState extends State<EndTripPage> {
         } else {
           print('Failed to end trip: ${response.statusCode}');
           Fluttertoast.showToast(
-            msg: "Failed to end trip: ${response.statusCode}",
+            msg: "You Comment Before",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,

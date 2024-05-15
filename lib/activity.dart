@@ -1,262 +1,426 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:logistics/EndTripPage.dart';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'auth_service.dart'; // Make sure this import is correct
+
+class Order {
+  final String requestId;
+  final String? pickUpLocation;
+  final String? dropOffLocation;
+  final String endTripTime;
+  final String? comment;
+  final int rating;
+  final bool finished;
+  final int cost;
+  Order({
+    required this.requestId,
+    this.pickUpLocation,
+    this.dropOffLocation,
+    required this.endTripTime,
+    this.comment,
+    required this.rating,
+    required this.finished,
+    required this.cost,
+  });
+
+  factory Order.fromJson(Map<String, dynamic> json) {
+    return Order(
+      requestId: json['request_Id'] ?? '',
+      pickUpLocation: json['pick_Up_Location'],
+      dropOffLocation: json['drop_Off_Location'],
+      cost: json['cost'] ?? 0,
+      comment: json['comment'],
+      rating: json['rating'] ?? 0,
+      endTripTime: json['end_Trip_Time'] != null
+          ? DateTime.parse(json['end_Trip_Time']).toString()
+          : '',
+      finished: json['finished'] ?? false,
+    );
+  }
+}
 
 class Activity extends StatefulWidget {
+  const Activity({Key? key}) : super(key: key);
+
   @override
   _ActivityState createState() => _ActivityState();
 }
 
 class _ActivityState extends State<Activity> {
-  List<Order> orders = [];
-  bool isLoading = false; // Track whether data is being fetched
+  late List<Order> _orders = [];
+  bool _isLoading = false;
+  String _errorMessage = '';
 
   @override
   void initState() {
     super.initState();
-    fetchOrders(); // Fetch orders when the widget initializes
+    fetchOrders(); // Initially fetch orders
   }
 
-  // Function to fetch orders
   Future<void> fetchOrders() async {
-    // Show the loading indicator
     setState(() {
-      isLoading = true;
+      _isLoading = true;
+      _errorMessage = '';
     });
 
-    // Simulate a delay to show the loading indicator
-    await Future.delayed(Duration(seconds: 1));
-
-    // Sample list of orders (for demonstration)
-    List<Order> sampleOrders = [
-      Order(
-        id: 1,
-        productName: 'Product 1',
-        date: '2024-04-07',
-        comment: 'Great product!',
-        rating: 5,
-      ),
-      Order(
-        id: 2,
-        productName: 'Product 2',
-        date: '2024-04-06',
-        comment: 'Could be better',
-        rating: 3,
-      ),
-    ];
-
-    // Set the orders from the list
-    setState(() {
-      orders = sampleOrders;
-    });
-
-    // Fetch orders from the API in the background
-    fetchOrdersFromAPI();
-  }
-
-  // Function to fetch orders from API
-  Future<void> fetchOrdersFromAPI() async {
     try {
-      // Make HTTP GET request to your API
-      var response = await http.get(Uri.parse('YOUR_API_ENDPOINT_HERE'));
+      String? token = await AuthService.getAccessToken();
 
-      // Check if the request was successful
-      if (response.statusCode == 200) {
-        // Parse the JSON response
-        var jsonData = json.decode(response.body);
+      if (token != null) {
+        var headers = {
+          'Authorization': 'Bearer $token',
+          'accept': '*/*',
+        };
+        String? baseUrl = await AuthService.getURL();
+        final url = '$baseUrl/api/User/MyRequests/1';
 
-        // Clear previous orders
-        orders.clear();
+        final response = await http.get(
+          Uri.parse(url),
+          headers: headers,
+        );
 
-        // Extract order data from JSON and add to the orders list
-        for (var item in jsonData) {
-          orders.add(Order(
-            id: item['id'],
-            productName: item['productName'],
-            date: item['date'],
-            comment: item['comment'],
-            rating: item['rating'],
-          ));
+        print('Response status: ${response.statusCode}');
+        print('Response body: ${response.body}');
+
+        if (response.statusCode == 200) {
+          final List<dynamic> responseData = json.decode(response.body);
+          List<Order> apiOrders = responseData.map((data) =>
+              Order.fromJson(data)).toList();
+
+          setState(() {
+            _orders = apiOrders;
+            _isLoading = false;
+          });
+        } else {
+          // Log error if API call fails
+          print('Failed to fetch orders. Status code: ${response.statusCode}');
+          // Fallback to dummy data if API call fails
+          _loadDummyOrders();
         }
       } else {
-        throw Exception('Failed to load orders');
+        // Log error if token is null
+        print('Token is null');
+        // Fallback to dummy data if token is null
+        _loadDummyOrders();
       }
     } catch (e) {
-      // Handle error
-      print('Error fetching orders from API: $e');
-    } finally {
-      // Hide the loading indicator
-      setState(() {
-        isLoading = false;
-      });
+      // Log error if exception occurs
+      print('Exception during API call: $e');
+      // Fallback to dummy data if exception occurs
+      _loadDummyOrders();
     }
   }
 
+  void _loadDummyOrders() {
+    // Simulate API call by creating a list of dummy data
+    List<Order> dummyOrders = [
+      Order(
+        requestId: '1',
+        pickUpLocation: 'Location A',
+        dropOffLocation: 'Location B',
+        endTripTime: '2022-04-10 10:00:00',
+        finished: true,
+        rating: 5,
+        cost: 10,
+      ),
+      Order(
+        requestId: '2',
+        pickUpLocation: 'Location C',
+        dropOffLocation: 'Location D',
+        endTripTime: '2022-04-10 10:00:00',
+        rating: 3,
+        finished: false,
+        cost: 10,
+      ),
+      // Add more dummy orders as needed
+    ];
+
+    // Set the dummy data to the state variable
+    setState(() {
+      _orders = dummyOrders;
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.orange,
         title: Text(
           'Activity',
-          style: TextStyle(color: Colors.black, fontSize: 24.0),
+          style: TextStyle(color: Colors.white),
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: fetchOrders,
-          ),
-        ],
+        backgroundColor: Colors.orange,
       ),
       body: RefreshIndicator(
         onRefresh: fetchOrders,
-        child: isLoading
+        child: _isLoading
             ? Center(
-          child: CircularProgressIndicator(), // Show loading indicator
+          child: CircularProgressIndicator(),
         )
-            : orders.isEmpty
+            : _errorMessage.isNotEmpty
             ? Center(
-          child: Text(
-            'No orders available',
-            style: TextStyle(fontSize: 20.0),
-          ),
+          child: Text(_errorMessage),
         )
-            : ListView.builder(
-          itemCount: orders.length,
+            : _orders.isNotEmpty
+            ? ListView.builder(
+          itemCount: _orders.length,
           itemBuilder: (context, index) {
-            final order = orders[index];
-            return Card(
-              child: ListTile(
-                title: Text(
-                  order.productName,
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    color: Colors.blue,
-                  ),
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Order ID: ${order.id}\nDate: ${order.date}',
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    RatingStars(rating: order.rating),
-                    Text(
-                      'Comment: ${order.comment}',
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          OrderDetailsScreen(order: order),
-                    ),
-                  );
-                },
-              ),
-            );
+            // Check if endTripTime is not empty before displaying the order
+            if (_orders[index].endTripTime.isNotEmpty) {
+              return OrderTile(
+                order: _orders[index],
+                refreshOrders: fetchOrders, // Pass the fetchOrders function
+              );
+            } else {
+              // If endTripTime is empty, return an empty container
+              return Container();
+            }
           },
+        )
+            : Center(
+          child: Text('No orders found'),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: fetchOrders,
+        tooltip: 'Refresh',
+        child: Icon(Icons.refresh),
+        backgroundColor: Colors.orange,
       ),
     );
   }
 }
 
-class Order {
-  final int id;
-  final String productName;
-  final String date;
-  final String comment;
-  final int rating;
-
-  Order({
-    required this.id,
-    required this.productName,
-    required this.date,
-    required this.comment,
-    required this.rating,
-  });
-}
-
-class RatingStars extends StatelessWidget {
-  final int rating;
-
-  RatingStars({required this.rating});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: List.generate(
-        5,
-            (index) => Icon(
-          index < rating ? Icons.star : Icons.star_border,
-          color: Colors.orange,
-        ),
-      ),
-    );
-  }
-}
-
-class OrderDetailsScreen extends StatelessWidget {
+  class OrderTile extends StatelessWidget {
   final Order order;
+  final Function refreshOrders; // Define this callback function
 
-  OrderDetailsScreen({required this.order});
+  const OrderTile({
+    required this.order,
+    required this.refreshOrders, // Pass this callback through constructor
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Order Details',
-          style: TextStyle(fontSize: 24.0),
+    return InkWell(
+      onTap: () => _showOrderDetails(context, order),
+      child: Card(
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDetailItem('Product Name', order.productName),
-            _buildDetailItem('Order ID', order.id.toString()),
-            _buildDetailItem('Date', order.date),
-            RatingStars(rating:order.rating),
-            _buildDetailItem('Comment', order.comment),
-            // Add more details here if needed
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildOrderInfo('Request ID:', order.requestId),
+              if (order.pickUpLocation != null) // Display pickUpLocation if available
+                MapLocationWidget(
+                  locationLabel: 'Pick Up Location:',
+                  location: order.pickUpLocation!,
+                ),
+              if (order.dropOffLocation != null) // Display dropOffLocation if available
+                MapLocationWidget(
+                  locationLabel: 'Drop Off Location:',
+                  location: order.dropOffLocation!,
+                ),
+              _buildOrderInfo('Time Stamp On EndTrip', order.endTripTime),
+              if (order.comment != null) // Display comment if available
+                _buildOrderInfo('Comment:', order.comment!),
+              _buildOrderInfoWithRating('Rating:', order.rating),
+              _buildOrderInfo3('Cost:', order.cost, "EPG"),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildDetailItem(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
+  Widget _buildOrderInfoWithRating(String title, int rating) {
+    if (rating != 0) {
+      return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '$label: ',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.blue,
+            ),
           ),
-          Expanded(
-            child: Text(
+          SizedBox(height: 4), // Add a SizedBox for spacing
+          Row(
+            children: List.generate(
+              5, // Total number of stars
+                  (index) {
+                if (index < rating) {
+                  // If the index is less than the rating, display a filled star
+                  return Icon(
+                    Icons.star,
+                    color: Colors.orange,
+                    size: 20,
+                  );
+                } else {
+                  // If the index is greater than or equal to the rating, display an empty star
+                  return Icon(
+                    Icons.star_border,
+                    color: Colors.orange,
+                    size: 20,
+                  );
+                }
+              },
+            ),
+          ),
+        ],
+      );
+    } else {
+      // If rating is zero, return an empty container
+      return Container();
+    }
+  }
+
+
+  Widget _buildOrderInfo(String title, String value) {
+    if (value.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Colors.blue,
+              ),
+            ),
+            SizedBox(height: 4), // Add a SizedBox for spacing
+            Text(
               value,
-              style: TextStyle(fontSize: 18.0),
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      return Container(); // Return empty container if value is empty
+    }
+  }
+
+  Widget _buildOrderInfo3(String title, int value, String unit) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.blue,
+            ),
+          ),
+          SizedBox(height: 4), // Add a SizedBox for spacing
+          Row(
+            children: [
+              Text(
+                value.toString(),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(width: 4), // Add a SizedBox for spacing
+              Text(
+                unit,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showOrderDetails(BuildContext context, Order order) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('requestId', order.requestId);
+    prefs.setString('endTripTime', order.endTripTime);
+    prefs.setBool('finished', order.finished); // Store finished status
+
+    // Navigate to the EndTripPage passing the requestId
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EndTripPage(requestId: order.requestId),
+      ),
+    );
+  }
+}
+
+class MapLocationWidget extends StatelessWidget {
+  final String locationLabel;
+  final String location;
+
+  const MapLocationWidget({
+    Key? key,
+    required this.locationLabel,
+    required this.location,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        _launchMapUrl(location);
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$locationLabel',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.blue,
+            ),
+          ),
+          SizedBox(height: 4), // Add a SizedBox for spacing
+          Text(
+            '$location',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.blue,
             ),
           ),
         ],
       ),
     );
+  }
+
+  void _launchMapUrl(String location) async {
+    String googleMapsUrl = 'https://www.google.com/maps/search/?api=1&query=$location';
+    if (await canLaunch(googleMapsUrl)) {
+      await launch(googleMapsUrl);
+    } else {
+      throw 'Could not launch $googleMapsUrl';
+    }
   }
 }
