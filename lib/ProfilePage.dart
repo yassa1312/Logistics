@@ -81,8 +81,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                textStyle: TextStyle(color: Colors.white),
+                foregroundColor: Colors.white, backgroundColor: Colors.orange, // Text color
+                textStyle: TextStyle(fontSize: 18),
               ),
               child: const Text('Yes'),
             ),
@@ -91,8 +91,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 Navigator.of(context).pop(); // Close the dialog
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                textStyle: TextStyle(color: Colors.white),
+                foregroundColor: Colors.white, backgroundColor: Colors.orange, // Text color
+                textStyle: TextStyle(fontSize: 18),
               ),
               child: const Text('Cancel'),
             ),

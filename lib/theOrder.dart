@@ -18,10 +18,13 @@ class Order {
   final String endTripTime;
   final String rideType;
   final bool finished;
+  final bool cancel;
   final String? driverName;
   final String? driverPhone;
   final String? Image;
   final int cost;
+  final String? comment;
+  final int rating;
   Order({
     required this.requestId,
     required this.pickUpLocation,
@@ -32,9 +35,12 @@ class Order {
     required this.endTripTime,
     required this.rideType,
     required this.finished,
+    required this.cancel,
     this.driverName,
     this.driverPhone,
     this.Image,
+    this.comment,
+    required this.rating,
     required this.cost,
   });
 
@@ -44,6 +50,8 @@ class Order {
       pickUpLocation: json['pick_Up_Location'] ?? '',
       dropOffLocation: json['drop_Off_Location'] ?? '',
       cost: json['cost'] ?? '',
+      comment: json['comment'],
+      rating: json['rating'] ?? 0,
       timeStampOnCreation: json['time_Stamp_On_Creation'] != null
           ? DateTime.parse(json['time_Stamp_On_Creation']).toString()
           : '',
@@ -58,6 +66,7 @@ class Order {
           : '',
       rideType: json['ride_Type'] ?? '',
       finished: json['finished'] ?? false,
+      cancel: json['cancel'] ?? false,
       driverName: json['driverName'] != null && json['time_Stamp_On_Acceptance'] != null
           ? json['driverName']
           : null,
@@ -149,12 +158,13 @@ class _OrdersPageState extends State<OrdersPage> {
         requestId: '1',
         pickUpLocation: 'Location A',
         dropOffLocation: 'Location B',
-        timeStampOnAcceptance:'2022-04-10 10:00:00',
+        timeStampOnAcceptance:'',
         timeStampOnCreation: '2022-04-10 10:00:00',
-        startTripTime: '2022-04-10 10:00:00',
-        endTripTime: '2022-04-10 10:00:00',
+        startTripTime: '',
+        endTripTime: '',
         rideType: 'Normal', finished: true,
-        cost: 10,
+        cancel: true,
+        cost: 10, rating: 0,
 
       ),
       Order(
@@ -163,10 +173,44 @@ class _OrdersPageState extends State<OrdersPage> {
         dropOffLocation: 'Location D',
         timeStampOnAcceptance:'2022-04-11 12:00:00',
         timeStampOnCreation: '2022-04-11 12:00:00',
+        startTripTime: '',
+        endTripTime: '',
+        rideType: 'Premium', finished: false,cost: 10,rating: 0,cancel: true,
+      ),
+      Order(
+        requestId: '3',
+        pickUpLocation: 'Location C',
+        dropOffLocation: 'Location D',
+        timeStampOnAcceptance:'2022-04-11 12:00:00',
+        timeStampOnCreation: '2022-04-11 12:00:00',
+        startTripTime: '2022-04-10 10:00:00',
+        endTripTime: '',
+        rideType: 'Premium', finished: false,cost: 10,rating: 0,cancel: true,
+      ),
+      Order(
+        requestId: '4',
+        pickUpLocation: 'Location C',
+        dropOffLocation: 'Location D',
+        timeStampOnAcceptance:'2022-04-11 12:00:00',
+        timeStampOnCreation: '2022-04-11 12:00:00',
         startTripTime: '2022-04-10 10:00:00',
         endTripTime: '2022-04-10 10:00:00',
-        rideType: 'Premium', finished: false,cost: 10,
+        rideType: 'Premium', finished: false,cost: 10,rating: 0,cancel: true,
       ),
+      Order(
+        requestId: '5',
+        pickUpLocation: 'Location C',
+        dropOffLocation: 'Location D',
+        timeStampOnAcceptance:'2022-04-11 12:00:00',
+        timeStampOnCreation: '2022-04-11 12:00:00',
+        startTripTime: '2022-04-10 10:00:00',
+        endTripTime: '2022-04-10 10:00:00',
+        rideType: 'Premium',
+        finished: false,
+        cost: 10,
+        rating: 5,cancel: true,
+      ),
+
       // Add more dummy orders as needed
     ];
 
@@ -233,6 +277,12 @@ class OrderTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Check if there is a comment or rating
+    if (order.comment != null || order.rating > 0||order.cancel==true) {
+      // If either comment or rating is present, return an empty container
+      return Container();
+    }
+
     return InkWell(
       onTap: () => _showOrderDetails(context, order),
       child: Card(
@@ -378,16 +428,19 @@ class OrderTile extends StatelessWidget {
     );
   }
 
+
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Pending':
         return Colors.orange;
       case 'On the way to you':
-        return Colors.deepOrange;
+        return Colors.grey;
       case 'In Progress':
         return Colors.blue;
       case 'Completed':
         return Colors.green;
+      case 'Cancel':
+        return Colors.red;
       default:
         return Colors.black;
     }

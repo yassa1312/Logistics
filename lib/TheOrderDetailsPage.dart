@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
@@ -9,12 +11,63 @@ import 'package:logistics/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'auth_service.dart';
 import 'theOrder.dart';
- // Import OrdersPage to access its methods
 
-class OrderDetailsPage extends StatelessWidget {
+class OrderDetailsPage extends StatefulWidget {
   final Order order;
 
-  const OrderDetailsPage({required this.order, Key? key}) : super(key: key);
+  OrderDetailsPage({required this.order, Key? key}) : super(key: key);
+
+  @override
+  _OrderDetailsPageState createState() => _OrderDetailsPageState();
+}
+
+class _OrderDetailsPageState extends State<OrderDetailsPage> {
+  late Uint8List _imageBytes = Uint8List(0);
+  String base64String = '';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProfileData();
+    _imageBytes = Uint8List(0);
+  }
+
+  void fetchProfileData() async {
+    try {
+      String? token = await AuthService.getAccessToken();
+
+      if (token != null) {
+        var headers = {
+          'Authorization': 'Bearer $token',
+        };
+        String? baseUrl = await AuthService.getURL();
+        var response = await http.get(
+          Uri.parse('$baseUrl/api/User/RequestFlutter/${widget.order.requestId}'),
+          headers: headers,
+        );
+
+        if (response.statusCode == 200) {
+          Map<String, dynamic> responseData = jsonDecode(response.body);
+          print(responseData);
+          if (responseData["load_Image"] != null) {
+            setState(() {
+              _imageBytes = base64Decode(responseData["load_Image"]);
+            });
+          } else {
+            setState(() {
+              _imageBytes = Uint8List(0);
+            });
+          }
+        } else {
+          print('Failed to fetch profile data: ${response.reasonPhrase}');
+        }
+      } else {
+        print('Access token is null.');
+      }
+    } catch (error) {
+      print("Error fetching data: $error");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +75,6 @@ class OrderDetailsPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Order Details',
-          // Assuming 'requestId' is the unique identifier for the order
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.orange,
@@ -37,19 +89,42 @@ class OrderDetailsPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildDetailItem('Order Id', order.requestId),
-                    _buildDetailItem('Pick Up Location', order.pickUpLocation),
-                    _buildDetailItem('Drop Off Location', order.dropOffLocation),
-                    _buildDetailItem('Time Stamp On Creation', order.timeStampOnCreation),
-                    _buildDetailItem('Ride Type', order.rideType),
+                    _buildDetailItem('Order Id', widget.order.requestId),
+                    _buildDetailItem('Pick Up Location', widget.order.pickUpLocation),
+                    _buildDetailItem('Drop Off Location', widget.order.dropOffLocation),
+                    _buildDetailItem('Time Stamp On Creation', widget.order.timeStampOnCreation),
+                    _buildDetailItem('Ride Type', widget.order.rideType),
+                    if (_imageBytes.isNotEmpty)
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.orange,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.memory(
+                            _imageBytes,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
                     SizedBox(height: 10),
+                    if (_imageBytes.isEmpty)
+                      SizedBox(height: 0),
                     Row(
                       children: [
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () {
-                              if (order.timeStampOnAcceptance.isEmpty) {
-                                // Show a Flutter toast message indicating that the trip has not ended yet
+                              if (widget.order.timeStampOnAcceptance.isEmpty) {
                                 Fluttertoast.showToast(
                                   msg: 'Trip has not Acceptance yet.',
                                   toastLength: Toast.LENGTH_SHORT,
@@ -59,11 +134,10 @@ class OrderDetailsPage extends StatelessWidget {
                                   fontSize: 16.0,
                                 );
                               } else {
-                                // Navigate to the EndTripPage if the trip has ended
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => GiveReason(requestId: order.requestId),
+                                    builder: (context) => GiveReason(requestId: widget.order.requestId),
                                   ),
                                 );
                               }
@@ -94,15 +168,14 @@ class OrderDetailsPage extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () {
-                              if (order.timeStampOnAcceptance.isNotEmpty) {
+                              if (widget.order.timeStampOnAcceptance.isNotEmpty) {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => ProfilePageDriver(requestId: order.requestId),
+                                    builder: (context) => ProfilePageDriver(requestId: widget.order.requestId),
                                   ),
                                 );
                               } else {
-                                // Show a Flutter toast message indicating that the trip has not been accepted yet
                                 Fluttertoast.showToast(
                                   msg: 'Trip has not been accepted yet.',
                                   toastLength: Toast.LENGTH_SHORT,
@@ -138,7 +211,7 @@ class OrderDetailsPage extends StatelessWidget {
                       children: [
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () => _showDeleteConfirmationDialog(context, order),
+                            onPressed: () => _showDeleteConfirmationDialog(context, widget.order),
                             style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(Colors.redAccent),
                               elevation: MaterialStateProperty.all<double>(10),
@@ -213,14 +286,11 @@ class OrderDetailsPage extends StatelessWidget {
               },
               child: Text('Cancel', style: TextStyle(color: Colors.black)),
             ),
-            ElevatedButton(
+            TextButton(
               onPressed: () async {
                 await _deleteOrder(context, order);
               },
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
-              ),
-              child: Text('Delete', style: TextStyle(color: Colors.white)),
+              child: Text('Delete', style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -252,22 +322,9 @@ class OrderDetailsPage extends StatelessWidget {
       return;
     }
 
-    if (order.timeStampOnAcceptance.isNotEmpty) {
-      Fluttertoast.showToast(
-        msg: 'Order has already Accepted and cannot be deleted.',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
-      return;
-    }
-
     String? token = await AuthService.getAccessToken();
 
     if (token == null) {
-      // Handle the case where the access token is not available
       Fluttertoast.showToast(
         msg: 'Authentication error. Please log in again.',
         toastLength: Toast.LENGTH_SHORT,
@@ -322,7 +379,6 @@ class OrderDetailsPage extends StatelessWidget {
         );
       }
     } catch (e) {
-      // Handle any exceptions that occur during the HTTP request
       print('Exception occurred: $e');
       Fluttertoast.showToast(
         msg: 'Failed to delete order. Please try again later.',
