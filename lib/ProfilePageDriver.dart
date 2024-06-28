@@ -15,7 +15,6 @@ class ProfilePageDriver extends StatefulWidget {
 
   ProfilePageDriver({Key? key, this.requestId}) : super(key: key); // Add this constructor
 
-
   @override
   _ProfilePageDriverState createState() => _ProfilePageDriverState();
 }
@@ -26,12 +25,13 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
   final TextEditingController _imageUrlController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
-  final TextEditingController _caR_VINController = TextEditingController();
+  final TextEditingController _carVINController = TextEditingController();
   final TextEditingController _plateNumController = TextEditingController();
   final TextEditingController _rideTypeController = TextEditingController();
   final TextEditingController _colorController = TextEditingController();
   final TextEditingController _carModelController = TextEditingController();
   final TextEditingController _capacityController = TextEditingController();
+  Uint8List? _profileImageBytes;
   Uint8List? _carImageBytes;
 
   @override
@@ -39,7 +39,6 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
     super.initState();
     fetchProfileData();
   }
-
 
   void fetchProfileData() async {
     try {
@@ -51,11 +50,9 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
           'Authorization': 'Bearer $token',
         };
 
-
         String? baseUrl = await AuthService.getURL();
         var response = await http.get(
           Uri.parse('$baseUrl/api/User/DriverProfile/${widget.requestId}'),
-
           headers: headers,
         );
 
@@ -68,11 +65,13 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
             _nameController.text = responseData['name'] ?? '';
             _emailController.text = responseData['email'] ?? '';
             _phoneNumberController.text = responseData['phoneNumber'] ?? '';
-
+            if (responseData["profile_Image"] != null) {
+              _profileImageBytes = base64Decode(responseData["profile_Image"]);
+            }
             // Access and assign car-related data if available
             if (responseData.containsKey('car')) {
               Map<String, dynamic> carData = responseData['car'];
-              _caR_VINController.text = carData['caR_VIN'] ?? '';
+              _carVINController.text = carData['car_VIN'] ?? '';
               _plateNumController.text = carData['plate_Num'] ?? '';
               _rideTypeController.text = carData['ride_Type'] ?? '';
               _colorController.text = carData['color'] ?? '';
@@ -82,7 +81,6 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
               if (carData["carImage"] != null) {
                 _carImageBytes = base64Decode(carData["carImage"]);
               }
-
             }
           });
         } else {
@@ -96,8 +94,6 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
     }
   }
 
-
-
   void displayToast(String message) {
     Fluttertoast.showToast(
       msg: message,
@@ -109,8 +105,6 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
       fontSize: 18.0,
     );
   }
-
-
 
   Future<List<int>> fetchImageBytes(String imageUrl) async {
     final response = await http.get(Uri.parse(imageUrl));
@@ -141,6 +135,21 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (_profileImageBytes != null)
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.orange,
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.memory(
+                      _profileImageBytes!,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              SizedBox(height: 20),
               if (_carImageBytes != null)
                 Container(
                   decoration: BoxDecoration(
@@ -182,7 +191,7 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
                 controller: _plateNumController,
                 decoration: const InputDecoration(
                   labelText: 'Plate Num',
-                  prefixIcon: Icon(Icons.confirmation_num_outlined,color: Colors.orange,),
+                  prefixIcon: Icon(Icons.confirmation_num_outlined, color: Colors.orange),
                   labelStyle: TextStyle(
                     color: Colors.orange,
                   ),
@@ -196,7 +205,7 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
                 controller: _rideTypeController,
                 decoration: const InputDecoration(
                   labelText: 'Ride_Type',
-                  prefixIcon: Icon(Icons.numbers,color: Colors.orange,),
+                  prefixIcon: Icon(Icons.numbers, color: Colors.orange),
                   labelStyle: TextStyle(
                     color: Colors.orange,
                   ),
@@ -218,22 +227,21 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
                           color: Colors.orange,
                         ),
                         border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(Icons.color_lens,color: Colors.orange,),
+                        prefixIcon: const Icon(Icons.color_lens, color: Colors.orange),
                       ),
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
                       controller: _carModelController,
                       textInputAction: TextInputAction.next,
-                      onChanged: (password) {
-                      },
+                      onChanged: (password) {},
                       decoration: InputDecoration(
                         labelText: 'Car Model',
                         labelStyle: const TextStyle(
                           color: Colors.orange,
                         ),
                         border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(Icons.directions_car,color: Colors.orange,),
+                        prefixIcon: const Icon(Icons.directions_car, color: Colors.orange),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -247,23 +255,10 @@ class _ProfilePageDriverState extends State<ProfilePageDriver> {
                           color: Colors.orange,
                         ),
                         border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(Icons.front_loader,color: Colors.orange,),
+                        prefixIcon: const Icon(Icons.front_loader, color: Colors.orange),
                       ),
                     ),
                   ],
-                ),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => PasswordChange()),
-                  );
-                },
-                child: Text('Password Change'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
                 ),
               ),
             ],

@@ -89,7 +89,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildDetailItem('Order Id', widget.order.requestId),
+                    //_buildDetailItem('Order Id', widget.order.requestId),
                     _buildDetailItem('Pick Up Location', widget.order.pickUpLocation),
                     _buildDetailItem('Drop Off Location', widget.order.dropOffLocation),
                     _buildDetailItem('Time Stamp On Creation', widget.order.timeStampOnCreation),
@@ -130,6 +130,16 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                   toastLength: Toast.LENGTH_SHORT,
                                   gravity: ToastGravity.BOTTOM,
                                   backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0,
+                                );
+                              }
+                             else if (widget.order.startTripTime.isNotEmpty) {
+                                Fluttertoast.showToast(
+                                  msg: 'Trip has already started.',
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  backgroundColor: Colors.blue,
                                   textColor: Colors.white,
                                   fontSize: 16.0,
                                 );

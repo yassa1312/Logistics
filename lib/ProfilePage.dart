@@ -408,6 +408,7 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(height: 10),
               TextFormField(
                 controller: _phoneNumberController,
+                maxLength: 11,
                 decoration: InputDecoration(
                   labelText: 'Phone Number',
                   prefixIcon: Icon(Icons.phone, color: Colors.orange),

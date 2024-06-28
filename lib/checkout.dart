@@ -18,6 +18,8 @@ class CheckoutPage extends StatefulWidget {
   final String selectedType;
   final String selectedCapacity;
   final String totalCost;
+  String? data;
+  String?time;
 
   CheckoutPage({
     required this.sourceLocation,
@@ -26,6 +28,8 @@ class CheckoutPage extends StatefulWidget {
     required this.selectedType,
     required this.selectedCapacity,
     required this.totalCost,
+    this.data,
+    this.time,
   });
 
   @override
@@ -75,6 +79,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
               const SizedBox(height: 10),
               Text('Selected Capacity: ${widget.selectedCapacity} Ton', style: TextStyle(fontSize: 18)),
               const SizedBox(height: 10),
+             // Text('Selected data: ${widget.data}', style: TextStyle(fontSize: 18)),
+             // const SizedBox(height: 10),
+              // Text('Selected time: ${widget.time}', style: TextStyle(fontSize: 18)),
+              //const SizedBox(height: 10),
               Text('Total Cost: ${widget.totalCost} EGP', style: TextStyle(fontSize: 18)),
               const SizedBox(height: 20),
               Text(

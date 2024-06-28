@@ -163,7 +163,7 @@ class _OrdersPageState extends State<OrdersPage> {
         startTripTime: '',
         endTripTime: '',
         rideType: 'Normal', finished: true,
-        cancel: true,
+        cancel: false,
         cost: 10, rating: 0,
 
       ),
@@ -175,7 +175,7 @@ class _OrdersPageState extends State<OrdersPage> {
         timeStampOnCreation: '2022-04-11 12:00:00',
         startTripTime: '',
         endTripTime: '',
-        rideType: 'Premium', finished: false,cost: 10,rating: 0,cancel: true,
+        rideType: 'Premium', finished: false,cost: 10,rating: 0,cancel: false,
       ),
       Order(
         requestId: '3',
@@ -185,7 +185,7 @@ class _OrdersPageState extends State<OrdersPage> {
         timeStampOnCreation: '2022-04-11 12:00:00',
         startTripTime: '2022-04-10 10:00:00',
         endTripTime: '',
-        rideType: 'Premium', finished: false,cost: 10,rating: 0,cancel: true,
+        rideType: 'Premium', finished: false,cost: 10,rating: 0,cancel: false,
       ),
       Order(
         requestId: '4',
@@ -195,7 +195,7 @@ class _OrdersPageState extends State<OrdersPage> {
         timeStampOnCreation: '2022-04-11 12:00:00',
         startTripTime: '2022-04-10 10:00:00',
         endTripTime: '2022-04-10 10:00:00',
-        rideType: 'Premium', finished: false,cost: 10,rating: 0,cancel: true,
+        rideType: 'Premium', finished: false,cost: 10,rating: 0,cancel: false,
       ),
       Order(
         requestId: '5',
@@ -208,7 +208,7 @@ class _OrdersPageState extends State<OrdersPage> {
         rideType: 'Premium',
         finished: false,
         cost: 10,
-        rating: 5,cancel: true,
+        rating: 0,cancel: false,
       ),
 
       // Add more dummy orders as needed
@@ -296,7 +296,7 @@ class OrderTile extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildOrderInfo('Request ID:', order.requestId),
+              //_buildOrderInfo('Request ID:', order.requestId),
               if (order.driverName != null) _buildOrderInfo('Driver Name:', order.driverName!),
               if (order.driverPhone != null) _buildOrderInfo('Driver Phone:', order.driverPhone!),
               MapLocationWidget(

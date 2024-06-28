@@ -35,7 +35,7 @@ class _EndTripPageState extends State<EndTripPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailItem('Request Id', widget.requestId),
+            //_buildDetailItem('Request Id', widget.requestId),
             SizedBox(height: 20),
             TextField(
               onChanged: (value) {

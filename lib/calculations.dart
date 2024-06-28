@@ -14,7 +14,12 @@ class SelectedTruckController extends ChangeNotifier {
 
 class CostCalculator {
   static const Map<String, double> locationCosts = {
-
+    'modern academy maadi-metro maadi':70,
+    'metro maadi-modern academy maadi':70,
+    'metro maadi-metro cairo university':120,
+    'metro cairo university-metro maadi':120,
+    'modern academy maadi-metro cairo university':150,
+    'metro cairo university-modern academy maadi':150,
     'Haram-Ramses': 170,
     'Haram-Asher': 360,
     'Haram-October': 120,
@@ -87,7 +92,8 @@ class _CalculationPageState extends State<CalculationPage> {
   String selectedTruckKey = '';
   String SelectedLocation = 'Select source';
   String SelectedLocation2 = 'Select destination';
-
+  String _selectedDate = 'Select data';
+  String _selectedTime = 'Select Time';
   bool isInsuredTransportation = false;
   bool isTakeCare = false;
   bool isExtraWrapping = false;
@@ -118,6 +124,30 @@ class _CalculationPageState extends State<CalculationPage> {
   String getTruckKey(String shipmentType, String capacity) {
     return '\$shipmentType\$capacity';
   }
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2020, 8),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != DateTime.now())
+      setState(() {
+        _selectedDate = "${picked.toLocal()}".split(' ')[0];
+      });
+  }
+
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (picked != null && picked != TimeOfDay.now())
+      setState(() {
+        _selectedTime = picked.format(context);
+      });
+  }
+
 
   void updateSelectedTruck() {
     String key = getTruckKey(ShipmentType, SelectedCapacity);
@@ -127,6 +157,9 @@ class _CalculationPageState extends State<CalculationPage> {
   }
 
   final List<String> pickUpList = [
+    'modern academy maadi',
+    'metro maadi',
+    'metro cairo university',
     'October',
     'Haram',
     'Ramses',
@@ -211,115 +244,73 @@ class _CalculationPageState extends State<CalculationPage> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('Currently not available'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
-                                  },
-                                  child: Text('OK'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: Colors.orange.withOpacity(0.7),
-                        ),
-                        padding:
-                        EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  right: 4.0), // Add padding here
-                              child: Icon(
-                                Icons.schedule,
-                                color: Colors.white,
-                              ),
-                            ),
-                            Text(
-                              'Pick-up now',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            Icon(
-                              Icons.keyboard_arrow_down,
-                              color: Colors.white,
-                            ),
-                          ],
-                        ),
-                      ),
+              Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                GestureDetector(
+                  onTap: () => _selectDate(context),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.orange.withOpacity(0.7),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('Currently not available'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
-                                  },
-                                  child: Text('OK'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: Colors.orange.withOpacity(0.7),
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 4.0),
+                          child: Icon(
+                            Icons.date_range_outlined,
+                            color: Colors.white,
+                          ),
                         ),
-                        padding:
-                        EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  right: 4.0), // Add padding here
-                              child: Icon(
-                                Icons.arrow_forward,
-                                color: Colors.white,
-                              ),
-                            ),
-                            Text(
-                              'One way',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            Icon(
-                              Icons.keyboard_arrow_down,
-                              color: Colors.white,
-                            ),
-                          ],
+                        Text(
+                          _selectedDate,
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
                         ),
-                      ),
-                    )
-                  ],
+                        Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
+                GestureDetector(
+                  onTap: () => _selectTime(context),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.orange.withOpacity(0.7),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 4.0),
+                          child: Icon(
+                            Icons.access_time_outlined,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          _selectedTime,
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                        Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
                 SizedBox(height: 20),
                 Text(
                   'Select from our list of available pick-up locations:',
@@ -727,6 +718,8 @@ class _CalculationPageState extends State<CalculationPage> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => CheckoutPage(
+                                      data: _selectedDate,
+                                      time: _selectedTime,
                                       sourceLocation: SelectedLocation,
                                       destinationLocation: SelectedLocation2,
                                       selectedTruck: selectedTruck,

@@ -34,14 +34,14 @@ class Order {
       requestId: json['request_Id'] ?? '',
       pickUpLocation: json['pick_Up_Location'],
       dropOffLocation: json['drop_Off_Location'],
-      cost: json['cost'] ?? 0,
-      comment: json['comment'],
-      canceled_By: json['canceled_By'],
-      rating: json['rating'] ?? 0,
       endTripTime: json['end_Trip_Time'] != null
           ? DateTime.parse(json['end_Trip_Time']).toString()
           : '',
       finished: json['finished'] ?? false,
+      comment: json['comment'],
+      canceled_By: json['canceled_By'],
+      rating: json['rating'] ?? 0,
+      cost: json['cost'] ?? 0,
     );
   }
 }
@@ -225,7 +225,7 @@ class _ActivityState extends State<Activity> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildOrderInfo('Request ID:', order.requestId),
+                //_buildOrderInfo('Request ID:', order.requestId),
                 // Display pickUpLocation if available
                 MapLocationWidget(
                   locationLabel: 'Pick Up Location:',
