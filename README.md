@@ -10,7 +10,8 @@ A new Flutter project.
 ![Screenshot 2024-05-17 214311](https://github.com/yassa1312/Logistics/assets/139929196/8097928e-50ae-42ec-82b2-4152c26fba8e)![Screenshot 2024-05-17 214322](https://github.com/yassa1312/Logistics/assets/139929196/d11535b2-286a-42eb-9000-dd793cc1426b)
 ![Screenshot 2024-05-17 214338](https://github.com/yassa1312/Logistics/assets/139929196/a59b976e-7b4d-45d8-972f-028253081b41)![Screenshot 2024-05-17 221257](https://github.com/yassa1312/Logistics/assets/139929196/2f5c7d93-ba4d-4d9f-ac4b-854b3db42095)
 ![Screenshot 2024-05-17 221435](https://github.com/yassa1312/Logistics/assets/139929196/48d1deb6-1a9e-4921-9068-e2d0dc970179)![Screenshot 2024-05-17 221130](https://github.com/yassa1312/Logistics/assets/139929196/ea8d1482-1276-44b5-acc6-1d46ca57e6a9)
-![Screenshot 2024-05-17 221554](https://github.com/yassa1312/Logistics/assets/139929196/24a07b2e-e283-4709-8c88-e3493a631952)
+![Screenshot 2024-05-17 221554](https://github.com/yassa1312/Logistics/assets/139929196/24a07b2e-e283-4709-8c88-e3493a631952)![Screenshot 2024-07-06 020804](https://github.com/yassa1312/Logistics/assets/139929196/5c19b2ea-86ba-49e5-875e-d54ccd0f3385)
+
 
 
 
