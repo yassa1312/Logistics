@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logistics/ForgotPassword.dart';
 import 'package:logistics/LoginScreen.dart';
 import 'package:http/http.dart' as http;
+import 'package:logistics/auth_service.dart';
 
 
 class ResetPassword extends StatelessWidget {
@@ -9,7 +10,8 @@ class ResetPassword extends StatelessWidget {
 
   void _showPasswordResetDialog(BuildContext context, String email) async {
     // Make the API call to send password reset email
-    var apiUrl = 'http://logistics-api-8.somee.com/api/Account/ForgotPassword/$email';
+    String? baseUrl = await AuthService.getURL();
+    var apiUrl = '$baseUrl/api/Account/ForgotPassword/$email';
 
     try {
       var response = await http.post(
