@@ -445,7 +445,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () {
                   confirmEmailCode();
                 },
-
                 child: Text('Confirm Email'),
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white, backgroundColor: Colors.orange, // Text color
